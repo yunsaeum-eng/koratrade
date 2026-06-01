@@ -1,0 +1,25 @@
+Delete all existing code in this project and rebuild KoraTrade completely from scratch based on koratrade_master_spec.md.
+
+Read koratrade_master_spec.md first and implement everything in it.
+
+The single most important thing is the LEARNING DESIGN:
+- Every mission must have a 3-step buildup (Seed → Need → Action)
+- All documents must be realistic athleisure industry quality with real numbers
+- Mission completion must be detected automatically by Claude API, never manually by user
+- Each episode has exactly 5 core expressions that appear minimum 3 times
+- Email writing missions must have AI grading with specific rubric (80 points to pass)
+
+Build in this exact order:
+1. API routes first: /api/chat (NPC responses), /api/mission-check (auto detection), /api/document (generate real documents), /api/grade-email (grade user emails)
+2. Test API with a simple message to James and verify he responds naturally to what was said
+3. Onboarding flow
+4. Commute screen  
+5. Main chat with working real-time NPC
+6. Right sidebar with learning objectives and expressions
+7. Progress page with full S1 curriculum
+8. Notes, Characters pages
+
+Critical verification before considering anything done:
+Send "회사 소개 자료 어디있어요?" to James → James must answer naturally AND company profile document must appear as clickable card → clicking opens real generated document with actual KoraTrade athleisure brand content.
+
+The company is now KoraTrade Inc., a Korean athleisure brand (not auto parts). Products are leggings, running wear, yoga wear. Main buyer is Sophie Beaumont (French buyer, Galeries Lafayette) not Klaus Muller.

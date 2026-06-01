@@ -1,0 +1,24 @@
+Update src/config/characters.ts. Change all crop file paths to use space before "crop" not underscore. The actual files on disk use spaces not underscores.
+
+Replace the entire characters.ts file with this exact content:
+
+export const CHARACTER_IMAGES = {
+  sarah: { full: '/characters/sarah.png', crop: '/characters/sarah crop.png', bg: '#EEF2F8', accent: '#C5D5E8' },
+  james: { full: '/characters/james.png', crop: '/characters/james crop.png', bg: '#E8F4FF', accent: '#B8D8F0' },
+  lisa: { full: '/characters/lisa.png', crop: '/characters/lisa crop.png', bg: '#F0F5E8', accent: '#C8DDB0' },
+  min: { full: '/characters/min.png', crop: '/characters/min crop.png', bg: '#FFF5E8', accent: '#F0D5B0' },
+  park: { full: '/characters/park.png', crop: '/characters/park crop.png', bg: '#F0EEF5', accent: '#D0C8E0' },
+  sophie: { full: '/characters/sophie.png', crop: '/characters/sophie crop.png', bg: '#FFF8EE', accent: '#E8D8B8' },
+  user_female: { full: '/characters/user_female.png', crop: '/characters/user_female crop.png', bg: '#F5EEF8', accent: '#DCC8E8' },
+  user_male: { full: '/characters/user_male.png', crop: '/characters/user_male crop.png', bg: '#EEF5F0', accent: '#B8DCC0' },
+}
+
+Also rename all crop files in public/characters/ to use space instead of underscore before crop:
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/sarah_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/sarah crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/james_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/james crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/lisa_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/lisa crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/min_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/min crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/park_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/park crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/sophie_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/sophie crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/user_female_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/user_female crop.png"
+mv "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/user_male_crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/user_male crop.png"

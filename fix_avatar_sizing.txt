@@ -1,0 +1,65 @@
+Fix three issues with character avatar display.
+
+ISSUE 1 — AVATAR SIZE STANDARDIZATION
+The reference standard is 박철수 과장's avatar appearance in the sidebar. All other characters must match this size and zoom level.
+
+Currently:
+- Min Choi: too zoomed in, face is too large and gets cut off
+- James, Sarah, Lisa, User: too small/zoomed out compared to Park
+
+Fix by using these exact CSS values for ALL circular avatars throughout the app (sidebar, commute screen, chat bubbles, chat header):
+
+Container:
+  width: 44px
+  height: 44px
+  border-radius: 50%
+  overflow: hidden
+  flex-shrink: 0
+
+Image inside container:
+  width: 100%
+  height: 180%
+  object-fit: cover
+  object-position: center 8%
+  image-rendering: pixelated
+  display: block
+
+The key values are height: 180% and object-position: center 8%.
+This shows the upper portion of the character (face + shoulders) centered in the circle.
+Apply these EXACT same values to every single avatar in the app — do not use different values for different characters. The same CSS must apply to all characters consistently.
+
+ISSUE 2 — COMMUTE SCREEN MIN CHOI STILL ZOOMED IN
+On the commute screen (출근화면), Min Choi's image card still shows a zoomed-in face.
+The commute screen uses rectangular cards (not circles) for NPC images.
+Apply this CSS to ALL commute screen NPC image cards including Min:
+
+Container:
+  width: 80px
+  height: 90px
+  overflow: hidden
+  border-radius: 8px
+  flex-shrink: 0
+
+Image:
+  width: 100%
+  height: 140%
+  object-fit: cover
+  object-position: center 5%
+  image-rendering: pixelated
+  display: block
+
+ISSUE 3 — USER PROFILE MODAL SHOWS EMOJI INSTEAD OF CHARACTER IMAGE
+When user clicks their profile at the bottom of the sidebar, a modal opens showing an emoji avatar instead of the pixel art character image.
+
+Fix: In the user profile modal component, replace the emoji display with the user's selected character image.
+
+The user's selected avatar is stored in localStorage as either 'user_female' or 'user_male' in the profile data.
+
+In the profile modal header where the avatar is shown:
+- Get the user's avatar choice from localStorage profile data
+- If avatar is 'user_female', show: <img src="/characters/user_female_crop.png" />
+- If avatar is 'user_male', show: <img src="/characters/user_male_crop.png" />
+- Apply the same circular crop CSS as issue 1 but at larger size (64x64px)
+- Use height: 180%, object-position: center 8%
+
+Also fix the user avatar shown at the bottom of the left sidebar (the small circular one next to the username) to use the same character image instead of emoji.

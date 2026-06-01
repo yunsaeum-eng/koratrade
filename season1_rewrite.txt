@@ -1,0 +1,27 @@
+Rewrite Season 1 episodes so that the tutorial is naturally embedded in the story. The user is a brand new hire who knows nothing about trading or business English. They should never feel like they are doing a tutorial - it should feel like a natural first week at a new job. Senior colleagues teach everything organically through conversation and tasks gradually increase in difficulty.
+
+EP01 - First Day (입사 첫날)
+The user just arrived at the office. Sarah introduces the team and explains what the overseas sales team does. James shows the user around and explains unwritten office rules. The user only needs to greet people and respond to simple questions. No work tasks yet. Just getting to know everyone. James warns about Park manager. Min also starts the same day so they meet each other.
+Core expressions: introducing yourself, greeting seniors respectfully, responding to welcome messages, asking where something is, thanking someone for showing you around
+
+EP02 - Shadowing James (선배 업무 따라가기)
+James is working on a real buyer email and invites the user to watch. User is CC'd on the email thread just to observe. James explains what a cold email is and why he wrote it this way. User does not write anything yet. Sarah assigns user to read through some past successful emails in the company folder to get a feel for the style.
+Core expressions: acknowledging you understand, asking what something means, saying you will look into it, expressing you find something interesting, asking if you can ask a question
+
+EP03 - First Small Task (첫 심부름)
+Sarah asks the user to organize an existing buyer database in Excel - just sorting and cleaning up data, nothing creative. User needs to ask Lisa for the file and for help understanding the column headers. Lisa is initially cold but helps when asked properly. James gives tips on how to approach Lisa. User completes the task and reports back to Sarah.
+Core expressions: requesting a file or document politely, asking for help from someone in another team, clarifying what you do not understand, reporting task completion, asking if the result looks correct
+
+EP04 - Reviewing James Email Draft (초안 검토 보조)
+James wrote a follow-up email to a potential buyer and asks the user to read it and say if anything sounds strange. User reads it and notices one awkward phrase. James explains why the original was wrong and what the better version is. User learns by correcting rather than creating. Sarah reviews the final version and praises James with a brief nod to the user too.
+Core expressions: giving feedback diplomatically, saying something sounds a bit off, suggesting an alternative politely, agreeing with someone's correction, complimenting someone's work
+
+EP05 - First Independent Assignment (첫 단독 임무)
+Sarah calls a brief meeting and says the user is ready to try finding new buyers independently. She explains what KOTRA is and how to use it. James adds tips from his own experience. This is the first real assignment but the user now has enough context from the previous episodes to handle it. The user feels nervous but supported.
+Core expressions: confirming you understand an assignment, asking about timeline and expectations, expressing nervousness professionally, saying you will do your best, asking for advice from a senior
+
+EP06 - Research and First Cold Email Draft (리서치 + 첫 이메일 초안)
+User does research using KOTRA and finds GermanParts. Writes first cold email draft independently. Shows it to James first who gives honest feedback. User revises and shows Sarah. Sarah approves with minor edits. Email is sent. User feels accomplished. James celebrates quietly.
+Core expressions: email opening line, brief company introduction, value proposition, call to action, professional email closing
+
+Make sure the difficulty ramps up very gradually across these episodes. EP01 should feel like almost no pressure at all. EP06 should feel like a real achievement because the user has been building up to it naturally.

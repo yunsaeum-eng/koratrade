@@ -1,0 +1,42 @@
+Fix these two issues:
+
+ISSUE 1 — OFFER LETTER DATE
+The offer letter shown after signup always shows an old hardcoded date instead of today's date.
+
+Fix: In the onboarding offer letter component, replace any hardcoded date with dynamically generated current date.
+
+Use this code to get today's date in Korean format:
+const today = new Date();
+const year = today.getFullYear();
+const month = today.getMonth() + 1;
+const day = today.getDate();
+const formattedDate = `${year}년 ${month}월 ${day}일`;
+
+The offer letter must show:
+- 입사 예정일: [today's date in Korean format] 월요일 09:00
+- 작성일: [today's date]
+
+Every time a new user signs up and reaches the offer letter screen, it must show the actual current date, not a stored or hardcoded date.
+
+ISSUE 2 — NPC CONVERSATION STRUCTURE
+Confirm and implement the final hybrid conversation design:
+
+SCRIPT MODE (during story progression):
+- NPC dialogue follows pre-written script for the current episode phase
+- User sees multiple choice buttons (A, B, C options)
+- Each choice leads to different NPC reaction and affects relationship score
+- Story advances based on choices
+- Script content must match exactly the current episode context (EP01 = first day only)
+
+FREE INPUT MODE (during core practice missions):
+- Email writing: blank form, user writes freely, Claude API grades
+- Buyer communication: user types freely in English, Claude API responds as buyer
+- Casual chat: user can type anything, Claude API responds as NPC naturally
+
+TRANSITION between modes:
+- Game automatically switches between script and free input based on current phase
+- Script mode: shows choice buttons, hides text input
+- Free input mode: shows text input, hides choice buttons
+- Email mode: shows email form interface
+
+IMPORTANT: In script mode, NPC lines must be strictly limited to current episode context. EP01 script NPCs can ONLY discuss: first day greetings, office tour, team introductions, first task assignment. Nothing about buyers, markets, or future work.

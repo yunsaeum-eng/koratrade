@@ -1,0 +1,16 @@
+Fix the company profile document being sent multiple times in the same conversation.
+
+Add a document tracking system:
+- Keep a record in localStorage or component state of which documents have already been sent in each chat room
+- Before sending any document attachment, check if that document was already sent in this conversation
+- If already sent, do not send again
+- A document should only appear once per conversation session
+
+Also fix: if the same NPC trigger condition fires multiple times (e.g. user asks about company profile twice), the document card should only appear the first time. Second time, James should just say something like "I already sent that — scroll up to find it" instead of sending the document again.
+
+Implement a simple documentsSent set per chat room:
+const [documentsSent, setDocumentsSent] = useState<Set<string>>(new Set())
+
+Before triggering document generation, check:
+if (documentsSent.has(documentType)) return // already sent
+setDocumentsSent(prev => new Set([...prev, documentType]))

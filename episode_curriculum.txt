@@ -1,0 +1,42 @@
+Redesign the episode structure for 60-90 minutes of daily gameplay with 5 phases:
+
+PHASE 1 - Morning Briefing (10 min): commute screen, group chat check, situation briefing
+
+PHASE 2 - Internal Communication (20 min): casual chat with James where expressions appear naturally in conversation, brief exchanges with Min or Lisa, occasional team group chat event
+
+PHASE 3 - Core Work Mission (25 min): actual work task like writing email or reviewing documents, expressions used 2-3 more times in context, Sarah gives feedback, mid-episode conflict or unexpected event happens
+
+PHASE 4 - Buyer Communication (15 min): email or chat with Klaus or other buyer in English, user applies learned expressions in real context, Claude AI responds as buyer in real time
+
+PHASE 5 - Wrap Up (10 min): end of day chat with colleagues, daily summary showing XP earned, expressions mastered, relationship changes, tomorrow cliffhanger preview
+
+Key learning design rules:
+- Each episode has exactly 5 core expressions
+- Each expression must appear minimum 3 times within the episode in different contexts
+- First appearance: NPC uses it naturally in dialogue as exposure
+- Second appearance: hint popup explains it when user needs to respond
+- Third appearance: user must use it themselves in simulation or buyer chat
+- Fourth and fifth appearances are bonus in different phrasing to show versatility
+- Game clock runs from 09:00 to 18:00 over the full episode duration
+- Clock advances based on phase completion not real time
+- Episode should feel like a full workday not a quick quiz
+
+Implement the full Season 1 episode curriculum:
+
+EP01 Team intro and first task assignment:
+Core expressions: self-introduction, asking for help politely, confirming task details, recovering from mistakes, accepting work professionally
+
+EP02 Office rules and DB organization assistance:
+Core expressions: asking for clarification without seeming incompetent, expressing opinions carefully to seniors, admitting you do not know something, saying thank you professionally, reporting progress to superior
+
+EP03 KOTRA research and buyer list draft:
+Core expressions: requesting materials or data, explaining market conditions, introducing your company briefly, describing target customers, making a suggestion to your team
+
+EP04 Cold email draft writing:
+Core expressions: professional email opening, concise company introduction, value proposition with numbers, clear call to action, professional email closing
+
+EP05 Follow-up and handling two weeks of silence:
+Core expressions: following up politely without pressure, adding new value in follow-up, timing follow-ups correctly, staying persistent without being annoying, handling no-reply situations
+
+EP06 Klaus first reply and catalogue sending:
+Core expressions: grateful professional reply, attaching documents with proper explanation, providing additional relevant info, suggesting a meeting naturally, maintaining buyer interest after first contact

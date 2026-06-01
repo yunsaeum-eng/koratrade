@@ -1,0 +1,67 @@
+Implement the following two things:
+
+PART 1 — EPISODE PROGRESS MAP LAYOUT
+
+Add episode progress tracking in two places:
+
+1. On the commute screen (daily login screen), add a section below the NPC status cards showing:
+- Current season badge and title
+- Mini episode progress bar (e.g. EP 3/7 completed)
+- Today's episode card highlighted with "진행중" badge
+- Tapping it shows a compact season map with all 7 episodes as small icons
+
+2. Add a new page at /progress accessible from the left sidebar navigation with a new icon (map or trophy icon)
+- Left sidebar nav now has: Chat, Notes, People, Progress
+- Progress page shows full season map with all seasons
+- Season 1 is expanded showing all 7 episodes
+- Season 2 and beyond are locked until previous season complete
+- Each episode card shows: number, icon, title, completion status (done/active/locked)
+- Completed episodes show green checkmark
+- Current episode shows gold border and "진행중" badge
+- Locked episodes show padlock and are grayed out
+
+PART 2 — SEASON 1 FULL EPISODE CURRICULUM (7 episodes, ~60 minutes each)
+
+Each episode must feel like a full workday with rich content, not just a simple introduction. Minimum content per episode: 15+ NPC messages, 5 core expressions used 3+ times each, one unexpected event or conflict, one meaningful personal conversation.
+
+EP01 — 첫날 (Tutorial wrapped in story):
+Story: User arrives first day. James greets enthusiastically and gives office tour. Sarah gives brief formal welcome. Min introduces himself nervously. Lisa barely acknowledges. Park manager makes one dismissive comment.
+Tutorial elements woven into story naturally: James explains how to use hint button while showing around, Min demonstrates expression cards while studying together, group chat notification teaches team chat, Sarah assigns first tiny task (read company profile) which introduces work notes
+Core expressions: Nice to meet you I am new to the team / Could you show me how this works / Thank you so much for your help / I will get right on it / Just to confirm I should finish this by end of day correct
+Unexpected event: James accidentally sends a meme to the whole company group chat instead of personal chat. Office chaos for 10 minutes.
+
+EP02 — 첫주 생존기 (First week survival):
+Story: User navigates first week. Conflict with Park manager over supply timeline. Lisa corrects user document mistake coldly but then helps fix it. Min confesses he has no idea what he is doing either. James shares insider office politics.
+Work content: Attend first team meeting (Sarah leads, everyone reports), learn company product basics, organize first database task, make first mistake and recover
+Core expressions: I apologize I will make sure this does not happen again / Could you walk me through this process / I am not entirely sure let me double check / Would it be alright if I asked you a question / I want to make sure I understand correctly
+Unexpected event: Park manager and Sarah have visible tension during team meeting. Nobody explains why.
+
+EP03 — 첫 업무 지시 (First real assignment):
+Story: Sarah assigns buyer research task. James explains KOTRA and how to use it. Min gets same task creating rivalry. User learns basic market research workflow.
+Work content: Access KOTRA global window, search by country and industry, verify buyer credibility criteria (website, employee count, purchase history), create structured buyer candidate list
+Core expressions: I came across this company while researching / Based on their profile I believe there may be strong synergy / Could you share any reports on this market / I have identified three potential candidates / I would like to get your feedback before proceeding
+Unexpected event: Min submits his list early but Sarah points out one company went bankrupt last year. User learns quality beats speed.
+
+EP04 — 바이어 발굴 (Buyer discovery):
+Story: User finds GermanParts while researching. Notices Klaus Muller as purchasing manager. Shows Sarah who has a strange reaction she does not explain. James says he has heard that name somewhere.
+Work content: Deep research on GermanParts (company history, products, recent news), build buyer profile (decision maker name, contact, purchase patterns), LinkedIn research strategy, verify with industry associations
+Core expressions: I noticed that this company specializes in / Their recent expansion into suggests strong demand / I found the decision maker is / Based on my research I recommend targeting / Would it be worth reaching out to this contact
+Unexpected event: While researching Klaus on LinkedIn, user sees he and Sarah have 1 mutual connection. Neither Sarah nor James will explain when asked.
+
+EP05 — 콜드 이메일 (Cold email):
+Story: User writes first cold email to GermanParts. Shows James who rewrites half of it. Shows Sarah who covers it in corrections. User rewrites three times. Finally sends.
+Work content: Cold email structure (hook opening, connection point, value proposition with numbers, single clear CTA), what not to write (I hope this email finds you well), subject line strategy, timing of send
+Core expressions: I noticed that GermanParts specializes in precision components which aligns with what we supply / I will keep this brief our clients typically see significant cost reduction / Would you be open to a brief call this week to explore whether there is a fit / Please find attached our company overview and relevant certifications / I look forward to hearing from you
+Unexpected event: Right after sending, James realizes user forgot to attach the company brochure mentioned in the email. Panic. Send follow-up immediately or wait?
+
+EP06 — 침묵과 팔로업 (Silence and follow-up):
+Story: Two weeks pass with no reply. Min gets a reply from his buyer first. User feels frustrated and jealous but congratulates Min. James coaches on follow-up strategy. Park manager overhears and for the first time gives one piece of useful advice without being asked.
+Work content: Follow-up email strategy (when to send, what to add), adding new value not repeating same pitch, maximum 3 follow-up rule, handling permanent no-reply, diversifying outreach to multiple buyers
+Core expressions: I wanted to follow up on my previous email I understand you are likely very busy / I thought this case study might be relevant to your current priorities / If now is not the right time I am happy to reconnect whenever suits you / I have also reached out to two additional companies in the meantime / Would a 15 minute call this week work for a quick introduction
+Unexpected event: Park manager tells user quietly that he once lost a major deal by following up too aggressively. First time he has shared anything personal.
+
+EP07 — Klaus 첫 회신! (First reply from Klaus, Season 1 finale):
+Story: After 18 days of silence, Klaus sends a short cold reply asking for catalogue and certifications. Sarah sees the name and goes quiet. James is excited but warns Klaus is famously difficult. User prepares perfect response.
+Work content: How to respond to a positive but brief buyer reply, catalogue email structure, covering email for attachments, setting up next steps, managing expectations
+Core expressions: Thank you for getting back to me Mr Muller / Please find attached our product catalogue and relevant certifications / Should you have any questions after reviewing I would be happy to arrange a call at your convenience / We look forward to the possibility of working together / I will follow up in one week if I have not heard back
+Season finale event: Sarah pulls user aside and says quietly that she knows Klaus from a previous job. She does not say more. James notices something is off. Season 1 complete animation plays. Season 2 unlocks.

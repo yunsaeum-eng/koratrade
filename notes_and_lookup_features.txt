@@ -1,0 +1,67 @@
+Implement these four features:
+
+FEATURE 1 — WORK NOTES EDIT AFTER SAVE
+In the Notes page, all saved items (terms, expressions, memos) must be editable after saving.
+- Every saved note item shows a small edit (✏️) icon on hover
+- Clicking edit icon makes the fields editable inline (not a separate page)
+- Show save and cancel buttons while editing
+- After saving edits, update localStorage immediately
+- This applies to: 용어집 entries, 표현 모음 entries, 내 메모 entries
+
+FEATURE 2 — INLINE EXPRESSION LOOKUP
+When reading NPC messages in the chat, user should be able to look up any word or phrase instantly without leaving the app.
+
+Two ways to trigger:
+A) Double-click any word in a chat bubble: instantly show a small popup tooltip above the word showing the Korean meaning and a brief usage note
+B) Select/highlight any phrase (1-6 words): show a floating action bar with two buttons: "뜻 보기" and "표현 모음에 추가"
+
+Tooltip design for double-click:
+- Small card appearing above the clicked word
+- Shows: word/phrase, Korean translation, one example sentence
+- Use Claude API to generate the translation and example in real time
+- Prompt: "The user double-clicked the word '[WORD]' in this business English context: '[SURROUNDING_TEXT]'. Provide: 1) Korean translation in 5 words or less, 2) one natural example sentence using this word. Respond in JSON: {korean: string, example: string}"
+- Card dismisses when clicking elsewhere
+- Has a small "+" button to add to 표현 모음
+
+Floating action bar for text selection:
+- Appears near the selected text when user finishes selecting
+- "🔍 뜻 보기" button: opens a slightly larger popup with full explanation
+- "📒 표현 모음에 추가" button: immediately saves the selected phrase to 표현 모음 in Notes
+- Larger popup shows: selected phrase, Korean meaning, usage context, similar expressions
+- Use Claude API: "Explain this business English phrase '[PHRASE]' from this context: '[CONTEXT]'. Provide Korean meaning, when to use it, and 2 similar expressions. Respond in JSON: {korean: string, usage: string, similar: string[]}"
+
+FEATURE 3 — DRAG TO SAVE EXPRESSION
+When user selects/highlights text in any chat bubble:
+- Show the floating action bar described above
+- "📒 표현 모음에 추가" saves immediately to Notes > 표현 모음 tab
+- Auto-tags the expression with the current NPC name and episode number
+- Shows a brief toast notification: "표현 저장됨 ✓"
+- The saved expression appears in Notes > 표현 모음 with:
+  - The expression text
+  - Source tag (e.g. "James · S1EP01")
+  - Auto-generated Korean meaning (from Claude API)
+  - Date saved
+  - Edit button (from Feature 1)
+
+FEATURE 4 — GRAMMAR CORRECTION (CLEAR ERRORS ONLY)
+After user sends a message, analyze it for clear grammatical errors only. Not style, not naturalness — only definite grammar mistakes.
+
+Examples of what to correct:
+- "I am very boring" → should be "I am very bored"
+- "She doesn't knows" → should be "She doesn't know"
+- "I have went there" → should be "I have gone there"
+- "Yesterday I go to" → should be "Yesterday I went to"
+
+Examples of what NOT to correct:
+- Informal style ("gonna", "wanna") — not an error
+- Slightly unnatural phrasing — not an error
+- Korean-influenced word order if meaning is clear — not an error
+
+Implementation:
+- After user sends a message, make a quick Claude API call: "Is there a clear grammatical error (not style, not naturalness, only definite grammar mistakes) in this sentence: '[USER_MESSAGE]'? If yes, respond with JSON: {hasError: true, original: string, corrected: string, explanation: string (in Korean, one sentence)}. If no clear error: {hasError: false}"
+- If hasError is true: show a small non-intrusive banner below the user's message bubble
+- Banner style: light yellow background, small text, shows: "💡 '[original]' → '[corrected]'" with a brief Korean explanation
+- Banner has an X button to dismiss
+- Banner appears only for clear errors, not for every message
+- Never show the banner when user is writing to Klaus in formal email style (different standards apply)
+- Grammar correction does NOT affect the NPC's response — NPC responds to the meaning regardless of grammar

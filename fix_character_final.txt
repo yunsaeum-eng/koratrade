@@ -1,0 +1,104 @@
+Fix character image mapping completely. Use the EXACT filenames from the NPC design folder.
+
+STEP 1 — COPY FILES WITH CORRECT NAMES
+Copy all files from "NPC design" folder to public/characters/ with these exact renamed paths:
+
+Full body:
+"sarah.png" → public/characters/sarah.png
+"lisa.png" → public/characters/lisa.png
+"james.png" → public/characters/james.png
+"min.png" → public/characters/min.png
+"sophie.png" → public/characters/sophie.png
+"user(f).png" → public/characters/user_female.png
+"user(m).png" → public/characters/user_male.png
+"박철수 과장.png" → public/characters/park.png
+
+Cropped:
+"sarah_크롭.png" → public/characters/sarah_crop.png
+"lisa_크롭.png" → public/characters/lisa_crop.png
+"james_크롭.png" → public/characters/james_crop.png
+"min_크롭.png" → public/characters/min_crop.png
+"sophie_크롭.png" → public/characters/sophie_crop.png
+"user(f)_크롭.png" → public/characters/user_female_crop.png
+"user(m)_크롭.png" → public/characters/user_male_crop.png
+"박철수 과장_크롭.png" → public/characters/park_crop.png
+
+STEP 2 — UPDATE characters.ts
+Update src/config/characters.ts with these exact paths:
+
+export const CHARACTER_IMAGES = {
+  sarah: {
+    full: '/characters/sarah.png',
+    crop: '/characters/sarah_crop.png',
+    bg: '#EEF2F8',
+    accent: '#C5D5E8'
+  },
+  james: {
+    full: '/characters/james.png',
+    crop: '/characters/james_crop.png',
+    bg: '#E8F4FF',
+    accent: '#B8D8F0'
+  },
+  lisa: {
+    full: '/characters/lisa.png',
+    crop: '/characters/lisa_crop.png',
+    bg: '#F0F5E8',
+    accent: '#C8DDB0'
+  },
+  min: {
+    full: '/characters/min.png',
+    crop: '/characters/min_crop.png',
+    bg: '#FFF5E8',
+    accent: '#F0D5B0'
+  },
+  park: {
+    full: '/characters/park.png',
+    crop: '/characters/park_crop.png',
+    bg: '#F0EEF5',
+    accent: '#D0C8E0'
+  },
+  sophie: {
+    full: '/characters/sophie.png',
+    crop: '/characters/sophie_crop.png',
+    bg: '#FFF8EE',
+    accent: '#E8D8B8'
+  },
+  user_female: {
+    full: '/characters/user_female.png',
+    crop: '/characters/user_female_crop.png',
+    bg: '#F5EEF8',
+    accent: '#DCC8E8'
+  },
+  user_male: {
+    full: '/characters/user_male.png',
+    crop: '/characters/user_male_crop.png',
+    bg: '#EEF5F0',
+    accent: '#B8DCC0'
+  }
+}
+
+STEP 3 — STRICT IMAGE USAGE RULES
+
+Use CHARACTER_IMAGES.[name].full (전신) ONLY in:
+- /characters page (인물 도감) character cards
+- /onboarding avatar selection screen (user_female and user_male only)
+
+Use CHARACTER_IMAGES.[name].crop (크롭) in ALL other locations:
+- Chat message avatars (말풍선 옆 프로필)
+- Left sidebar NPC list
+- Chat header (채팅 상단 상대방 프로필)
+- Commute screen NPC status cards (출근화면 팀원 현황)
+- User profile card at bottom of left sidebar
+- NPC hover tooltip popup
+
+STEP 4 — VERIFY AND FIX EACH COMPONENT
+Search every component that uses character images and confirm it is using .crop not .full.
+Specifically check:
+- ChatPane.tsx or equivalent: must use .crop
+- LeftSidebar.tsx or equivalent: must use .crop
+- CommutePage.tsx or equivalent: must use .crop
+- ChatHeader component: must use .crop
+- CharactersPage.tsx: must use .full
+- OnboardingPage.tsx: must use .full for avatar selection
+
+After making changes, verify by searching for any remaining references to the full body paths (sarah.png, james.png etc) outside of the characters page and onboarding. If found anywhere else, replace with crop version.

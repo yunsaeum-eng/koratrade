@@ -1,0 +1,14 @@
+Fix only the commute screen NPC status cards.
+
+The commute screen (/commute page) team status cards are currently showing full body images. Change them to use crop images instead.
+
+Find the commute screen component and update these image sources:
+- Sarah Kim: change to /characters/sarah_crop.png
+- James Park: change to /characters/james_crop.png
+- Lisa Lee: change to /characters/lisa_crop.png
+- Min Choi: change to /characters/min_crop.png
+- 박철수 과장: change to /characters/park_crop.png
+
+The CHARACTER_IMAGES config in src/config/characters.ts already has the crop paths defined as the .crop property for each character. Make sure the commute screen component is using CHARACTER_IMAGES.sarah.crop (not CHARACTER_IMAGES.sarah.full).
+
+Do not change anything else. Only fix the commute screen image sources.

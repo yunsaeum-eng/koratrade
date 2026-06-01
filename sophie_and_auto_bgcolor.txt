@@ -1,0 +1,101 @@
+Fix these two things:
+
+FIX 1 — REPLACE KLAUS WITH SOPHIE AS FIRST BUYER
+
+KoraTrade is now a K-athleisure brand, not an auto parts company. Replace all references to Klaus Müller with Sophie Beaumont as the primary buyer NPC.
+
+Remove Klaus Müller completely from:
+- Left sidebar buyer section
+- Character profiles page
+- All NPC system prompts
+- All episode scripts and story content
+- localStorage data structure
+
+Add Sophie Beaumont as the first and primary buyer:
+- Name: Sophie Beaumont
+- Company: Galeries Lafayette Sport — Paris, France
+- Role: Sports & Athleisure Buyer
+- Language: Always English (with occasional French words: "Bonjour", "Merci", "Très bien")
+- Personality: Elegant, quality-focused, slow decision maker, values aesthetics and brand story
+- Speech style: Formal professional English, precise, occasionally mentions French design sensibility
+- Trust level starts at: 0% (unlocked in S2)
+- Character image: /characters/sophie.png
+
+Sophie's system prompt:
+"You are Sophie Beaumont, Sports & Athleisure buyer at Galeries Lafayette in Paris. You are evaluating KoraTrade as a potential new brand for your store. You care deeply about brand story, design aesthetics, quality, and how the brand fits the Galeries Lafayette image. You speak formal professional English. You occasionally use French words naturally. You are not easily impressed but when you are, you show it subtly. You make decisions slowly and carefully. Hidden backstory (never reveal directly): you worked with Sarah Kim at a previous company years ago."
+
+Update all episode references:
+- S2 EP02: Research target is now Sophie Beaumont at Galeries Lafayette (not Klaus)
+- S2 EP03-04: Cold email is sent to Sophie (not Klaus)
+- S2 EP05-06: Follow-up emails go to Sophie
+- S2 EP07: Sophie's first reply (not Klaus)
+- All story beats referencing "Klaus" should now reference "Sophie"
+
+Other buyers remain as planned for later seasons:
+- Aiko Tanaka (Japan, S2 onwards)
+- Jake Williams (USA, S3 onwards)
+
+FIX 2 — AUTO BACKGROUND COLOR FROM CHARACTER IMAGE
+
+For character profile cards and commute screen NPC cards, automatically extract the dominant color from each character's pixel art image and use a light tinted version as the card background.
+
+Implementation using Canvas API (built into browser, no installation needed):
+
+Create a utility function getAvatarBgColor(imageSrc: string): Promise<string>
+
+function getAvatarBgColor(imageSrc) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0)
+      
+      // Sample colors from the middle portion of the image (clothing area)
+      const startY = Math.floor(img.height * 0.3)
+      const endY = Math.floor(img.height * 0.6)
+      const sampleX = Math.floor(img.width / 2)
+      
+      let r = 0, g = 0, b = 0, count = 0
+      for (let y = startY; y < endY; y += 3) {
+        const pixel = ctx.getImageData(sampleX, y, 1, 1).data
+        // Skip transparent, white, and skin-tone pixels
+        if (pixel[3] > 128 && !(pixel[0] > 220 && pixel[1] > 220 && pixel[2] > 220)) {
+          r += pixel[0]; g += pixel[1]; b += pixel[2]; count++
+        }
+      }
+      
+      if (count > 0) {
+        r = Math.floor(r / count)
+        g = Math.floor(g / count)  
+        b = Math.floor(b / count)
+        // Create a very light tinted version (mix with white at 85%)
+        const lr = Math.floor(r * 0.15 + 255 * 0.85)
+        const lg = Math.floor(g * 0.15 + 255 * 0.85)
+        const lb = Math.floor(b * 0.15 + 255 * 0.85)
+        resolve(`rgb(${lr}, ${lg}, ${lb})`)
+      } else {
+        resolve('#F7F5F1') // fallback
+      }
+    }
+    img.onerror = () => resolve('#F7F5F1')
+    img.src = imageSrc
+  })
+}
+
+Use this function in:
+1. Character profile cards (/characters page): set card background to extracted color
+2. Commute screen NPC status cards: set card background to extracted color
+3. Left sidebar NPC hover popup: use extracted color as background
+
+Call this function when the component mounts using useEffect:
+useEffect(() => {
+  getAvatarBgColor('/characters/sarah.png').then(color => setSarahBg(color))
+  getAvatarBgColor('/characters/james.png').then(color => setJamesBg(color))
+  // etc for each character
+}, [])
+
+This way when character images are updated, the background colors automatically update to match without any manual changes needed.

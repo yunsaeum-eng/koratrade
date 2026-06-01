@@ -1,0 +1,39 @@
+Fix these three issues:
+
+FIX 1 — COMMUTE SCREEN NPC CARDS
+Change commute screen team status cards to use crop images instead of full body.
+Use these exact files:
+- Sarah Kim → /characters/sarah_crop.png
+- James Park → /characters/james_crop.png
+- Lisa Lee → /characters/lisa_crop.png
+- Min Choi → /characters/min_crop.png
+- 박철수 과장 → /characters/park_crop.png
+- Sophie Beaumont → /characters/sophie_crop.png
+
+Image display in commute card:
+width: 64px
+height: 80px
+object-fit: cover
+object-position: top center
+image-rendering: pixelated
+border-radius: 8px (slight rounding, not full circle)
+
+FIX 2 — CHAT INPUT PLACEHOLDER TEXT
+The input placeholder currently shows "How will you respond?" in English even in Korean mode.
+
+Fix: check current language setting and show:
+- Korean mode (한국어): "메시지를 입력하세요..."
+- English mode (Eng): "Type a message..."
+
+Apply this to all chat input fields including group chat and DM chats.
+
+FIX 3 — JAMES FIRST MESSAGE
+James's opening message is too stiff and robotic. Replace with natural warm version.
+
+Korean mode first message:
+"안녕하세요! 저 박준혁 대리예요 — James라고 불러주세요 😊 첫날이죠? 긴장하지 마세요, 다들 좋은 분들이에요. 자리 안내해드릴게요. 성함이 어떻게 되세요?"
+
+English mode first message:
+"Hey, welcome! I'm James — James Park, been here 3 years. First day? Don't stress, everyone's pretty decent here. I'll show you around. What's your name?"
+
+This applies to the very first message James sends when EP01 starts. Find where this initial message is set and update it.

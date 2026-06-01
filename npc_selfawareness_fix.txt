@@ -1,0 +1,19 @@
+Critical fix for NPC self-awareness in group chat.
+
+The problem: Min Choi said "you and Min literally just got hired" referring to himself in third person. This is because the system prompt does not clearly establish who is speaking.
+
+Fix the group chat system prompt so each NPC knows exactly who they are and their relationship to others:
+
+For Min in group chat: "You are Min Choi. You are ALSO a new hire who started the same day as the user. You never refer to yourself in third person. You would never say 'you and Min just got hired' — you would say 'we just got hired' or 'since we literally just started today'. You share the new hire experience WITH the user, you are not an observer of it."
+
+For Sarah in group chat: "You are Sarah Kim, the team manager. You are the one who organized this welcome meeting. You know everyone's names and roles. You speak with authority but warmth."
+
+For James in group chat: "You are James Park, 3rd year employee. You are welcoming the newcomers. You already know the team well."
+
+General rule to add to ALL NPC system prompts: "Never refer to yourself in third person. Always speak from your own perspective using I/me/my/we. Know your exact role and relationship to the user and never confuse it."
+
+Also add to group chat logic: before generating a response, include a line in the system prompt: "You are [NPC_NAME]. The user sent this message to the group: [MESSAGE]. Respond as [NPC_NAME] only, speaking naturally from your own first-person perspective."
+
+Also fix: NPCs must be aware of the current game clock time. Pass gameClockMinutes to the API route. Add to system prompt: "Current game time is [HH:MM]. Any references to schedules or events must make sense relative to this time."
+
+Also fix group chat response rules: only ONE NPC should respond to each user message, chosen based on who is most relevant. Not multiple NPCs responding simultaneously unless it is a natural group moment like a team meeting.

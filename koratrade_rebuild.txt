@@ -1,0 +1,339 @@
+Delete all existing code and rebuild KoraTrade from scratch. The entire NPC system must be powered by Claude API in real time. No pre-scripted NPC dialogue at all.
+
+CRITICAL ARCHITECTURE RULE:
+Every single NPC message must go through Claude API. There are zero hard-coded NPC dialogue strings anywhere in the codebase. The only things that are fixed are: episode context, character personalities, and learning objectives. Everything NPCs say is generated in real time by Claude API based on what the user actually said.
+
+---
+
+TECH STACK:
+- Next.js 14 with TypeScript
+- Tailwind CSS
+- localStorage for all data persistence (no database needed)
+- Claude API (claude-haiku-4-5) for ALL NPC responses
+- API key from .env.local: ANTHROPIC_API_KEY
+
+---
+
+STEP 1: CREATE THE API ROUTE
+
+Create /app/api/chat/route.ts
+
+This endpoint receives:
+- npcId: which NPC is responding (james, sarah, lisa, min, park, klaus)
+- userMessage: what the user just said
+- conversationHistory: last 15 messages in the conversation
+- episodeId: current episode (s1ep01, s1ep02 etc)
+- language: korean or english
+- relationshipLevel: 0-100 number
+- userProfile: object with name, goal, englishLevel, industryInterest
+
+It builds a system prompt based on npcId and episodeId, calls Claude API, and streams the response back.
+
+System prompts for each NPC:
+
+JAMES (korean mode):
+"You are James Park (박준혁), a 3rd year employee at KoraTrade, a Korean trading company that exports industrial parts to Europe and North America. You are 27 years old, friendly, funny, and casual. You speak in casual Korean mixed with some English words naturally (like real Korean office workers). You use 반말 with a friendly senior feel — mix of 야/아 with some 요 endings. You occasionally use ㅋㅋ or ㅎㅎ but not excessively.
+
+Current episode: [EPISODE_CONTEXT]
+Your relationship with [USER_NAME]: [RELATIONSHIP]%
+Today's situation: [SITUATION]
+
+CRITICAL RULES:
+- Always respond directly to what the user actually said
+- Never ignore the user's question or comment
+- If the user asks what something means, explain it simply and naturally in your voice
+- If the user asks where to find something, tell them specifically
+- Keep responses to 2-4 sentences
+- Never mention buyers, KOTRA, cold emails, or work tasks outside your current episode context
+- Sound like a real person, not a textbook"
+
+JAMES (english mode):
+"You are James Park, a 3rd year employee at KoraTrade. Friendly, casual, funny. You speak natural conversational English. Not overly formal, not using slang excessively. Respond directly to what the user said. 2-4 sentences max."
+
+SARAH (korean mode):
+"You are Sarah Kim (김사라), team manager at KoraTrade with 10 years experience. You are 35 years old. You speak formally but warmly in Korean — always 존댓말, professional, concise. You give clear instructions. You notice details. You occasionally show a human side in unexpected moments.
+
+Current episode: [EPISODE_CONTEXT]
+Relationship with [USER_NAME]: [RELATIONSHIP]%
+
+CRITICAL RULES:
+- Respond directly to what the user said
+- If they ask a work question, answer it specifically and helpfully
+- Keep responses to 1-3 sentences
+- Do not bring up topics outside current episode context
+- Sound like a real team manager, warm but professional"
+
+SARAH (english mode):
+"You are Sarah Kim, team manager at KoraTrade. Professional, warm, direct. Speak in clear professional English. Respond to what the user actually said. 1-3 sentences."
+
+MIN (korean mode):
+"You are Min Choi (최민준), same-age new hire at KoraTrade who started the same day as the user. You are 24 years old. You speak in full casual Korean (반말) like a friend the same age. You are honest, sometimes anxious, often funny about being nervous. You and the user are equals.
+
+Current episode: [EPISODE_CONTEXT]
+Relationship: [RELATIONSHIP]%
+
+CRITICAL RULES:
+- Respond directly to what the user said
+- You are also a beginner, so you commiserate and share the same struggles
+- Keep responses conversational, 2-3 sentences
+- Sound like a real friend texting"
+
+LISA (korean mode):
+"You are Lisa Lee (이지수), documents team at KoraTrade, 5 years experience. You are precise, formal, and minimal with words. You speak in polite formal Korean (존댓말) but very concise. You show warmth rarely but meaningfully.
+
+CRITICAL RULES:
+- Respond directly to what the user said
+- Be helpful but brief
+- 1-2 sentences maximum
+- If user made an error, point it out directly but not unkindly"
+
+PARK MANAGER (korean mode):
+"You are Park Cheolsu (박철수), production team manager, 15 years at the company. You are blunt, use short sentences, and have little patience for what you see as sales team incompetence. But deep down you respect hard work.
+
+CRITICAL RULES:
+- Very short responses, 1-2 sentences
+- Blunt and direct
+- Not rude, just no-nonsense
+- Occasionally let slip a small sign of respect if user handles things well"
+
+KLAUS (always english):
+"You are Klaus Müller, purchasing manager at GermanParts in Germany. You are formal, direct, and efficient. You communicate in professional English. Short sentences. No small talk unless relationship is high (above 70%).
+
+Relationship level: [RELATIONSHIP]%
+If relationship below 40%: strictly professional, minimal warmth
+If relationship 40-70%: slightly warmer, occasional brief personal comment
+If relationship above 70%: can occasionally mention personal things briefly
+
+CRITICAL RULES:
+- Always respond to exactly what was written to you
+- If the email or message is unprofessional, ask for clarification
+- If they make a good point, acknowledge it briefly
+- 2-3 sentences maximum"
+
+EPISODE CONTEXTS to inject into system prompts:
+
+s1ep01: "It is the user's very first day at work. They just arrived. You are meeting them for the first time. Topics allowed: greetings, office tour, team introductions, first day tips, where things are located, basic office culture. NOT allowed: any mention of buyers, KOTRA, emails to clients, business deals, or work assignments beyond Sarah's simple first task of reading the company profile."
+
+s1ep02: "It is the user's first week. They are helping with database organization and learning office rules. Topics: office procedures, making mistakes and fixing them, interacting with other departments, learning how the team works. NOT allowed: cold emails, buyer outreach, market research."
+
+s1ep03: "The user has their first independent assignment: writing a company introduction email template. Topics: getting work feedback, email writing basics, comparing approaches with Min. NOT allowed: actual buyer outreach."
+
+s1ep04: "The user needs to collaborate with other departments (production team, documents team). Topics: interdepartmental communication, making requests politely, Park manager interaction, Lisa interaction."
+
+s1ep05: "The user is learning the 5 types of business emails through practice. Topics: email structure, writing different email types, getting feedback on writing."
+
+s1ep06: "Comprehensive review of workplace communication. Topics: meeting participation, delivering difficult news, expressing appreciation, priority management."
+
+s1ep07: "Season 1 finale. The user is ready for real overseas work. Topics: reflecting on growth, receiving briefing for Season 2 work (buyer research), relationship moments with all team members."
+
+---
+
+STEP 2: BUILD THE DOCUMENT GENERATION API
+
+Create /app/api/document/route.ts
+
+This generates documents on demand using Claude API.
+
+When called with documentType and context, generate a realistic HTML document.
+
+Document types and what to generate:
+
+company_profile:
+Generate a realistic Korean trading company profile for KoraTrade Inc. Include:
+- Company overview: Founded 2008, Seoul HQ, 45 employees, exports industrial parts to Europe and North America
+- Main products: precision automotive components, electronic control parts, industrial machinery components
+- Key markets: Germany (35%), USA (28%), France (15%), Singapore (12%), others (10%)
+- Certifications: ISO 9001:2015, ISO 14001:2015, IATF 16949
+- Key clients (fictional): MüllTech GmbH, Pacific Auto Inc, Laurent Industries
+- Annual revenue: approximately 85 billion KRW
+- Contact: overseas@koratrade.com
+Format as clean professional HTML with KoraTrade branding using gold color #8a6530
+
+buyer_database_template:
+Generate a sample buyer database Excel-like table with 5 fictional companies showing: Company name, Country, Contact person, Email, Products of interest, Last contact date, Status (Active/Prospect/Cold)
+
+email_template_package:
+Generate 5 email templates (information request, follow-up, apology, thank you, status update) as clean formatted HTML
+
+product_catalogue:
+Generate a product catalogue for KoraTrade's industrial parts with 6 fictional products including specs, pricing range, MOQ, lead time
+
+buyer_profile_germanparts:
+Generate a detailed buyer profile for GermanParts GmbH including: company overview, purchasing patterns, key decision makers (Klaus Müller - purchasing manager), preferred suppliers criteria, annual purchase volume, payment terms they prefer
+
+---
+
+STEP 3: BUILD THE MAIN CHAT INTERFACE
+
+/app/main/page.tsx
+
+Three column layout:
+- Left sidebar (resizable, default 220px): room list + user profile
+- Center: chat area
+- Right sidebar (resizable, default 256px): mission + expressions + notes
+
+LEFT SIDEBAR:
+Room list with these channels:
+- 해외영업팀 전체 (group)
+- James Park (온라인, 기분 좋음)
+- Sarah Kim (온라인, 오늘 할 말 있어 보임)
+- Lisa Lee (온라인, 바쁨)
+- Min Choi (온라인, 긴장됨)
+- 박철수 과장 (온라인, 평소와 같음)
+- Klaus Müller (오프라인, buyer section)
+
+Each room shows last message preview and unread count.
+Clicking a room opens that conversation.
+Unread badges only appear when genuinely new messages exist.
+
+User profile at bottom:
+- Avatar + name + level
+- XP bar
+- Clicking opens profile modal
+
+Hover over any NPC: show tooltip with name, role, relationship %, today's status, one personality trait
+
+CENTER CHAT:
+- KakaoTalk style: consecutive messages from same person show avatar/name only on first message
+- Timestamps from game clock (not real time)
+- Typing indicator (animated dots) while waiting for API response
+- When user sends message: immediately show it, then show typing indicator, then stream NPC response
+- 💡 hint button in input area: when clicked shows 2-3 relevant expressions for current context
+- Auto-hint popup when receiving work instructions (dismissable)
+- Document attachments appear as clickable cards: [📄 filename] [열어보기 button]
+- When document card is clicked: open document modal showing generated HTML content
+
+RIGHT SIDEBAR:
+Section 1 - 오늘의 학습 목표 (collapsible, 🎯 icon):
+Show episode learning objectives with checkboxes.
+Check off automatically as user completes related missions.
+
+Section 2 - 오늘의 표현 (5 expression cards):
+Each card: English sentence + Korean translation + situation tag + "0/3 반복" counter
+Counter increases each time user uses that expression or similar
+Click to toggle learned/unlearned
+Brief undo option appears for 3 seconds after checking
+
+Section 3 - 업무 노트 (3 most recent):
+Auto-saves terms when:
+- User asks "X가 뭐에요" and NPC explains it
+- User taps highlighted term in chat
+- NPC uses a term that appears in the glossary list
+Shows term + brief definition
+"전체 노트 보기" button
+
+---
+
+STEP 4: ETIQUETTE FEEDBACK SYSTEM
+
+After generating each NPC response, also call Claude API with a separate quick analysis:
+
+Prompt: "The user sent this message: [USER_MESSAGE] to [NPC_NAME] who is their [RELATIONSHIP_TYPE] in a Korean workplace. The current situation is [SITUATION]. Is there any etiquette issue? Check for: using informal speech with seniors, being too blunt, ignoring a question, one-word replies to detailed questions, unprofessional email language. If there is an issue, respond with JSON: {hasIssue: true, severity: mild or serious, tip: one sentence feedback in Korean}. If no issue: {hasIssue: false}"
+
+If hasIssue is true:
+- mild severity: have the NPC react slightly differently (cooler tone, gentle correction in their response)
+- serious severity: show a small toast popup at bottom of screen with the tip text, styled with 💼 icon and gold border
+
+---
+
+STEP 5: PROGRESS PAGE
+
+/app/progress/page.tsx
+
+Top section:
+- Total progress: X/46 episodes
+- Stats: completed episodes, expressions learned, streak days, badges earned
+- Current skill level (Intern → Junior → Senior → Manager)
+
+Season tabs (S1-S6):
+Active season expanded, others collapsed or locked.
+
+For S1 (fully detailed, other seasons show overview only):
+
+Each episode card shows:
+- Episode number, title, estimated time
+- Status badge: 완료/진행중/미완료/잠금
+- Learning objectives list with checkmarks
+- Expressions count
+- If completed: show date completed
+- Click to expand: show all 5 expressions with learned/not-learned status
+
+Skill radar chart (6 axes, fills as user progresses):
+- 이메일 작성
+- 미팅 영어
+- 협상 표현
+- 무역 실무
+- 직장 커뮤니케이션
+- 비즈니스 문화
+
+---
+
+STEP 6: PERSISTENT DATA STRUCTURE
+
+Save everything to localStorage under key 'koratrade_user':
+
+{
+  profile: { name, email, avatar, avatarColor, goal, englishLevel, industry },
+  gameState: { currentSeason, currentEpisode, currentPhase, gameClockMinutes },
+  progress: { completedEpisodes[], expressionsLearned[], missionsCompleted[] },
+  relationships: { james: 50, sarah: 30, lisa: 20, min: 60, park: 10, klaus: 0 },
+  stats: { xp, level, streakDays, lastLoginDate, badgesEarned[] },
+  notes: { terms[], expressions[], wrongAnswers[], memos[] },
+  chatHistory: { james: [], sarah: [], min: [], lisa: [], park: [], klaus: [], team: [] }
+}
+
+On every app load: check localStorage for existing user. If found, skip onboarding and go to commute screen with all data restored. Never reset progress between sessions.
+
+---
+
+STEP 7: ONBOARDING FLOW
+
+/app/page.tsx → login
+/app/onboarding/page.tsx → 4 step flow
+
+Step 1: Email + password (stored in localStorage, no real auth needed)
+Step 2: Name + emoji avatar selection (22 options) + background color (8 options)
+Step 3: Learning goal selection (4 options)
+Step 4: Animated offer letter + loading bar → "첫 출근하기" button
+
+After onboarding: go to /commute
+
+---
+
+STEP 8: COMMUTE SCREEN
+
+/app/commute/page.tsx
+
+Shows regardless of real time (game time is independent of real clock).
+
+Content:
+- Game clock (starts at 09:00 when user clicks start)
+- NPC status cards (5 internal NPCs with today's status and hint)
+- Today's episode card (title, objective preview, estimated time)
+- "출근하기 🟢" button
+
+After clicking: navigate to /main, game clock starts at 09:00
+
+---
+
+STEP 9: RESET FUNCTIONALITY
+
+In user profile modal, at the bottom:
+- Red button "처음부터 다시 시작"
+- Confirmation dialog: "정말 모든 진행상황을 초기화할까요? 이 작업은 되돌릴 수 없습니다."
+- If confirmed: clear localStorage completely, redirect to /onboarding
+
+---
+
+BUILD ORDER:
+1. API routes first (chat and document)
+2. Test API with simple curl command
+3. Build commute screen
+4. Build main chat with working API-powered NPC
+5. Build progress page
+6. Build onboarding
+7. Connect everything with persistent localStorage
+8. Test full flow: signup → onboard → commute → chat with James → James responds to what you actually said → ask "바이어가 뭐에요" → James explains it naturally → document appears when asked
+
+The single most important thing to verify before considering anything done:
+When user types "회사 소개 자료 어디있어요?" to James, James must respond with something like "아 그거요! 공유 드라이브에 있는데 제가 링크 보내드릴게요~" AND a document card appears that opens the actual company profile when clicked. If this does not work, nothing else matters.

@@ -1,0 +1,25 @@
+Make these EXACT changes. Do NOT touch Min, 박철수 과장, or User images anywhere. Only fix the specific characters listed below.
+
+FIX 1 — COMMUTE SCREEN (오프닝 화면)
+Min's image on the commute screen is perfect. Do not touch it.
+Change Sarah, James, and Lisa on the commute screen to use the EXACT same image display method as Min.
+
+Find the commute screen component. Look at how Min's image is currently rendered (what src, what CSS). Copy that exact same approach for Sarah, James, and Lisa:
+- Sarah: change image src to /characters/sarah_crop.png, apply same CSS as Min
+- James: change image src to /characters/james_crop.png, apply same CSS as Min  
+- Lisa: change image src to /characters/lisa_crop.png, apply same CSS as Min
+
+FIX 2 — SIDEBAR AND CHAT AVATARS
+박철수 과장 and Min in the sidebar are perfect. Do not touch them.
+User is perfect. Do not touch it.
+
+Change only these three characters to match 박철수 과장 and Min exactly:
+- James: find where James avatar src is set, change to /characters/james_crop.png, copy exact CSS from 박철수 과장
+- Sarah: change src to /characters/sarah_crop.png, copy exact CSS from 박철수 과장
+- Lisa: change src to /characters/lisa_crop.png, copy exact CSS from 박철수 과장
+
+To do this correctly:
+1. First read the component file that renders the sidebar NPC list
+2. Find the exact CSS and src being used for 박철수 과장
+3. Apply that IDENTICAL src pattern and CSS to James, Sarah, and Lisa
+4. Do not change anything else in the component

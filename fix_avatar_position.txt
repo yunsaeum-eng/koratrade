@@ -1,0 +1,44 @@
+Fix character avatar display in circular profile images. Two problems to fix:
+
+PROBLEM 1: Min and user avatars are zoomed in too much compared to other characters.
+PROBLEM 2: All avatars show the character's face at the bottom of the circle instead of centered.
+
+THE FIX:
+For ALL circular avatar displays (commute screen, sidebar, chat bubbles, chat header), use this exact CSS approach:
+
+The container div:
+- width: [size]px
+- height: [size]px  
+- border-radius: 50%
+- overflow: hidden
+- flex-shrink: 0
+- background: [character bg color]
+
+The img inside:
+- width: 100%
+- height: 150%
+- object-fit: cover
+- object-position: center 15%
+- image-rendering: pixelated
+- display: block
+
+The key is:
+- height: 150% makes the image taller than the container
+- object-position: center 15% shifts the image so the face area (top portion) is centered in the circle
+- This works consistently regardless of how each crop image was made
+
+Apply this to every place that shows a circular avatar:
+1. Commute screen NPC cards
+2. Left sidebar NPC list items
+3. Chat message bubble avatars
+4. Chat header avatar
+5. User profile at bottom of sidebar
+
+Do NOT use object-fit: contain (makes image too small)
+Do NOT use object-fit: cover without object-position (face ends up at bottom)
+Do NOT set height: 100% on the img (face gets cut off at top)
+
+After fixing, the result should be:
+- Character's face is visible and centered in the circle
+- Not zoomed in too much
+- Consistent across all characters including Min and User

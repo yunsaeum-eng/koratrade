@@ -1,0 +1,46 @@
+Fix all of these critical issues. These are the highest priority problems breaking user immersion:
+
+ISSUE 1 — NPC DUPLICATE MESSAGES
+NPC messages are repeating the same dialogue. Fix the message rendering so each NPC message only appears once. Check for duplicate keys, duplicate useEffect calls, or double API calls that are causing messages to render twice. This must be completely fixed.
+
+ISSUE 2 — NPC DIALOGUE MUST MATCH EPISODE CONTEXT AND USER PROGRESS
+This is the most critical issue. NPC dialogue must always match exactly where the user is in the story.
+
+Current broken behavior: James mentions "신규 바이어 리스트" on Day 1 which makes no sense. Min talks about job fit before doing any work.
+
+Required behavior:
+- EP01 is the very first day. NPCs should ONLY talk about things a real first-day employee would experience
+- James on Day 1 only: greet the user warmly, show them around, introduce the office, give first-day tips, warn about Park manager, explain basic office culture. Nothing about buyers, KOTRA, or real work yet.
+- Min on Day 1 only: nervous first-day energy, introduce himself as a fellow new hire, share anxiety about starting, ask user simple get-to-know-you questions. Absolutely NO mention of job fit crisis or serious doubts on day 1.
+- Sarah on Day 1 only: brief formal welcome, assign a very simple first task like reading the company profile document, nothing complex
+- Lisa on Day 1 only: barely acknowledges the user, maybe one short polite nod
+- Park manager on Day 1 only: one dismissive comment when passing by, nothing more
+
+Each episode has its own context. NPCs must never say anything that belongs to a future episode. Build a strict episode context system that controls what each NPC can and cannot talk about based on current episode number.
+
+ISSUE 3 — LANGUAGE TOGGLE MUST CHANGE ALL TEXT
+When user switches between Korean and English, EVERYTHING must change language including:
+- All NPC dialogue and responses
+- All UI labels, buttons, navigation
+- All episode titles and descriptions
+- All expression cards (English sentence stays, Korean translation shows/hides based on setting)
+- All system messages
+- All hints and popups
+Currently only UI changes but NPC dialogue stays Korean. Fix so the language setting is passed to every NPC response and all content switches completely.
+
+ISSUE 4 — NPC SPEECH CONSISTENCY
+Min Choi uses informal speech (반말) which is correct for a same-age colleague. But when user replies informally back, Min should NOT suddenly switch to formal speech (존댓말). Min must maintain consistent informal friendly speech throughout since they are peers and the same age. Fix all NPCs to maintain their designated speech level consistently regardless of what the user says:
+- James: casual Korean (반말 mixed with some 요 endings, like a friendly senior)
+- Min: fully casual (반말, same-age peer)
+- Sarah: formal but warm (항상 존댓말)
+- Lisa: formal and precise (존댓말)
+- Park manager: blunt short sentences, informal to everyone
+- Klaus: formal English only
+
+ISSUE 5 — RESET BUTTON
+Add a settings page or a reset option accessible from the user profile area. The reset button should:
+- Show a confirmation dialog first: "정말 처음부터 다시 시작할까요? 모든 진행상황이 초기화됩니다."
+- If confirmed, clear ALL localStorage data
+- Redirect to the onboarding flow
+- User can create a fresh account or use same email
+Place the reset button in the user profile modal at the bottom, styled in red with warning text.

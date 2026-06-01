@@ -1,0 +1,61 @@
+Implement a beginner-friendly NPC system. This app is designed for complete beginners who know nothing about trade, business English, or office culture. They need to be able to ask about anything and get a natural helpful answer.
+
+CORE PRINCIPLE:
+NPCs talk naturally without assuming the user knows anything. When the user asks "X가 뭐에요?" or "what is X?" or any variation of asking for explanation, the NPC answers in a friendly natural way that fits their character. The explanation should be simple, clear, and feel like a colleague explaining something casually, not a textbook definition.
+
+SYSTEM 1 — QUESTION DETECTION AND ANSWERING
+
+Detect when user is asking what something means or how something works. Trigger words include:
+- Korean: 뭐에요, 뭔가요, 뭐야, 뭔지, 어떻게, 왜, 무슨, 모르겠어, 처음 들어요, 설명해주세요
+- English: what is, what does, what are, how does, why, I don't know, can you explain, what do you mean
+
+When detected, the current NPC explains it naturally in their own voice:
+
+James explaining "바이어":
+"아 맞다 첫날이라 모르시겠다 ㅎㅎ 바이어는 우리 제품 사는 해외 고객사예요. 쉽게 말하면 우리가 뭔가를 팔면 사는 사람들이죠. DB는 그 회사들 정보 다 모아놓은 목록이고요. 나중에 같이 보여드릴게요!"
+
+James explaining "KOTRA":
+"KOTRA요? 코트라라고 읽어요 ㅎㅎ 한국 무역협회 같은 정부 기관인데 해외 바이어 정보를 엄청 많이 갖고 있어요. 거기서 나라별로 어떤 회사가 뭘 사고 싶어하는지 찾을 수 있거든요. 우리 일할 때 진짜 많이 써요."
+
+Sarah explaining "바이어 DB":
+"바이어 데이터베이스예요. 거래 가능한 해외 업체들 정보를 정리해둔 파일이에요. 회사명, 담당자, 연락처, 관심 품목 등이 들어가요. Yun씨가 오늘 이걸 업데이트하는 걸 도와주셨으면 해요."
+
+Klaus explaining "FOB" (if asked in English):
+"FOB means Free On Board. It defines who pays for shipping and when responsibility transfers. FOB Busan means we deliver to Busan port and you handle everything after that. The alternative is CIF where we cover cost, insurance, and freight to your port."
+
+SYSTEM 2 — PROACTIVE GENTLE HINTS
+
+When a new term appears in NPC dialogue that a beginner likely does not know, add a subtle underline or highlight to that term. User can tap or click it to see a quick tooltip explanation without having to ask.
+
+Terms to auto-highlight in EP01-02:
+바이어, DB, KOTRA, 무역협회, 팀장, 대리, 과장, 견적, 계약서, 선적, 클레임
+
+Tooltip style: small popup appears near the highlighted word showing a one-line plain Korean explanation. Dismiss by clicking elsewhere. Do not interrupt the flow of conversation.
+
+SYSTEM 3 — NO ASSUMPTION RULE FOR NPCs
+
+When generating NPC responses via Claude API, always include this instruction in the system prompt:
+
+"You are talking to a complete beginner on their first day. Never assume they know any business or trade terminology. If you use a term they might not know, add a brief natural explanation in the same message. Keep explanations casual and friendly, not textbook-like. If they ask what something means, always answer first before continuing with your original point."
+
+SYSTEM 4 — ENCOURAGE QUESTIONS
+
+Add a subtle UI prompt that appears occasionally during conversation:
+- Small text below the chat input: "모르는 단어나 표현이 있으면 바로 물어보세요! 💬"
+- This appears especially in early episodes EP01-03
+- Fades away after EP04 as user gets more comfortable
+- Also appears when a new term is first used in conversation
+
+SYSTEM 5 — SMART CONTEXT-AWARE EXPLANATIONS
+
+The explanation level should adapt based on episode progress:
+- EP01-02: Explain everything, even very basic terms
+- EP03-04: Explain trade-specific terms but not general office terms
+- EP05-06: Only explain technical trade terms
+- EP07+: Minimal explanations, user is assumed to know the basics
+
+Track which terms have already been explained and do not repeat the same explanation twice. Instead reference it briefly: "아까 말한 바이어 DB 있잖아요, 거기서..."
+
+SYSTEM 6 — DOCUMENT TOOLTIPS
+
+When a document is shown (company profile, email template etc), highlight key terms within the document itself. Hovering or tapping shows explanation. This way documents become learning tools not just reference material.

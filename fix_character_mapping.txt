@@ -1,0 +1,132 @@
+Fix character image usage. The current implementation is wrong. Follow these rules EXACTLY with no exceptions.
+
+RULE 1 — FILE MAPPING
+These are the exact file names in public/characters/ folder:
+
+Full body files:
+- sarah.png
+- james.png
+- min.png
+- park.png
+- sophie.png
+- user_female.png
+- user_male.png
+
+Cropped upper body files:
+- sarah_crop.png
+- james_crop.png
+- min_crop.png
+- park_crop.png
+- sophie_crop.png
+- user_female_crop.png
+- user_male_crop.png
+
+RULE 2 — WHERE TO USE EACH VERSION
+
+Use FULL BODY (sarah.png, james.png etc) ONLY in these two places:
+1. /characters page (인물 도감) character cards
+2. /onboarding avatar selection screen
+
+Use CROPPED VERSION (sarah_crop.png, james_crop.png etc) in ALL OTHER places:
+1. Chat message avatars next to speech bubbles
+2. Left sidebar NPC list
+3. Chat header at top of chat area
+4. Commute screen NPC status cards
+5. User profile card at bottom of left sidebar
+6. NPC hover tooltip popup
+
+RULE 3 — VERIFY EACH CHARACTER INDIVIDUALLY
+Go through each character one by one and confirm:
+
+Sarah Kim:
+- 인물 도감: sarah.png (full body) ✓
+- 채팅 아바타: sarah_crop.png (cropped) ✓
+- 사이드바: sarah_crop.png (cropped) ✓
+- 출근화면: sarah_crop.png (cropped) ✓
+
+James Park:
+- 인물 도감: james.png (full body) ✓
+- 채팅 아바타: james_crop.png (cropped) ✓
+- 사이드바: james_crop.png (cropped) ✓
+- 출근화면: james_crop.png (cropped) ✓
+
+Min Choi:
+- 인물 도감: min.png (full body) ✓
+- 채팅 아바타: min_crop.png (cropped) ✓
+- 사이드바: min_crop.png (cropped) ✓
+- 출근화면: min_crop.png (cropped) ✓
+
+Park manager:
+- 인물 도감: park.png (full body) ✓
+- 채팅 아바타: park_crop.png (cropped) ✓
+- 사이드바: park_crop.png (cropped) ✓
+- 출근화면: park_crop.png (cropped) ✓
+
+Sophie:
+- 인물 도감: sophie.png (full body) ✓
+- 채팅 아바타: sophie_crop.png (cropped) ✓
+- 사이드바: sophie_crop.png (cropped) ✓
+- 출근화면: sophie_crop.png (cropped) ✓
+
+User female:
+- 온보딩 선택: user_female.png (full body) ✓
+- 채팅 아바타: user_female_crop.png (cropped) ✓
+- 사이드바 내 프로필: user_female_crop.png (cropped) ✓
+
+User male:
+- 온보딩 선택: user_male.png (full body) ✓
+- 채팅 아바타: user_male_crop.png (cropped) ✓
+- 사이드바 내 프로필: user_male_crop.png (cropped) ✓
+
+RULE 4 — CREATE A SINGLE CHARACTER CONFIG FILE
+Create src/config/characters.ts with this exact content:
+
+export const CHARACTER_IMAGES = {
+  sarah: {
+    full: '/characters/sarah.png',
+    crop: '/characters/sarah_crop.png',
+    bg: '#EEF2F8',
+    accent: '#C5D5E8'
+  },
+  james: {
+    full: '/characters/james.png',
+    crop: '/characters/james_crop.png',
+    bg: '#E8F4FF',
+    accent: '#B8D8F0'
+  },
+  min: {
+    full: '/characters/min.png',
+    crop: '/characters/min_crop.png',
+    bg: '#FFF5E8',
+    accent: '#F0D5B0'
+  },
+  park: {
+    full: '/characters/park.png',
+    crop: '/characters/park_crop.png',
+    bg: '#F0EEF5',
+    accent: '#D0C8E0'
+  },
+  sophie: {
+    full: '/characters/sophie.png',
+    crop: '/characters/sophie_crop.png',
+    bg: '#FFF8EE',
+    accent: '#E8D8B8'
+  },
+  user_female: {
+    full: '/characters/user_female.png',
+    crop: '/characters/user_female_crop.png',
+    bg: '#F5EEF8',
+    accent: '#DCC8E8'
+  },
+  user_male: {
+    full: '/characters/user_male.png',
+    crop: '/characters/user_male_crop.png',
+    bg: '#EEF5F0',
+    accent: '#B8DCC0'
+  }
+}
+
+Then import CHARACTER_IMAGES in every component that displays character images.
+Always use CHARACTER_IMAGES.sarah.crop for chat avatars.
+Always use CHARACTER_IMAGES.sarah.full for 인물 도감 only.
+Never hardcode image paths directly in components.

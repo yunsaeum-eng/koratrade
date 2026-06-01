@@ -1,0 +1,20 @@
+The sarah_crop.png, james_crop.png, and lisa_crop.png files may be missing or corrupted in public/characters/. Copy them directly using the full absolute path.
+
+Run these commands one by one:
+
+cp "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/NPC design/crop/sarah crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/sarah_crop.png"
+
+cp "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/NPC design/crop/james crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/james_crop.png"
+
+cp "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/NPC design/crop/lisa crop.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/lisa_crop.png"
+
+cp "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/NPC design/full/sarah.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/sarah.png"
+
+cp "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/NPC design/full/james.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/james.png"
+
+cp "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/NPC design/full/lisa.png" "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/lisa.png"
+
+After copying, run this to verify all files exist and have correct sizes:
+ls -lah "/Users/yunsaeum/Library/Mobile Documents/com~apple~CloudDocs/koratrade/public/characters/"
+
+All files should be above 100KB. If any are 0 bytes or missing, report which ones failed.

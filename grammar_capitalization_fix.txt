@@ -1,0 +1,18 @@
+Update the grammar correction system with this one change:
+
+Remove capitalization from grammar error detection entirely.
+
+Do NOT flag or correct any of these as errors:
+- Sentences not starting with capital letter ("hi james, i was wondering...")
+- Proper nouns in lowercase ("sarah", "koratrade", "japan")
+- "i" in lowercase instead of "I"
+- Any other capitalization issues
+
+The grammar correction system should ONLY flag clear grammatical errors such as:
+- Wrong verb tense ("I have went" → "I have gone")
+- Subject-verb disagreement ("she don't know" → "she doesn't know")
+- Wrong adjective/adverb form ("I am very boring" → "I am very bored")
+- Missing articles where clearly wrong ("I went to store" → "I went to the store")
+- Clearly wrong word form ("I am very tired from the works" → "from the work")
+
+Reason: This is a messaging/chat context. Native English speakers regularly skip capitalization in casual messages and texts. Flagging this would be misleading and unhelpful for learners.

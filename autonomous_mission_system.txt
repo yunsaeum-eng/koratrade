@@ -1,0 +1,136 @@
+Implement an autonomous mission tracking system. The program itself must judge whether the user has completed each mission, not the user manually checking boxes. This is a simulation game — the game drives the story and tracks progress automatically.
+
+CORE PRINCIPLE:
+The user should never need to manually check anything. The system watches what the user does and says, then automatically:
+1. Detects mission completion
+2. Checks off the mission with animation
+3. Triggers the next story beat
+4. Advances the episode naturally
+
+PART 1 — MISSION DETECTION ENGINE
+
+After every user message, run a mission check using Claude API.
+
+Create a separate API route: /app/api/mission-check/route.ts
+
+This endpoint receives:
+- currentEpisodeId (e.g. s1ep01)
+- completedMissions: array of already completed mission IDs
+- pendingMissions: array of missions not yet completed
+- userMessage: what user just sent
+- conversationHistory: last 20 messages
+- npcResponses: recent NPC responses
+
+It calls Claude API with this prompt:
+"You are a mission tracking system for a business English learning game. 
+
+Current episode: [EPISODE_ID]
+Pending missions that have NOT been completed yet: [PENDING_MISSIONS_LIST]
+
+Recent conversation:
+[LAST_20_MESSAGES]
+
+User just sent: [USER_MESSAGE]
+
+For each pending mission, determine if it has now been completed based on the conversation. A mission is complete when the user has genuinely done the thing, not just mentioned it. 
+
+Respond with JSON only:
+{
+  completedNow: [array of mission IDs that were just completed],
+  reasoning: {missionId: explanation}
+}"
+
+MISSION DEFINITIONS FOR S1 EP01:
+
+Mission ID: "introduce_to_james"
+Complete when: User sends a self-introduction message in the James chat that includes their name or says they are new
+Detection: user message contains name OR "new here" OR "just started" OR "first day" OR similar
+
+Mission ID: "greet_sarah"  
+Complete when: User has sent at least one message to Sarah Kim and Sarah has responded
+Detection: Sarah chat has at least 2 messages (1 from user, 1 from Sarah)
+
+Mission ID: "read_company_profile"
+Complete when: User opened the company profile document (document modal was opened) OR user mentions reading/seeing the company profile in chat
+Detection: document modal open event OR user message contains "read" + "profile/document/company"
+
+Mission ID: "send_group_intro"
+Complete when: User sends a message in the 해외영업팀 group chat introducing themselves
+Detection: group chat has a user message containing introduction content
+
+Mission ID: "use_expression_1"
+Complete when: User has used expression 1 ("Nice to meet you / 만나서 반갑습니다") at least once in any chat
+Detection: user message contains "nice to meet" OR "반갑습니다" OR "반가워요" OR close variation
+
+Mission ID: "confirm_first_task"
+Complete when: User asks Sarah about what they need to do OR asks about deadline OR acknowledges the company profile task
+Detection: user message to Sarah contains "what should I do" OR "deadline" OR "by when" OR "I will read" OR "I understand"
+
+MISSION DEFINITIONS FOR S1 EP02:
+
+Mission ID: "ask_for_clarification"
+Complete when: User uses a clarification request expression in any work-related conversation
+
+Mission ID: "apologize_for_mistake"
+Complete when: A mistake scenario occurs AND user sends an apology message
+
+Mission ID: "contact_park_manager"
+Complete when: User sends at least one message to Park manager
+
+Mission ID: "get_lisa_help"
+Complete when: User interacts with Lisa and receives document-related help
+
+Mission ID: "attend_team_meeting"
+Complete when: Team meeting event occurs in group chat and user sends at least one message during it
+
+PART 2 — AUTOMATIC MISSION COMPLETION UI
+
+When mission check returns completed missions:
+1. Show a subtle animation on the right sidebar — the mission checkbox fills in with a smooth checkmark animation
+2. Show a small toast: "✅ 미션 완료: [mission name]" for 3 seconds
+3. If ALL missions for current phase are complete, show a phase completion banner: "Phase [N] 완료! 다음 단계로 이동합니다..."
+4. Automatically advance to next phase after 3 seconds
+5. XP is automatically awarded — user never needs to click anything
+
+Remove ALL manual checkboxes from the mission UI. Replace with:
+- Locked icon (🔒) for not yet started
+- Progress indicator for in-progress  
+- Animated checkmark (✅) for completed
+- These update automatically, never manually
+
+PART 3 — STORY AUTO-PROGRESSION
+
+The game must drive itself forward. When all missions in a phase are complete, the game automatically triggers the next story beat.
+
+Example for EP01:
+Phase 1 complete (met James, said hi to Sarah) → James automatically sends a message: "Hey, have you checked out the company profile doc yet? Sarah mentioned she'd ask about it later."
+→ This nudges user toward next mission naturally
+
+Phase 2 complete (read document, introduced in group chat) → Sarah automatically sends: "Yun씨, 잠깐 시간 있어요? 회사 소개 자료 읽어봤어요?"
+→ This triggers the final mission naturally
+
+All episodes complete → Automatically show episode completion screen with XP summary, then unlock next episode
+
+Implement this as a story engine that runs after each mission completion:
+- Check what missions just completed
+- Look up what story beat should trigger next
+- Generate that NPC message via Claude API
+- Send it automatically after a 5-10 second delay (feels natural, not instant)
+
+PART 4 — MISSION UNDO REMOVED
+
+Remove the manual check/uncheck entirely. Users can no longer manually change mission status. Only the system can mark missions complete or incomplete.
+
+If a mission was incorrectly detected as complete (edge case), add a small "이 미션 취소" option that appears only in the mission detail view, not on the main sidebar.
+
+PART 5 — MISSION PROGRESS VISIBILITY
+
+Right sidebar mission section redesign:
+- Show current phase prominently: "Phase 2/5 — 오전 브리핑"
+- Show phase description in one line
+- List missions with automatic status icons
+- Show overall episode progress: "3/6 미션 완료"
+- Progress bar fills automatically as missions complete
+- No manual interaction needed at all
+
+The user should feel like they are living in the story, not filling out a checklist.

@@ -1,0 +1,88 @@
+The character image files are organized in two subfolders inside "NPC design":
+- "NPC design/full/" contains full body images
+- "NPC design/crop/" contains cropped images
+
+The filenames have SPACES not underscores. This has been causing all the errors.
+
+STEP 1 — COPY ALL FILES TO public/characters/ WITH CORRECT NAMES
+
+From "NPC design/full/" copy and rename:
+"박철수 과장.png" → public/characters/park.png
+"james.png" → public/characters/james.png
+"lisa.png" → public/characters/lisa.png
+"min.png" → public/characters/min.png
+"sarah.png" → public/characters/sarah.png
+"sophie.png" → public/characters/sophie.png
+"user(f).png" → public/characters/user_female.png
+"user(m).png" → public/characters/user_male.png
+
+From "NPC design/crop/" copy and rename:
+"박철수 과장 crop.png" → public/characters/park_crop.png
+"james crop.png" → public/characters/james_crop.png
+"lisa crop.png" → public/characters/lisa_crop.png
+"min crop.png" → public/characters/min_crop.png
+"sarah crop.png" → public/characters/sarah_crop.png
+"sophie crop.png" → public/characters/sophie_crop.png
+"user(f) crop.png" → public/characters/user_female_crop.png
+"user(m) crop.png" → public/characters/user_male_crop.png
+
+Use cp command with quotes around filenames that have spaces:
+cp "NPC design/full/박철수 과장.png" public/characters/park.png
+cp "NPC design/full/james.png" public/characters/james.png
+cp "NPC design/full/lisa.png" public/characters/lisa.png
+cp "NPC design/full/min.png" public/characters/min.png
+cp "NPC design/full/sarah.png" public/characters/sarah.png
+cp "NPC design/full/sophie.png" public/characters/sophie.png
+cp "NPC design/full/user(f).png" public/characters/user_female.png
+cp "NPC design/full/user(m).png" public/characters/user_male.png
+cp "NPC design/crop/박철수 과장 crop.png" public/characters/park_crop.png
+cp "NPC design/crop/james crop.png" public/characters/james_crop.png
+cp "NPC design/crop/lisa crop.png" public/characters/lisa_crop.png
+cp "NPC design/crop/min crop.png" public/characters/min_crop.png
+cp "NPC design/crop/sarah crop.png" public/characters/sarah_crop.png
+cp "NPC design/crop/sophie crop.png" public/characters/sophie_crop.png
+cp "NPC design/crop/user(f) crop.png" public/characters/user_female_crop.png
+cp "NPC design/crop/user(m) crop.png" public/characters/user_male_crop.png
+
+After copying, verify all 16 files exist in public/characters/ by listing the directory.
+
+STEP 2 — UPDATE characters.ts WITH CORRECT PATHS
+
+export const CHARACTER_IMAGES = {
+  sarah: { full: '/characters/sarah.png', crop: '/characters/sarah_crop.png', bg: '#EEF2F8', accent: '#C5D5E8' },
+  james: { full: '/characters/james.png', crop: '/characters/james_crop.png', bg: '#E8F4FF', accent: '#B8D8F0' },
+  lisa: { full: '/characters/lisa.png', crop: '/characters/lisa_crop.png', bg: '#F0F5E8', accent: '#C8DDB0' },
+  min: { full: '/characters/min.png', crop: '/characters/min_crop.png', bg: '#FFF5E8', accent: '#F0D5B0' },
+  park: { full: '/characters/park.png', crop: '/characters/park_crop.png', bg: '#F0EEF5', accent: '#D0C8E0' },
+  sophie: { full: '/characters/sophie.png', crop: '/characters/sophie_crop.png', bg: '#FFF8EE', accent: '#E8D8B8' },
+  user_female: { full: '/characters/user_female.png', crop: '/characters/user_female_crop.png', bg: '#F5EEF8', accent: '#DCC8E8' },
+  user_male: { full: '/characters/user_male.png', crop: '/characters/user_male_crop.png', bg: '#EEF5F0', accent: '#B8DCC0' },
+}
+
+STEP 3 — FIX COMMUTE SCREEN
+
+The commute screen NPC cards must use crop images and be smaller.
+Reduce the card height and image size:
+
+NPC card container: padding 10px, display flex, align-items center, gap 12px
+Image container: width 56px, height 64px, overflow hidden, border-radius 8px
+Image: width 100%, height 100%, object-fit cover, object-position center 10%, image-rendering pixelated
+
+This makes cards smaller and uses the crop version of each image.
+
+STEP 4 — FIX SIDEBAR AND CHAT AVATARS
+
+For circular avatars in sidebar and chat (all NPCs must look like 박철수 과장 currently does):
+
+Container: width 40px, height 40px, border-radius 50%, overflow hidden
+Image: width 100%, height 100%, object-fit cover, object-position center 15%, image-rendering pixelated
+
+The object-position center 15% shifts the image up slightly so the face is centered.
+Apply EXACTLY the same CSS to ALL characters. Do not use different values per character.
+
+STEP 5 — FIX USER PROFILE MODAL
+
+In the user profile modal, replace emoji with pixel art image.
+Get avatar choice from localStorage profile (either 'user_female' or 'user_male').
+Show the crop image: user_female_crop.png or user_male_crop.png
+Size: 64x64px circle, same CSS as step 4 but larger.

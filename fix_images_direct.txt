@@ -1,0 +1,29 @@
+All 16 character image files are confirmed to exist in public/characters/:
+Full body: james.png, lisa.png, min.png, park.png, sarah.png, sophie.png, user_female.png, user_male.png
+Cropped: james_crop.png, lisa_crop.png, min_crop.png, park_crop.png, sarah_crop.png, sophie_crop.png, user_female_crop.png, user_male_crop.png
+
+Do the following:
+
+STEP 1: Update src/config/characters.ts to exactly this content:
+
+export const CHARACTER_IMAGES = {
+  sarah: { full: '/characters/sarah.png', crop: '/characters/sarah_crop.png', bg: '#EEF2F8', accent: '#C5D5E8' },
+  james: { full: '/characters/james.png', crop: '/characters/james_crop.png', bg: '#E8F4FF', accent: '#B8D8F0' },
+  lisa: { full: '/characters/lisa.png', crop: '/characters/lisa_crop.png', bg: '#F0F5E8', accent: '#C8DDB0' },
+  min: { full: '/characters/min.png', crop: '/characters/min_crop.png', bg: '#FFF5E8', accent: '#F0D5B0' },
+  park: { full: '/characters/park.png', crop: '/characters/park_crop.png', bg: '#F0EEF5', accent: '#D0C8E0' },
+  sophie: { full: '/characters/sophie.png', crop: '/characters/sophie_crop.png', bg: '#FFF8EE', accent: '#E8D8B8' },
+  user_female: { full: '/characters/user_female.png', crop: '/characters/user_female_crop.png', bg: '#F5EEF8', accent: '#DCC8E8' },
+  user_male: { full: '/characters/user_male.png', crop: '/characters/user_male_crop.png', bg: '#EEF5F0', accent: '#B8DCC0' },
+}
+
+STEP 2: Search the ENTIRE codebase for every place that renders a character image using grep or find. Look for any of these strings: sarah.png, james.png, lisa.png, min.png, park.png, sophie.png, user_female.png, user_male.png
+
+For EVERY file found that contains these strings:
+- If it is the characters page (/characters or CharactersPage) → keep .full
+- If it is the onboarding avatar selection → keep .full for user_female and user_male
+- If it is ANY OTHER file (commute, sidebar, chat, header, profile) → change to .crop version
+
+STEP 3: Open each file found and make the change directly. Do not just update characters.ts and assume components will follow. Manually check and fix each component file one by one.
+
+STEP 4: After fixing, do a final grep search to confirm NO component outside of CharactersPage and Onboarding is using the full body paths (sarah.png, james.png etc without _crop).

@@ -1,0 +1,71 @@
+Implement pixel art characters throughout the app. The character images are stored in the "NPC design" folder inside the koratrade project.
+
+STEP 1 — MOVE FILES TO PUBLIC FOLDER
+Copy all character images from "NPC design" folder to public/characters/ folder:
+- "User(female).png" → public/characters/user_female.png
+- "User(male).png" → public/characters/user_male.png
+- "Sarah kim.png" → public/characters/sarah.png
+- "James park.png" → public/characters/james.png
+- "Lisa Lee.png" → public/characters/lisa.png
+- "Min(최민준).png" → public/characters/min.png
+- "Sophie Beaumont.png" → public/characters/sophie.png
+- "박철수 과장.png" → public/characters/park.png
+
+STEP 2 — ONBOARDING AVATAR SELECTION
+In the onboarding step 2 (avatar selection), completely replace the emoji grid with this:
+
+Show only two large character options side by side:
+- Left: User(female) pixel art image
+- Right: User(male) pixel art image
+
+Design:
+- Each option is a card with rounded border
+- Image displayed at 120x180px size (preserve pixel art quality with image-rendering: pixelated)
+- Below each image: "여성 캐릭터" / "남성 캐릭터" label
+- Selected state: gold border (#8a6530) and light gold background
+- Unselected state: default border
+- User must select one before proceeding to next step
+- Remove all emoji options completely
+- Remove background color picker (no longer needed)
+- Keep the name input field
+
+STEP 3 — CHAT AVATARS (Option B style)
+Replace all emoji avatars in chat with pixel art images.
+
+In ChatPane and all chat components:
+- User messages: show selected character (user_female or user_male) as avatar
+- Sarah messages: show sarah.png
+- James messages: show james.png  
+- Lisa messages: show lisa.png
+- Min messages: show min.png
+- Park manager messages: show park.png
+- Sophie messages: show sophie.png
+
+Avatar display settings:
+- Size: 36x36px in chat bubbles
+- image-rendering: pixelated (keeps pixel art sharp)
+- border-radius: 50% (circular crop)
+- object-fit: cover
+
+STEP 4 — LEFT SIDEBAR NPC LIST
+Replace emoji icons in the left sidebar room list with the pixel art images.
+Same settings: 34x34px, pixelated, circular crop.
+
+STEP 5 — CHARACTER PROFILES PAGE
+In the /characters page, update each character card to show their pixel art image:
+- Display size: 120x180px in the card
+- image-rendering: pixelated
+- No circular crop here — show full character sprite
+- Position the character image prominently at the top of each card
+
+STEP 6 — COMMUTE SCREEN
+In the /commute page, show each NPC's pixel art in their status cards:
+- Display size: 60x90px
+- image-rendering: pixelated
+- No circular crop
+
+IMPORTANT: For all pixel art images, always use:
+style={{ imageRendering: 'pixelated' }}
+This prevents blurry upscaling and keeps the pixel art crisp.
+
+Also save the user's avatar choice (female or male) to localStorage in the user profile so it persists across sessions and shows consistently everywhere.

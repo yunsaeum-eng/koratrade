@@ -1,0 +1,134 @@
+Implement the full learning curriculum with visible learning objectives. Two parts:
+
+PART 1 — LEARNING OBJECTIVES VISIBLE DURING GAMEPLAY
+
+In the right sidebar of the main chat screen, above "오늘의 표현", add a new collapsible section called "오늘의 학습 목표".
+
+Design:
+- Small header "오늘의 학습 목표" with a 🎯 icon
+- Shows 3-4 bullet points of what the user will learn in this episode
+- Each bullet has a checkbox that gets checked as the user progresses
+- Collapsed by default, expands when clicked
+- When all objectives are checked, section turns green with "목표 달성!" message
+
+Example for EP01:
+🎯 오늘의 학습 목표
+☐ 첫 직장 자기소개 영어 표현 5개 체득
+☐ 상사와 동료에게 적절한 인사 방법 익히기
+☐ 업무 지시를 확인하는 표현 자연스럽게 사용하기
+☐ KoraTrade 회사 소개 자료 읽고 핵심 파악하기
+
+Also add a small floating banner at the top of the chat area (dismissable) that shows the current episode's main learning focus in one line. Example: "오늘 목표: 첫 직장 자기소개 완벽하게 하기 💪"
+
+PART 2 — PROGRESS PAGE FULL CURRICULUM VIEW
+
+Completely redesign the /progress page to show the full curriculum in detail.
+
+Page structure:
+
+TOP SECTION — My Learning Journey Overview:
+- Overall progress bar (X episodes completed out of 46 total)
+- Stats row: 완료 에피소드 / 습득 표현 수 / 학습 연속일 / 취득 뱃지
+- Current level indicator with next milestone
+
+SEASON TABS:
+- Horizontal tabs for S1 through S6
+- Active season is expanded, others collapsed
+- Locked seasons show padlock and "이전 시즌 완료 후 해금"
+
+FOR EACH SEASON (expanded view):
+Season header showing:
+- Season number and title
+- Season learning objective (2-3 sentences explaining what you will be able to do after completing)
+- Progress bar (X/8 episodes complete)
+- Season completion badge (earned or locked)
+
+For each episode within the season:
+Episode card showing:
+- Episode number and title
+- Status: 완료 (green) / 진행중 (gold, pulsing) / 미완료 (gray) / 잠금 (locked)
+- Learning objectives list (3-4 items, checked if completed)
+- Core expressions count (e.g. "핵심 표현 5개")
+- Estimated time (e.g. "약 60분")
+- If completed: show completion date and score
+- If in progress: show current phase and % complete
+- Click to expand: shows full list of expressions learned with checkmarks
+
+SEASON 1 FULL DATA to implement:
+
+Season 1 title: 입사 온보딩 — 회사생활 기초
+Season 1 objective: 이 시즌을 완료하면 직장 내 기본 커뮤니케이션을 자연스럽게 할 수 있고, 모르는 것을 물어보고 실수를 수습하는 영어 표현을 체득하며, 비즈니스 이메일의 기본 형식을 이해할 수 있습니다.
+
+EP01 — First Day Jitters (입사 첫날):
+Time: 약 60분
+Objectives:
+- 첫 직장에서 영어로 자기소개를 자연스럽게 할 수 있다
+- 상사와 동료에게 적절한 격식의 인사를 할 수 있다
+- 업무 지시를 받고 마감을 확인하는 표현을 쓸 수 있다
+- KoraTrade 회사 구조와 해외영업팀 역할을 이해한다
+Expressions: Nice to meet you I am new to the team / Could you show me how this works / Thank you so much for your help / I will get right on it / Just to confirm I should finish this by end of day correct
+
+EP02 — Survival Week (첫 주 생존기):
+Time: 약 60분
+Objectives:
+- 모르는 것을 부끄럽지 않게 물어보는 표현을 쓸 수 있다
+- 실수했을 때 자연스럽고 적절하게 사과할 수 있다
+- 타부서 동료에게 정중하게 요청하는 방법을 안다
+- 바이어 DB가 무엇인지 이해하고 기본 구조를 파악한다
+Expressions: I am not entirely sure could you clarify / I apologize for the mistake I will make sure it does not happen again / Could I ask you something I want to make sure I understand correctly / I might be missing something but would it be possible to / I will look into it and get back to you
+
+EP03 — First Solo Mission (첫 업무 독립):
+Time: 약 60분
+Objectives:
+- 업무 진행상황을 상사에게 보고하는 표현을 쓸 수 있다
+- 피드백을 요청하고 반영하는 프로세스를 익힌다
+- 비즈니스 이메일의 기본 구조를 이해한다
+- 초안 작성 후 수정하는 업무 사이클을 경험한다
+Expressions: I would like to report on the progress of / Would it be alright if I asked for your feedback on this / I have completed the first draft please let me know if any changes are needed / I was wondering if there is a better approach to this / I will have it ready by
+
+EP04 — Office Politics 101 (사내 네트워킹):
+Time: 약 60분
+Objectives:
+- 타부서에 정중하게 협조를 요청할 수 있다
+- 바쁜 상대방에게 시간 조율을 제안할 수 있다
+- 도움받았을 때 진심 어린 감사를 표현할 수 있다
+- 한국 직장 내 부탁 문화의 특수성을 이해한다
+Expressions: I understand you are very busy but could you help me with / This is time-sensitive could you give me an ETA / I really appreciate your help on this / Would you be available for a quick chat about / I will make sure to return the favor
+
+EP05 — Email Mastery (비즈니스 이메일 완전정복):
+Time: 약 75분
+Objectives:
+- 비즈니스 이메일 5가지 유형을 직접 작성할 수 있다
+- 정보요청 팔로업 사과 감사 보고 이메일을 구분해서 쓴다
+- 이메일 제목줄을 효과적으로 작성하는 법을 안다
+- 이메일 발송 전 체크리스트를 습관화한다
+Expressions: I am writing to inquire about / I wanted to follow up on our previous conversation / I sincerely apologize for any inconvenience / Thank you for taking the time to / I am writing to update you on the progress of
+
+EP06 — Workplace Survival English (직장 생존 영어 총정리):
+Time: 약 60분
+Objectives:
+- 회의에서 자신의 의견을 자연스럽게 말할 수 있다
+- 나쁜 소식을 전달하는 방법을 안다
+- 동료를 칭찬하고 격려하는 표현을 쓸 수 있다
+- 우선순위 조율과 일정 변경을 요청할 수 있다
+Expressions: I would like to add something if I may / I have some difficult news to share / You did a great job on this / Could we go over the priorities together / I will have it ready by
+
+EP07 — Ready for Action (시즌 1 피날레):
+Time: 약 60분
+Objectives:
+- S1에서 배운 표현 30개를 자연스럽게 종합 활용한다
+- 한 달간의 업무 성과를 영어로 보고할 수 있다
+- S2 바이어 발굴 업무에 대한 브리핑을 이해한다
+- 동료들과 의미있는 관계를 형성했음을 확인한다
+
+SEASON 2 through 6: Show the season overview card with locked state. When user expands a locked season, show the season objectives and a preview of episode titles but keep them grayed out with padlock icons.
+
+BOTTOM SECTION — Skill Radar:
+Show a simple visual radar/spider chart with 6 axes:
+- 이메일 작성 (Email Writing)
+- 미팅 영어 (Meeting English)
+- 협상 표현 (Negotiation)
+- 무역 실무 (Trade Knowledge)
+- 직장 커뮤니케이션 (Workplace Comm)
+- 비즈니스 문화 (Business Culture)
+Each axis fills in as the user completes relevant episodes. Starts empty, fills gradually.
