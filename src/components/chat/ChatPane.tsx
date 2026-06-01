@@ -37,7 +37,7 @@ function npcRelType(npcId: string): string {
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function ChatPane() {
+export default function ChatPane({ onBack }: { onBack?: () => void }) {
   const { state, dispatch } = useGame()
   const { profile } = useAuth()
   const { lang } = useLanguage()
@@ -455,6 +455,10 @@ export default function ChatPane() {
     <div className="h-full flex flex-col relative">
       {/* Header */}
       <div className="px-4 py-3 border-b flex items-center gap-3 flex-shrink-0" style={{ borderColor: '#e0d8cc' }}>
+        {onBack && (
+          <button onClick={onBack} className="md:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl -ml-1"
+            style={{ color: '#8a6530', fontSize: 20 }}>←</button>
+        )}
         {npc ? (
           <>
             <div className="relative">

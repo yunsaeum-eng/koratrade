@@ -1,0 +1,79 @@
+Implement mobile responsive design for KoraTrade. The app currently only works on desktop. Make it work properly on mobile screens (width below 768px).
+
+MOBILE LAYOUT DESIGN:
+
+On mobile, completely change the layout:
+
+1. MAIN CHAT PAGE (/main):
+Desktop: 3-column layout (left sidebar | chat | right sidebar)
+Mobile: Single column, full screen chat with bottom navigation
+
+Mobile main layout:
+- Remove left sidebar and right sidebar from view
+- Chat takes full screen width and height
+- Add a bottom tab bar with 4 tabs:
+  Chat (채팅) | Notes (노트) | People (인물) | Progress (진행)
+- Bottom tab bar height: 60px, fixed at bottom
+- Tab bar background: white, top border
+- Active tab: gold color #8a6530
+- Inactive tab: gray
+
+2. MOBILE CHAT VIEW:
+- Full width chat messages
+- Chat header at top showing current NPC name + back button (←) to go to NPC list
+- Input area fixed at bottom above tab bar
+- Message bubbles max-width: 80%
+
+3. MOBILE NPC LIST (when user taps Chat tab):
+- Show list of all chat rooms full screen
+- Each room: avatar + name + last message + unread badge
+- Tapping a room opens the chat full screen
+- Back button returns to NPC list
+
+4. MOBILE RIGHT PANEL (when user taps Progress/Notes tab):
+- Show the right panel content full screen
+- Today's mission, expressions, notes
+
+5. COMMUTE SCREEN (/commute):
+- Already single column, should work
+- Make sure padding and font sizes are appropriate for mobile
+- NPC cards should stack vertically and be touch-friendly (min height 60px)
+
+6. ONBOARDING (/onboarding):
+- Center content, max-width 100%
+- Larger touch targets for buttons (min height 48px)
+- Avatar selection cards side by side on mobile too
+
+IMPLEMENTATION:
+
+Use Tailwind CSS breakpoints:
+- Default styles = mobile first
+- md: prefix = desktop (768px and above)
+
+Key changes:
+- Left sidebar: hidden on mobile (hidden md:flex)
+- Right sidebar: hidden on mobile (hidden md:flex)  
+- Bottom tab bar: visible on mobile (flex md:hidden)
+- Chat area: full width on mobile (w-full)
+
+Bottom tab bar component (create new component):
+- Fixed bottom, full width
+- 4 tabs: Chat, Notes, People, Progress
+- Each tab: icon + Korean label
+- State management: which tab is active
+- When Chat tab active: show NPC list or current chat
+- When other tabs active: show that page content full screen
+
+NPC List view for mobile:
+- Shows when Chat tab is active and no chat is open
+- Displays all NPCs with same styling as desktop sidebar
+- Search bar at top (optional)
+- Tap NPC → open chat full screen
+- Chat header has ← back button to return to list
+
+Make sure:
+- Touch targets are at least 44px tall
+- Font sizes readable on mobile (minimum 14px for body text)
+- No horizontal scrolling
+- Images scale properly
+- Input field doesn't get covered by keyboard (use proper viewport handling)

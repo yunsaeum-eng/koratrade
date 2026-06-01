@@ -117,7 +117,7 @@ export default function OnboardingPage() {
               <button
                 onClick={() => name.trim() && setStep(1)}
                 disabled={!name.trim()}
-                className="mt-4 w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
+                className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
                 style={{ background: '#8a6530' }}
               >
                 다음 →
@@ -180,7 +180,7 @@ export default function OnboardingPage() {
                   </button>
                 ))}
               </div>
-              <button onClick={handleFinish} className="mt-4 w-full py-2.5 rounded-lg text-sm font-semibold text-white" style={{ background: '#8a6530' }}>
+              <button onClick={handleFinish} className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white" style={{ background: '#8a6530' }}>
                 지원서 제출 🎉
               </button>
             </div>

@@ -64,7 +64,7 @@ export default function CommutePage() {
   const displayLevel = gameLevel || profile?.level || 1
 
   return (
-    <div className="min-h-full flex flex-col items-center justify-center p-4"
+    <div className="min-h-full flex flex-col items-center justify-center p-4 overflow-x-hidden"
       style={{ background: 'linear-gradient(160deg, #f5f0e8 0%, #ede8e0 100%)' }}>
       <div className="w-full max-w-md">
 
