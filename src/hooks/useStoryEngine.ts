@@ -4,16 +4,13 @@ import { useEffect, useRef, useCallback } from 'react'
 import { useGame } from '@/contexts/GameContext'
 import { useLanguage } from './useLanguage'
 import { useAuth } from '@/contexts/AuthContext'
-import { Message } from '@/types'
+import { Message, ExtendedProfile } from '@/types'
+import { loadExtendedProfile } from '@/services/gameData'
 
 interface StoryMessage {
   senderId: string
   content: string
   delayMs: number
-}
-
-function loadExtProfile(uid: string) {
-  try { return JSON.parse(localStorage.getItem(`kt_ext_${uid}`) || 'null') } catch { return null }
 }
 
 export function useStoryEngine() {
@@ -23,6 +20,12 @@ export function useStoryEngine() {
   const firedMeeting = useRef(false)
   const firedDms = useRef<Set<string>>(new Set())
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const extProfile = useRef<ExtendedProfile | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+    loadExtendedProfile(user.uid).then(p => { extProfile.current = p }).catch(() => {})
+  }, [user])
 
   const dispatchStoryMessages = useCallback(
     (roomId: string, messages: StoryMessage[]) => {
@@ -50,7 +53,7 @@ export function useStoryEngine() {
 
   const callStoryAPI = useCallback(
     async (type: 'team_meeting' | 'npc_dm', npcId?: string) => {
-      const ext = user ? loadExtProfile(user.uid) : null
+      const ext = extProfile.current
       const recentRoom = type === 'team_meeting' ? 'team-general' : `dm-${npcId}`
       const recentMessages = (state.messages[recentRoom] || [])
         .slice(-8)
@@ -89,7 +92,7 @@ export function useStoryEngine() {
         console.error('Story engine:', err)
       }
     },
-    [state, lang, user, dispatchStoryMessages],
+    [state, lang, user, dispatchStoryMessages, extProfile],
   )
 
   // Schedule autonomous events once on mount

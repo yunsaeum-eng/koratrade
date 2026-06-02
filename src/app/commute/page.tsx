@@ -9,18 +9,10 @@ import { CHARACTER_IMAGES } from '@/config/characters'
 import { EP01 } from '@/data/episodes'
 import { CURRICULUM, EPISODE_EMOJI } from '@/data/curriculum'
 import { clockToStr } from '@/hooks/useGameClock'
+import { loadGameState } from '@/services/gameData'
 
 type CharKey = keyof typeof CHARACTER_IMAGES
 const getChar = (id: string) => CHARACTER_IMAGES[id as CharKey]
-
-function readSavedClock(uid: string): number {
-  try {
-    const raw = localStorage.getItem(`kt_game_${uid}`)
-    if (!raw) return 540
-    const clock = JSON.parse(raw).gameClockMinutes ?? 540
-    return clock >= 1080 ? 540 : clock
-  } catch { return 540 }
-}
 
 export default function CommutePage() {
   const { user, profile } = useAuth()
@@ -34,17 +26,16 @@ export default function CommutePage() {
 
   useEffect(() => {
     if (!user) { router.replace('/'); return }
-    try {
-      const raw = localStorage.getItem(`kt_game_${user.uid}`)
-      if (raw) {
-        const data = JSON.parse(raw)
-        setSavedClock(readSavedClock(user.uid))
-        setGameXp(data.xp ?? 0)
-        setGameLevel(data.level ?? 1)
-        setCompletedEpIds(data.completedEpisodeIds ?? [])
-        setCurrentEpId(data.currentEpisodeId ?? 'ep01')
-      }
-    } catch { /* ignore */ }
+    loadGameState(user.uid).then(saved => {
+      if (!saved) return
+      const data = saved as Record<string, unknown>
+      const clock = (data.gameClockMinutes as number) ?? 540
+      setSavedClock(clock >= 1080 ? 540 : clock)
+      setGameXp((data.xp as number) ?? 0)
+      setGameLevel((data.level as number) ?? 1)
+      setCompletedEpIds((data.completedEpisodeIds as string[]) ?? [])
+      setCurrentEpId((data.currentEpisodeId as string) ?? 'ep01')
+    }).catch(() => {/* ignore */})
   }, [user, router])
 
   useEffect(() => {

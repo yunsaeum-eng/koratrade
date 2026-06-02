@@ -9,6 +9,8 @@ import { AppView } from '@/types'
 import LanguageSwitcher from './LanguageSwitcher'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
+import { resetProgress, deleteUserData } from '@/services/gameData'
+import { supabase } from '@/lib/supabase'
 
 type CharKey = keyof typeof CHARACTER_IMAGES
 const getChar = (id: string) => CHARACTER_IMAGES[id as CharKey]
@@ -40,6 +42,21 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
   const { lang, setLang } = useLanguage()
   const [popup, setPopup] = useState<NpcPopup | null>(null)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsMode, setSettingsMode] = useState<'menu' | 'reset' | 'delete'>('menu')
+
+  const handleGearReset = async () => {
+    if (!profile) return
+    await resetProgress(profile.uid).catch(console.error)
+    window.location.href = '/commute'
+  }
+
+  const handleGearDelete = async () => {
+    if (!profile) return
+    await deleteUserData(profile.uid).catch(console.error)
+    await supabase.auth.signOut()
+    window.location.href = '/'
+  }
 
   const getNpc = (id: string) => NPCS.find(n => n.id === id)
 
@@ -63,8 +80,62 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
         <span className="font-mono text-xs font-semibold px-1.5 py-0.5 rounded" style={{ background: isAfterWork ? '#fef0e8' : '#faf0dd', color: isAfterWork ? '#c45a00' : '#8a6530' }}>
           {gameTimeStr}
         </span>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
           <LanguageSwitcher lang={lang} onChange={setLang} />
+          <div className="relative">
+            <button
+              onClick={() => { setSettingsOpen(o => !o); setSettingsMode('menu') }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-base transition-all"
+              style={{ background: settingsOpen ? '#faf0dd' : 'transparent' }}
+              title="설정"
+            >⚙️</button>
+            {settingsOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setSettingsOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 w-44 rounded-xl shadow-lg border z-50 overflow-hidden"
+                  style={{ background: 'white', borderColor: '#e0d8cc' }}>
+                  {settingsMode === 'menu' && (
+                    <>
+                      <button onClick={() => { onOpenProfile(); setSettingsOpen(false) }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                        style={{ color: '#1a1208' }}>프로필 수정</button>
+                      <div style={{ height: 1, background: '#f0ece4' }} />
+                      <button onClick={() => setSettingsMode('reset')}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                        style={{ color: '#c0392b' }}>처음부터 다시 시작</button>
+                      <button onClick={() => setSettingsMode('delete')}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                        style={{ color: '#c0392b' }}>회원 탈퇴</button>
+                      <div style={{ height: 1, background: '#f0ece4' }} />
+                      <button onClick={() => { logout(); setSettingsOpen(false) }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                        style={{ color: '#9c8c6e' }}>로그아웃</button>
+                    </>
+                  )}
+                  {settingsMode === 'reset' && (
+                    <div className="p-3 space-y-2">
+                      <p className="text-xs font-medium text-center" style={{ color: '#c0392b' }}>진행상황을 초기화할까요?</p>
+                      <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>XP, 관계도, 에피소드가 삭제됩니다. 계정은 유지됩니다.</p>
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={() => setSettingsMode('menu')} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
+                        <button onClick={handleGearReset} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>초기화하기</button>
+                      </div>
+                    </div>
+                  )}
+                  {settingsMode === 'delete' && (
+                    <div className="p-3 space-y-2">
+                      <p className="text-xs font-medium text-center" style={{ color: '#c0392b' }}>정말 탈퇴하시겠어요?</p>
+                      <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>모든 데이터가 삭제됩니다.</p>
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={() => setSettingsMode('menu')} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
+                        <button onClick={handleGearDelete} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>탈퇴하기</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

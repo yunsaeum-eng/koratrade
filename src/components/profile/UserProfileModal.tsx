@@ -7,16 +7,8 @@ import { ExtendedProfile, Badge } from '@/types'
 import { BADGE_DEFS } from '@/data/badges'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
-
-function loadExtended(uid: string): ExtendedProfile {
-  try {
-    return JSON.parse(localStorage.getItem(`kt_ext_${uid}`) || 'null') ?? {
-      jobGoal: '', englishLevel: 'beginner', industry: '', learningReason: '',
-    }
-  } catch {
-    return { jobGoal: '', englishLevel: 'beginner', industry: '', learningReason: '' }
-  }
-}
+import { resetProgress, deleteUserData, loadExtendedProfile, saveExtendedProfile } from '@/services/gameData'
+import { supabase } from '@/lib/supabase'
 
 interface Props { onClose: () => void }
 
@@ -26,21 +18,31 @@ export default function UserProfileModal({ onClose }: Props) {
   const [ext, setExt] = useState<ExtendedProfile>({ jobGoal: '', englishLevel: 'beginner', industry: '', learningReason: '' })
   const [saved, setSaved] = useState(false)
   const [resetConfirm, setResetConfirm] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
 
-  const handleReset = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.clear()
-      window.location.href = '/'
-    }
+  const handleReset = async () => {
+    if (!profile) return
+    await resetProgress(profile.uid).catch(console.error)
+    window.location.href = '/commute'
+  }
+
+  const handleDelete = async () => {
+    if (!profile) return
+    await deleteUserData(profile.uid).catch(console.error)
+    await supabase.auth.signOut()
+    window.location.href = '/'
   }
 
   useEffect(() => {
-    if (profile) setExt(loadExtended(profile.uid))
+    if (!profile) return
+    loadExtendedProfile(profile.uid).then(loaded => {
+      if (loaded) setExt(loaded)
+    })
   }, [profile])
 
-  const save = () => {
+  const save = async () => {
     if (!profile) return
-    localStorage.setItem(`kt_ext_${profile.uid}`, JSON.stringify(ext))
+    await saveExtendedProfile(profile.uid, ext).catch(console.error)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -180,9 +182,10 @@ export default function UserProfileModal({ onClose }: Props) {
           </div>
         </div>
 
-        {/* Reset — always visible, pinned at bottom outside the scroll area */}
-        <div className="px-5 py-3 border-t" style={{ borderColor: '#e0d8cc' }}>
-          {!resetConfirm ? (
+        {/* Reset & Delete — pinned at bottom */}
+        <div className="px-5 py-3 border-t space-y-2" style={{ borderColor: '#e0d8cc' }}>
+          {/* Reset progress */}
+          {!resetConfirm && !deleteConfirm && (
             <button
               onClick={() => setResetConfirm(true)}
               className="w-full py-2 rounded-xl text-sm font-medium border-2 transition-all"
@@ -190,29 +193,31 @@ export default function UserProfileModal({ onClose }: Props) {
             >
               처음부터 다시 시작
             </button>
-          ) : (
+          )}
+          {resetConfirm && (
             <div className="rounded-xl border-2 p-3 space-y-2" style={{ borderColor: '#e0c8c8', background: '#fff5f5' }}>
-              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>
-                정말 처음부터 다시 시작할까요?
-              </p>
-              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>
-                모든 진행상황이 초기화됩니다.
-              </p>
+              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>정말 모든 진행상황을 초기화할까요?</p>
+              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>에피소드 진행, XP, 관계도가 모두 삭제됩니다. 계정은 유지됩니다.</p>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setResetConfirm(false)}
-                  className="flex-1 py-1.5 rounded-lg text-xs border"
-                  style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white"
-                  style={{ background: '#c0392b' }}
-                >
-                  초기화 확인
-                </button>
+                <button onClick={() => setResetConfirm(false)} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
+                <button onClick={handleReset} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>초기화하기</button>
+              </div>
+            </div>
+          )}
+
+          {/* Delete account */}
+          {!resetConfirm && !deleteConfirm && (
+            <button onClick={() => setDeleteConfirm(true)} className="w-full py-1 text-xs text-center" style={{ color: '#9c8c6e' }}>
+              회원 탈퇴
+            </button>
+          )}
+          {deleteConfirm && (
+            <div className="rounded-xl border-2 p-3 space-y-2" style={{ borderColor: '#e0c8c8', background: '#fff5f5' }}>
+              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>정말 탈퇴하시겠어요?</p>
+              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>모든 데이터가 삭제되며 복구할 수 없습니다.</p>
+              <div className="flex gap-2">
+                <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
+                <button onClick={handleDelete} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>탈퇴하기</button>
               </div>
             </div>
           )}

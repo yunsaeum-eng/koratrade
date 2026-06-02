@@ -1,0 +1,31 @@
+Add reset and account deletion functionality to the app.
+
+FEATURE 1 — RESET PROGRESS (처음부터 다시 시작)
+Add a "처음부터 다시 시작" button in the user profile modal.
+
+Location: Bottom of the user profile modal
+Style: Red/danger button
+Label: "처음부터 다시 시작"
+
+When clicked:
+1. Show confirmation dialog: "정말 모든 진행상황을 초기화할까요? 에피소드 진행, XP, 관계도가 모두 삭제됩니다. 계정은 유지됩니다."
+2. Buttons: "취소" and "초기화하기" (red)
+3. If confirmed: clear only game progress from localStorage (episodes, XP, relationships, missions, expressions) but KEEP account info (email, name, avatar)
+4. Redirect to /commute page
+
+FEATURE 2 — DELETE ACCOUNT (회원 탈퇴)
+Add a "회원 탈퇴" text link below the reset button.
+
+When clicked:
+1. Show confirmation dialog: "정말 탈퇴하시겠어요? 모든 데이터가 삭제되며 복구할 수 없습니다."
+2. Buttons: "취소" and "탈퇴하기" (red)
+3. If confirmed: clear ALL localStorage data
+4. Redirect to login page
+
+FEATURE 3 — SETTINGS GEAR ICON
+Add a ⚙️ settings icon in the top bar next to language toggle.
+Clicking opens dropdown with:
+- 프로필 수정
+- 처음부터 다시 시작
+- 회원 탈퇴
+- 로그아웃

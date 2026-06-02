@@ -1,0 +1,281 @@
+Implement Supabase database to replace localStorage so user data syncs across all devices.
+
+STEP 1 — INSTALL SUPABASE
+Run: npm install @supabase/supabase-js
+
+STEP 2 — SUPABASE CLIENT SETUP
+Create src/lib/supabase.ts:
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseKey)
+
+STEP 3 — DATABASE TABLES
+The user will create these tables in Supabase dashboard. Create a migration file at supabase/schema.sql with this content:
+
+-- Users table (extends Supabase auth)
+create table public.profiles (
+  id uuid references auth.users on delete cascade primary key,
+  name text,
+  avatar text default 'user_female',
+  goal text,
+  english_level text default 'beginner',
+  industry text,
+  motivation text,
+  created_at timestamp with time zone default now()
+);
+
+-- Game state table
+create table public.game_state (
+  id uuid references auth.users on delete cascade primary key,
+  current_season integer default 1,
+  current_episode integer default 1,
+  current_phase integer default 1,
+  game_clock_minutes integer default 540,
+  xp integer default 0,
+  level integer default 1,
+  streak_days integer default 0,
+  last_login_date date,
+  updated_at timestamp with time zone default now()
+);
+
+-- Relationships table
+create table public.relationships (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  npc_id text,
+  score integer default 0,
+  unique(user_id, npc_id)
+);
+
+-- Completed missions table
+create table public.completed_missions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  episode_id text,
+  mission_id text,
+  completed_at timestamp with time zone default now(),
+  unique(user_id, episode_id, mission_id)
+);
+
+-- Learned expressions table
+create table public.learned_expressions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  expression_id text,
+  episode_id text,
+  learned_at timestamp with time zone default now(),
+  unique(user_id, expression_id)
+);
+
+-- Badges table
+create table public.badges (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  badge_id text,
+  earned_at timestamp with time zone default now(),
+  unique(user_id, badge_id)
+);
+
+-- Work notes table
+create table public.work_notes (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  type text, -- 'term', 'expression', 'wrong', 'memo'
+  content text,
+  definition text,
+  tags text[],
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- Chat history table
+create table public.chat_history (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  npc_id text,
+  messages jsonb default '[]'::jsonb,
+  updated_at timestamp with time zone default now(),
+  unique(user_id, npc_id)
+);
+
+-- Enable Row Level Security
+alter table public.profiles enable row level security;
+alter table public.game_state enable row level security;
+alter table public.relationships enable row level security;
+alter table public.completed_missions enable row level security;
+alter table public.learned_expressions enable row level security;
+alter table public.badges enable row level security;
+alter table public.work_notes enable row level security;
+alter table public.chat_history enable row level security;
+
+-- RLS Policies (users can only access their own data)
+create policy "Users can view own profile" on public.profiles for all using (auth.uid() = id);
+create policy "Users can view own game_state" on public.game_state for all using (auth.uid() = id);
+create policy "Users can view own relationships" on public.relationships for all using (auth.uid() = user_id);
+create policy "Users can view own missions" on public.completed_missions for all using (auth.uid() = user_id);
+create policy "Users can view own expressions" on public.learned_expressions for all using (auth.uid() = user_id);
+create policy "Users can view own badges" on public.badges for all using (auth.uid() = user_id);
+create policy "Users can view own notes" on public.work_notes for all using (auth.uid() = user_id);
+create policy "Users can view own chat" on public.chat_history for all using (auth.uid() = user_id);
+
+STEP 4 — AUTH SERVICE
+Create src/services/auth.ts:
+
+import { supabase } from '@/lib/supabase'
+
+export async function signUp(email: string, password: string) {
+  const { data, error } = await supabase.auth.signUp({ email, password })
+  if (error) throw error
+  return data
+}
+
+export async function signIn(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+export async function getCurrentUser() {
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
+
+STEP 5 — DATA SERVICE
+Create src/services/gameData.ts with functions to read/write all game data to Supabase:
+
+import { supabase } from '@/lib/supabase'
+
+export async function saveProfile(userId: string, profile: any) {
+  const { error } = await supabase.from('profiles').upsert({ id: userId, ...profile })
+  if (error) throw error
+}
+
+export async function loadProfile(userId: string) {
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+  if (error) return null
+  return data
+}
+
+export async function saveGameState(userId: string, state: any) {
+  const { error } = await supabase.from('game_state').upsert({ id: userId, ...state, updated_at: new Date().toISOString() })
+  if (error) throw error
+}
+
+export async function loadGameState(userId: string) {
+  const { data, error } = await supabase.from('game_state').select('*').eq('id', userId).single()
+  if (error) return null
+  return data
+}
+
+export async function saveRelationship(userId: string, npcId: string, score: number) {
+  const { error } = await supabase.from('relationships').upsert({ user_id: userId, npc_id: npcId, score })
+  if (error) throw error
+}
+
+export async function loadRelationships(userId: string) {
+  const { data, error } = await supabase.from('relationships').select('*').eq('user_id', userId)
+  if (error) return []
+  return data
+}
+
+export async function completeMission(userId: string, episodeId: string, missionId: string) {
+  const { error } = await supabase.from('completed_missions').upsert({ user_id: userId, episode_id: episodeId, mission_id: missionId })
+  if (error) throw error
+}
+
+export async function loadCompletedMissions(userId: string) {
+  const { data, error } = await supabase.from('completed_missions').select('*').eq('user_id', userId)
+  if (error) return []
+  return data
+}
+
+export async function learnExpression(userId: string, expressionId: string, episodeId: string) {
+  const { error } = await supabase.from('learned_expressions').upsert({ user_id: userId, expression_id: expressionId, episode_id: episodeId })
+  if (error) throw error
+}
+
+export async function loadLearnedExpressions(userId: string) {
+  const { data, error } = await supabase.from('learned_expressions').select('*').eq('user_id', userId)
+  if (error) return []
+  return data
+}
+
+export async function saveChatHistory(userId: string, npcId: string, messages: any[]) {
+  const { error } = await supabase.from('chat_history').upsert({ user_id: userId, npc_id: npcId, messages, updated_at: new Date().toISOString() })
+  if (error) throw error
+}
+
+export async function loadChatHistory(userId: string, npcId: string) {
+  const { data, error } = await supabase.from('chat_history').select('*').eq('user_id', userId).eq('npc_id', npcId).single()
+  if (error) return []
+  return data?.messages || []
+}
+
+export async function deleteAllUserData(userId: string) {
+  await supabase.from('chat_history').delete().eq('user_id', userId)
+  await supabase.from('work_notes').delete().eq('user_id', userId)
+  await supabase.from('badges').delete().eq('user_id', userId)
+  await supabase.from('learned_expressions').delete().eq('user_id', userId)
+  await supabase.from('completed_missions').delete().eq('user_id', userId)
+  await supabase.from('relationships').delete().eq('user_id', userId)
+  await supabase.from('game_state').delete().eq('id', userId)
+  await supabase.from('profiles').delete().eq('id', userId)
+  await supabase.auth.admin.deleteUser(userId)
+}
+
+export async function resetProgress(userId: string) {
+  await supabase.from('chat_history').delete().eq('user_id', userId)
+  await supabase.from('badges').delete().eq('user_id', userId)
+  await supabase.from('learned_expressions').delete().eq('user_id', userId)
+  await supabase.from('completed_missions').delete().eq('user_id', userId)
+  await supabase.from('relationships').delete().eq('user_id', userId)
+  await supabase.from('game_state').delete().eq('id', userId)
+}
+
+STEP 6 — REPLACE LOCALSTORAGE THROUGHOUT APP
+Replace all localStorage.getItem and localStorage.setItem calls with the Supabase service functions above.
+
+Key places to update:
+- Login/signup: use signIn/signUp from auth service
+- Onboarding: save profile with saveProfile
+- Main game: load/save game state, relationships, missions
+- Chat: load/save chat history per NPC
+- Notes: load/save work notes
+- Profile modal: load profile data
+
+STEP 7 — AUTH STATE LISTENER
+In the root layout or a top-level provider, add:
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    // load all user data from Supabase
+    loadAllUserData(session.user.id)
+  }
+  if (event === 'SIGNED_OUT') {
+    // redirect to login
+    router.push('/')
+  }
+})
+
+STEP 8 — ENVIRONMENT VARIABLES NEEDED
+Add to .env.local:
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+Also add these to Vercel environment variables in the Vercel dashboard.
+
+The user needs to:
+1. Go to supabase.com and create a free account
+2. Create a new project
+3. Go to SQL Editor and run the schema.sql content to create tables
+4. Go to Settings > API to get the URL and anon key
+5. Add those to .env.local and Vercel env vars

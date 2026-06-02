@@ -92,7 +92,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs mt-4" style={{ color: '#9c8c6e' }}>
-          데이터는 이 브라우저에만 저장됩니다
+          데이터는 안전하게 클라우드에 저장됩니다
         </p>
       </div>
     </div>

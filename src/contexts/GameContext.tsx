@@ -1,10 +1,11 @@
 'use client'
 
-import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useReducer, useEffect, useRef, ReactNode } from 'react'
 import { NPC, Message, ChatRoom, Episode, Badge, WorkNote } from '@/types'
 import { NPCS, GROUP_ROOM } from '@/data/npcs'
 import { EP01 } from '@/data/episodes'
 import { PHASE_DEFS, getEpisodeExpressions } from '@/data/curriculum'
+import { saveGameState, loadGameState } from '@/services/gameData'
 
 // ─── Persisted shape ──────────────────────────────────────────────────────────
 
@@ -32,37 +33,26 @@ const DEFAULT_NOTES: WorkNote[] = [
   { id: 'wn3', type: 'term', content: 'Follow-up', translation: '팔로업', context: '이전 연락에 대한 후속 이메일 또는 연락', tag: '영업', addedAt: new Date().toISOString(), source: 'auto' },
 ]
 
-function saveGame(uid: string, state: GameState) {
-  try {
-    const data: PersistedGame = {
-      xp: state.xp,
-      level: state.level,
-      badges: state.badges,
-      workNotes: state.workNotes,
-      npcRelationships: Object.fromEntries(state.npcs.map(n => [n.id, n.relationship])),
-      episodeProgress: state.currentEpisode.progress,
-      learnedExpressionIds: state.currentEpisode.expressions.filter(e => e.learned).map(e => e.id),
-      currentSeason: state.currentSeason,
-      gameClockMinutes: state.gameClockMinutes,
-      currentPhase: state.currentPhase,
-      currentEpisodeId: state.currentEpisodeId,
-      completedEpisodeIds: state.completedEpisodeIds,
-      expressionEncounters: state.expressionEncounters,
-      completedMissionIds: state.completedMissionIds,
-      // Persist last 80 messages per room so chats survive refreshes
-      chatHistory: Object.fromEntries(
-        Object.entries(state.messages).map(([room, msgs]) => [room, msgs.slice(-80)])
-      ),
-    }
-    localStorage.setItem(`kt_game_${uid}`, JSON.stringify(data))
-  } catch { /* storage full — ignore */ }
-}
-
-function loadGame(uid: string): PersistedGame | null {
-  try {
-    const raw = localStorage.getItem(`kt_game_${uid}`)
-    return raw ? JSON.parse(raw) : null
-  } catch { return null }
+function buildPersistedGame(state: GameState): PersistedGame {
+  return {
+    xp: state.xp,
+    level: state.level,
+    badges: state.badges,
+    workNotes: state.workNotes,
+    npcRelationships: Object.fromEntries(state.npcs.map(n => [n.id, n.relationship])),
+    episodeProgress: state.currentEpisode.progress,
+    learnedExpressionIds: state.currentEpisode.expressions.filter(e => e.learned).map(e => e.id),
+    currentSeason: state.currentSeason,
+    gameClockMinutes: state.gameClockMinutes,
+    currentPhase: state.currentPhase,
+    currentEpisodeId: state.currentEpisodeId,
+    completedEpisodeIds: state.completedEpisodeIds,
+    expressionEncounters: state.expressionEncounters,
+    completedMissionIds: state.completedMissionIds,
+    chatHistory: Object.fromEntries(
+      Object.entries(state.messages).map(([room, msgs]) => [room, msgs.slice(-80)])
+    ),
+  }
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -111,6 +101,7 @@ type GameAction =
   | { type: 'COMPLETE_MISSION'; missionId: string }
   | { type: 'UNDO_MISSION'; missionId: string }
   | { type: 'SHIFT_MISSION_TOAST' }
+  | { type: 'HYDRATE'; saved: PersistedGame }
 
 const initialRooms: ChatRoom[] = [
   { ...GROUP_ROOM, lastMessage: '', lastMessageAt: new Date(), unreadCount: 0 },
@@ -121,43 +112,26 @@ const initialRooms: ChatRoom[] = [
   { id: 'dm-park',  type: 'dm', name: '박철수 과장',  participants: ['park'],  lastMessage: '', unreadCount: 0 },
 ]
 
-function makeInitialState(uid: string): GameState {
-  const saved = loadGame(uid)
+function makeInitialState(): GameState {
   return {
-    npcs: NPCS.map(n => ({ ...n, relationship: saved?.npcRelationships?.[n.id] ?? n.relationship })),
+    npcs: NPCS.map(n => ({ ...n })),
     rooms: initialRooms,
     activeRoomId: 'dm-james',
-    currentEpisode: {
-      ...EP01,
-      progress: saved?.episodeProgress ?? 0,
-      expressions: EP01.expressions.map(e => ({
-        ...e,
-        learned: saved?.learnedExpressionIds?.includes(e.id) ?? false,
-      })),
-    },
-    xp: saved?.xp ?? 0,
-    level: saved?.level ?? 1,
-    currentSeason: saved?.currentSeason ?? 1,
-    // Auto-reset completed days (>= 18:00) to fresh 09:00
-    gameClockMinutes: (saved?.gameClockMinutes ?? 540) >= 1080 ? 540 : (saved?.gameClockMinutes ?? 540),
-    badges: saved?.badges ?? [],
-    workNotes: saved?.workNotes ?? DEFAULT_NOTES,
+    currentEpisode: { ...EP01, progress: 0 },
+    xp: 0,
+    level: 1,
+    currentSeason: 1,
+    gameClockMinutes: 540,
+    badges: [],
+    workNotes: DEFAULT_NOTES,
     pendingBadge: null,
-    currentPhase: saved?.currentPhase ?? 1,
-    currentEpisodeId: saved?.currentEpisodeId ?? 'ep01',
-    completedEpisodeIds: saved?.completedEpisodeIds ?? [],
-    expressionEncounters: saved?.expressionEncounters ?? {},
-    completedMissionIds: saved?.completedMissionIds ?? [],
+    currentPhase: 1,
+    currentEpisodeId: 'ep01',
+    completedEpisodeIds: [],
+    expressionEncounters: {},
+    completedMissionIds: [],
     pendingMissionToasts: [],
-    // Restore chat history — re-hydrate timestamp strings to Date objects
-    messages: saved?.chatHistory
-      ? Object.fromEntries(
-          Object.entries(saved.chatHistory).map(([room, msgs]) => [
-            room,
-            (msgs as Message[]).map(m => ({ ...m, timestamp: new Date(m.timestamp) })),
-          ])
-        )
-      : {},
+    messages: {},
   }
 }
 
@@ -345,6 +319,41 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
     }
 
+    case 'HYDRATE': {
+      const s = action.saved
+      return {
+        ...state,
+        npcs: NPCS.map(n => ({ ...n, relationship: s.npcRelationships?.[n.id] ?? n.relationship })),
+        xp: s.xp ?? 0,
+        level: s.level ?? 1,
+        badges: s.badges ?? [],
+        workNotes: s.workNotes ?? DEFAULT_NOTES,
+        currentSeason: s.currentSeason ?? 1,
+        gameClockMinutes: (s.gameClockMinutes ?? 540) >= 1080 ? 540 : (s.gameClockMinutes ?? 540),
+        currentPhase: s.currentPhase ?? 1,
+        currentEpisodeId: s.currentEpisodeId ?? 'ep01',
+        completedEpisodeIds: s.completedEpisodeIds ?? [],
+        expressionEncounters: s.expressionEncounters ?? {},
+        completedMissionIds: s.completedMissionIds ?? [],
+        currentEpisode: {
+          ...EP01,
+          progress: s.episodeProgress ?? 0,
+          expressions: EP01.expressions.map(e => ({
+            ...e,
+            learned: s.learnedExpressionIds?.includes(e.id) ?? false,
+          })),
+        },
+        messages: s.chatHistory
+          ? Object.fromEntries(
+              Object.entries(s.chatHistory).map(([room, msgs]) => [
+                room,
+                (msgs as Message[]).map(m => ({ ...m, timestamp: new Date(m.timestamp) })),
+              ])
+            )
+          : state.messages,
+      }
+    }
+
     default:
       return state
   }
@@ -360,12 +369,23 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | null>(null)
 
 export function GameProvider({ uid, children }: { uid: string; children: ReactNode }) {
-  const [state, dispatch] = useReducer(gameReducer, uid, makeInitialState)
+  const [state, dispatch] = useReducer(gameReducer, undefined, makeInitialState)
+  const hydrated = useRef(false)
 
-  // Persist game-progress state on every relevant change
+  // Load from Supabase once on mount
   useEffect(() => {
-    saveGame(uid, state)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadGameState(uid).then(saved => {
+      if (saved) dispatch({ type: 'HYDRATE', saved: saved as PersistedGame })
+      hydrated.current = true
+    }).catch(() => { hydrated.current = true })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid])
+
+  // Persist to Supabase on every relevant change (only after initial load)
+  useEffect(() => {
+    if (!hydrated.current) return
+    saveGameState(uid, buildPersistedGame(state)).catch(console.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, state.xp, state.level, state.currentSeason, state.gameClockMinutes, state.badges, state.workNotes, state.npcs, state.currentEpisode, state.currentPhase, state.completedEpisodeIds, state.expressionEncounters, state.messages, state.completedMissionIds])
 
   return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>
