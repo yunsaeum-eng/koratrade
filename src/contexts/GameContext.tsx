@@ -1,11 +1,16 @@
 'use client'
 
-import { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useReducer, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { NPC, Message, ChatRoom, Episode, Badge, WorkNote, TITLE_BY_LEVEL } from '@/types'
 import { NPCS, GROUP_ROOM } from '@/data/npcs'
 import { EP01 } from '@/data/episodes'
 import { PHASE_DEFS, getEpisodeExpressions } from '@/data/curriculum'
-import { saveGameState, loadGameState, updateProfileStats } from '@/services/gameData'
+import {
+  saveGameState, loadGameState, updateProfileStats,
+  saveChatMessage, loadChatHistory,
+  saveRelationships, loadRelationships,
+  saveCompletedMission, loadCompletedMissions,
+} from '@/services/gameData'
 
 // ─── Persisted shape ──────────────────────────────────────────────────────────
 
@@ -363,40 +368,80 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
 interface GameContextType {
   state: GameState
-  dispatch: React.Dispatch<GameAction>
+  dispatch: (action: GameAction) => void
 }
 
 const GameContext = createContext<GameContextType | null>(null)
 
 export function GameProvider({ uid, children }: { uid: string; children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, makeInitialState)
-  // useState (not useRef) so the save effect re-runs when hydration completes,
-  // even on first load when no prior state exists in Supabase.
   const [hydrated, setHydrated] = useState(false)
+  // Ref mirrors hydrated so syncDispatch closure never goes stale
+  const hydratedRef = useRef(false)
 
-  // Load from Supabase once on mount
+  // Load from all Supabase tables on mount and HYDRATE state
   useEffect(() => {
-    loadGameState(uid).then(saved => {
-      if (saved) dispatch({ type: 'HYDRATE', saved: saved as PersistedGame })
+    Promise.all([
+      loadGameState(uid).catch(() => null),
+      loadChatHistory(uid).catch(() => ({} as Record<string, Message[]>)),
+      loadRelationships(uid).catch(() => ({} as Record<string, number>)),
+      loadCompletedMissions(uid).catch(() => [] as string[]),
+    ]).then(([blob, chatFromTable, relsFromTable, missionsFromTable]) => {
+      const saved = (blob ?? {}) as PersistedGame
+      // Dedicated tables take priority over blob (unlimited history, always up to date)
+      const chatHistory = Object.keys(chatFromTable as Record<string, Message[]>).length > 0
+        ? chatFromTable as Record<string, Message[]>
+        : saved.chatHistory
+      const npcRelationships = Object.keys(relsFromTable as Record<string, number>).length > 0
+        ? relsFromTable as Record<string, number>
+        : saved.npcRelationships
+      const completedMissionIds = (missionsFromTable as string[]).length > 0
+        ? missionsFromTable as string[]
+        : saved.completedMissionIds
+      if (blob || chatHistory || npcRelationships || completedMissionIds) {
+        dispatch({ type: 'HYDRATE', saved: { ...saved, chatHistory, npcRelationships, completedMissionIds } as PersistedGame })
+      }
+      hydratedRef.current = true
       setHydrated(true)
-    }).catch(() => setHydrated(true))
+    }).catch(() => {
+      hydratedRef.current = true
+      setHydrated(true)
+    })
   }, [uid])
 
-  // Persist full game state to Supabase on every relevant change (only after initial load).
-  // hydrated in the dep array ensures the initial state is saved immediately on first load.
+  // Dispatch wrapper: fires granular Supabase writes for specific actions
+  const syncDispatch = useCallback((action: GameAction) => {
+    dispatch(action)
+    if (!hydratedRef.current) return
+    if (action.type === 'ADD_MESSAGE') {
+      saveChatMessage(uid, action.roomId, action.message).catch(console.error)
+    }
+    if (action.type === 'COMPLETE_MISSION') {
+      saveCompletedMission(uid, action.missionId).catch(console.error)
+    }
+  }, [uid])
+
+  // Sync NPC relationships to dedicated table whenever scores change
+  useEffect(() => {
+    if (!hydrated) return
+    const relationships = Object.fromEntries(state.npcs.map(n => [n.id, n.relationship]))
+    saveRelationships(uid, relationships).catch(console.error)
+  }, [hydrated, uid, state.npcs])
+
+  // Full game state blob save: phase, episode, XP, badges, work notes, expressions
   useEffect(() => {
     if (!hydrated) return
     saveGameState(uid, buildPersistedGame(state)).catch(console.error)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, uid, state.xp, state.level, state.currentSeason, state.gameClockMinutes, state.badges, state.workNotes, state.npcs, state.currentEpisode, state.currentPhase, state.completedEpisodeIds, state.expressionEncounters, state.messages, state.completedMissionIds])
 
-  // Keep profiles table in sync so other devices see current XP/level immediately on login.
+  // Keep profiles table XP/level in sync for cross-device login display
   useEffect(() => {
     if (!hydrated) return
     updateProfileStats(uid, state.xp, state.level).catch(console.error)
   }, [hydrated, uid, state.xp, state.level])
 
-  return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ state, dispatch: syncDispatch }}>{children}</GameContext.Provider>
 }
 
 export function useGame() {
