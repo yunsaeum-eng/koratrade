@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
@@ -25,8 +25,14 @@ export default function OnboardingPage() {
   const [avatarGender, setAvatarGender] = useState<'female' | 'male' | null>(null)
   const [goal, setGoal] = useState<Goal>('job')
   const [showOfferLetter, setShowOfferLetter] = useState(false)
-  const { user, setProfile } = useAuth()
+  const { user, setProfile, loading } = useAuth()
   const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/')
+    }
+  }, [loading, user, router])
 
   const handleFinish = () => {
     if (!user || !avatarGender) return
@@ -45,6 +51,14 @@ export default function OnboardingPage() {
     }
     setProfile(profile)
     setShowOfferLetter(true)
+  }
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center" style={{ background: '#f2efe9' }}>
+        <div className="text-sm" style={{ color: '#9c8c6e' }}>Loading...</div>
+      </div>
+    )
   }
 
   if (showOfferLetter) {
