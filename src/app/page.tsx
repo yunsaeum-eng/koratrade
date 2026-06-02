@@ -6,20 +6,19 @@ import { useAuth } from '@/contexts/AuthContext'
 import LoginPage from '@/components/auth/LoginPage'
 
 export default function Home() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, profileLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading) {
-      if (user && profile) {
-        router.replace('/commute')
-      } else if (user && !profile) {
-        router.replace('/onboarding')
-      }
+    if (loading || profileLoading) return
+    if (user && profile) {
+      router.replace('/commute')
+    } else if (user && !profile) {
+      router.replace('/onboarding')
     }
-  }, [user, profile, loading, router])
+  }, [user, profile, loading, profileLoading, router])
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="h-full flex items-center justify-center" style={{ background: '#f2efe9' }}>
         <div className="text-center">
@@ -29,6 +28,8 @@ export default function Home() {
       </div>
     )
   }
+
+  if (user) return null  // redirecting, don't flash LoginPage
 
   return <LoginPage />
 }

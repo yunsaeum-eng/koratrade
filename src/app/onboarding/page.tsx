@@ -25,14 +25,14 @@ export default function OnboardingPage() {
   const [avatarGender, setAvatarGender] = useState<'female' | 'male' | null>(null)
   const [goal, setGoal] = useState<Goal>('job')
   const [showOfferLetter, setShowOfferLetter] = useState(false)
-  const { user, setProfile, loading } = useAuth()
+  const { user, setProfile, loading, profileLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !profileLoading && !user) {
       router.replace('/')
     }
-  }, [loading, user, router])
+  }, [loading, profileLoading, user, router])
 
   const handleFinish = () => {
     if (!user || !avatarGender) return
@@ -53,7 +53,7 @@ export default function OnboardingPage() {
     setShowOfferLetter(true)
   }
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="h-full flex items-center justify-center" style={{ background: '#f2efe9' }}>
         <div className="text-sm" style={{ color: '#9c8c6e' }}>Loading...</div>

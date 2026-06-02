@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
@@ -9,27 +8,26 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const { signInWithEmail, signUpWithEmail } = useAuth()
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
+    setSubmitting(true)
     try {
       if (mode === 'login') {
         await signInWithEmail(email, password)
-        router.push('/commute')
+        // Routing is handled by the root page once profileLoading resolves
       } else {
         await signUpWithEmail(email, password)
-        router.push('/onboarding')
+        // Routing is handled by the root page once profileLoading resolves
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
-    } finally {
-      setLoading(false)
+      setSubmitting(false)
     }
+    // On success: don't reset submitting — the loading spinner will take over
   }
 
   return (
@@ -82,11 +80,11 @@ export default function LoginPage() {
             {error && <p className="text-xs text-red-500">{error}</p>}
             <button
               type="submit"
-              disabled={loading}
+              disabled={submitting}
               className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-50"
               style={{ background: '#8a6530' }}
             >
-              {loading ? '처리 중...' : mode === 'login' ? '입사하기 →' : '지원서 제출 →'}
+              {submitting ? '처리 중...' : mode === 'login' ? '입사하기 →' : '지원서 제출 →'}
             </button>
           </form>
         </div>

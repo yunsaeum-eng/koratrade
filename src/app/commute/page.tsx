@@ -15,7 +15,7 @@ type CharKey = keyof typeof CHARACTER_IMAGES
 const getChar = (id: string) => CHARACTER_IMAGES[id as CharKey]
 
 export default function CommutePage() {
-  const { user, profile } = useAuth()
+  const { user, profile, loading, profileLoading } = useAuth()
   const router = useRouter()
   const [savedClock, setSavedClock] = useState(540)
   const [gameXp, setGameXp] = useState(0)
@@ -25,7 +25,9 @@ export default function CommutePage() {
   const [mapOpen, setMapOpen] = useState(false)
 
   useEffect(() => {
+    if (loading || profileLoading) return
     if (!user) { router.replace('/'); return }
+    if (!profile) { router.replace('/onboarding'); return }
     loadGameState(user.uid).then(saved => {
       if (!saved) return
       const data = saved as Record<string, unknown>
@@ -36,7 +38,7 @@ export default function CommutePage() {
       setCompletedEpIds((data.completedEpisodeIds as string[]) ?? [])
       setCurrentEpId((data.currentEpisodeId as string) ?? 'ep01')
     }).catch(() => {/* ignore */})
-  }, [user, router])
+  }, [user, profile, loading, profileLoading, router])
 
   useEffect(() => {
     if (!user) return

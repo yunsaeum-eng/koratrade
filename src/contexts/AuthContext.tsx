@@ -14,6 +14,7 @@ interface AuthContextType {
   user: LocalUser | null
   profile: UserProfile | null
   loading: boolean
+  profileLoading: boolean
   signInWithEmail: (email: string, password: string) => Promise<void>
   signUpWithEmail: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -26,8 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<LocalUser | null>(null)
   const [profile, setProfileState] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profileLoading, setProfileLoading] = useState(true)
 
   useEffect(() => {
+    // Initial session check — sets both loading flags when done
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         const u = { uid: session.user.id, email: session.user.email! }
@@ -35,22 +38,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loadProfile(session.user.id).then(p => {
           if (p) setProfileState(p)
           setLoading(false)
+          setProfileLoading(false)
         })
       } else {
         setLoading(false)
+        setProfileLoading(false)
       }
     })
 
+    // Fires on sign-in, sign-out, and token refresh
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         const u = { uid: session.user.id, email: session.user.email! }
         setUser(u)
+        setProfileLoading(true)
         loadProfile(session.user.id).then(p => {
           if (p) setProfileState(p)
+          setProfileLoading(false)
         })
       } else {
         setUser(null)
         setProfileState(null)
+        setProfileLoading(false)
       }
     })
 
@@ -77,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithEmail, signUpWithEmail, logout, setProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileLoading, signInWithEmail, signUpWithEmail, logout, setProfile }}>
       {children}
     </AuthContext.Provider>
   )
