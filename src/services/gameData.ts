@@ -24,7 +24,7 @@ export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
 }
 
 export async function loadProfile(userId: string): Promise<UserProfile | null> {
-  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
   if (error || !data) return null
   return {
     uid: data.id,
@@ -46,7 +46,7 @@ export async function loadExtendedProfile(userId: string): Promise<ExtendedProfi
     .from('profiles')
     .select('job_goal, english_level, industry, learning_reason')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
   if (error || !data) return null
   return {
     jobGoal: data.job_goal ?? '',
@@ -87,7 +87,7 @@ export async function loadGameState(userId: string): Promise<unknown | null> {
     .from('game_state')
     .select('data')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
   if (error || !data) return null
   return data.data
 }

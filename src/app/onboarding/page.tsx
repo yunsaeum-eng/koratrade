@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
 import { useAuth } from '@/contexts/AuthContext'
+import { saveProfile } from '@/services/gameData'
 import { UserProfile, Goal, GOAL_LABELS } from '@/types'
 
 const GOALS: { key: Goal; emoji: string; desc: string }[] = [
@@ -25,6 +26,8 @@ export default function OnboardingPage() {
   const [avatarGender, setAvatarGender] = useState<'female' | 'male' | null>(null)
   const [goal, setGoal] = useState<Goal>('job')
   const [showOfferLetter, setShowOfferLetter] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const { user, setProfile, loading } = useAuth()
   const router = useRouter()
 
@@ -32,7 +35,7 @@ export default function OnboardingPage() {
     if (!loading && !user) router.replace('/')
   }, [loading, user, router])
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (!user || !avatarGender) return
     const profile: UserProfile = {
       uid: user.uid,
@@ -47,8 +50,17 @@ export default function OnboardingPage() {
       title: 'Intern',
       createdAt: new Date(),
     }
-    setProfile(profile)
-    setShowOfferLetter(true)
+    setSaving(true)
+    setSaveError('')
+    try {
+      await saveProfile(profile)
+      setProfile(profile)
+      setShowOfferLetter(true)
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : '저장에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -192,8 +204,9 @@ export default function OnboardingPage() {
                   </button>
                 ))}
               </div>
-              <button onClick={handleFinish} className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white" style={{ background: '#8a6530' }}>
-                지원서 제출 🎉
+              {saveError && <p className="text-xs text-red-500 mt-2">{saveError}</p>}
+              <button onClick={handleFinish} disabled={saving} className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#8a6530' }}>
+                {saving ? '저장 중...' : '지원서 제출 🎉'}
               </button>
             </div>
           )}
