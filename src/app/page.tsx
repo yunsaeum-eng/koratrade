@@ -9,12 +9,12 @@ export default function Home() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
 
-  // Handles the "app restore" case: user returns with a stored Supabase session.
-  // LoginPage handles routing after a fresh sign-in / sign-up.
+  // Only auto-redirect fully onboarded users (stored session + profile).
+  // Everyone else — including users with a session but no profile — must go
+  // through the login form so LoginPage can route them explicitly.
   useEffect(() => {
     if (loading) return
     if (user && profile) router.replace('/commute')
-    else if (user && !profile) router.replace('/onboarding')
   }, [user, profile, loading, router])
 
   if (loading) {
@@ -28,8 +28,8 @@ export default function Home() {
     )
   }
 
-  // User is logged in — useEffect above is redirecting, don't flash LoginPage
-  if (user) return null
+  // Fully onboarded user — redirecting to /commute, don't flash the login page
+  if (user && profile) return null
 
   return <LoginPage />
 }
