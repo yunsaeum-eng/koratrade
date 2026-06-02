@@ -70,7 +70,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
     hoverTimer.current = setTimeout(() => setPopup(null), 200)
   }
 
-  const popupNpc = popup ? NPCS.find(n => n.id === popup.npcId) : null
+  const popupNpc = popup ? state.npcs.find(n => n.id === popup.npcId) : null
 
   return (
     <div className="h-full flex flex-col text-sm relative">
@@ -260,9 +260,10 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
 
       {/* NPC hover popup — fixed position */}
       {popup && popupNpc && (() => {
-        const ch = getChar(popupNpc.id)
+        const ch = getChar(popup.npcId)
         return (
           <div
+            key={popup.npcId}
             onMouseEnter={() => hoverTimer.current && clearTimeout(hoverTimer.current)}
             onMouseLeave={handleNpcLeave}
             className="fixed z-50 w-52 rounded-2xl shadow-xl border p-3"
