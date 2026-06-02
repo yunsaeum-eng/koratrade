@@ -393,7 +393,7 @@ export function GameProvider({ uid, children }: { uid: string; children: ReactNo
   // Keep profiles table in sync so other devices see current XP/level immediately on login.
   useEffect(() => {
     if (!hydrated) return
-    updateProfileStats(uid, state.xp, state.level, TITLE_BY_LEVEL[state.level] ?? 'Intern').catch(console.error)
+    updateProfileStats(uid, state.xp, state.level).catch(console.error)
   }, [hydrated, uid, state.xp, state.level])
 
   return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>
