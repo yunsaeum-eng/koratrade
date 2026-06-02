@@ -14,7 +14,15 @@ export default function Home() {
   // through the login form so LoginPage can route them explicitly.
   useEffect(() => {
     if (loading) return
-    if (user && profile) router.replace('/commute')
+    console.log('[PAGE] auth resolved — user:', user?.uid ?? 'null', '| profile:', profile ? profile.name : 'null')
+    if (user && profile) {
+      console.log('[PAGE] stored session + profile found → redirecting to /commute')
+      router.replace('/commute')
+    } else if (user && !profile) {
+      console.log('[PAGE] stored session but NO profile → showing login page (user must log in explicitly)')
+    } else {
+      console.log('[PAGE] no session → showing login page')
+    }
   }, [user, profile, loading, router])
 
   if (loading) {

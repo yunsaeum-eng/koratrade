@@ -24,12 +24,24 @@ export default function LoginPage() {
         await signInWithEmail(email, password)
         // Check whether this user has a profile to decide where to send them
         const { data: { session } } = await supabase.auth.getSession()
+        console.log('[LOGIN] 1. Supabase session user:', session?.user?.id ?? 'null — no session found')
         if (session?.user) {
-          const existing = await loadProfile(session.user.id).catch(() => null)
-          router.push(existing ? '/commute' : '/onboarding')
+          const existing = await loadProfile(session.user.id).catch((err) => {
+            console.error('[LOGIN] 2. loadProfile threw an error:', err)
+            return null
+          })
+          console.log('[LOGIN] 2. profiles table result:', existing
+            ? { name: existing.name, goal: existing.goal, level: existing.level }
+            : 'null — no profile row found')
+          const destination = existing ? '/commute' : '/onboarding'
+          console.log('[LOGIN] 3. Redirecting to:', destination, existing ? '(profile exists)' : '(no profile → onboarding)')
+          router.push(destination)
+        } else {
+          console.warn('[LOGIN] 3. No session after signIn — not redirecting')
         }
       } else {
         await signUpWithEmail(email, password)
+        console.log('[SIGNUP] Redirecting to /onboarding (new user)')
         router.push('/onboarding')
       }
     } catch (err: unknown) {
