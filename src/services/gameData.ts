@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { UserProfile, ExtendedProfile } from '@/types'
 
 export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
-  const { error } = await supabase.from('profiles').upsert({
+  const payload = {
     id: profile.uid,
     email: profile.email,
     name: profile.name,
@@ -19,8 +19,14 @@ export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
       industry: ext.industry,
       learning_reason: ext.learningReason,
     } : {}),
-  })
-  if (error) throw error
+  }
+  console.log('[saveProfile] upserting uid:', profile.uid, 'payload:', payload)
+  const { error } = await supabase.from('profiles').upsert(payload)
+  if (error) {
+    console.error('[saveProfile] Supabase error:', error.code, error.message, error.details, error.hint)
+    throw error
+  }
+  console.log('[saveProfile] success for uid:', profile.uid)
 }
 
 export async function loadProfile(userId: string): Promise<UserProfile | null> {
