@@ -15,7 +15,7 @@ type CharKey = keyof typeof CHARACTER_IMAGES
 const getChar = (id: string) => CHARACTER_IMAGES[id as CharKey]
 
 export default function CommutePage() {
-  const { user, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const router = useRouter()
   const [savedClock, setSavedClock] = useState(540)
   const [gameXp, setGameXp] = useState(0)
