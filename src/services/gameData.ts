@@ -66,6 +66,13 @@ export async function saveExtendedProfile(userId: string, ext: ExtendedProfile) 
   if (error) throw error
 }
 
+export async function updateProfileStats(userId: string, xp: number, level: number, title: string) {
+  const { error } = await supabase.from('profiles')
+    .update({ xp, level, title })
+    .eq('id', userId)
+  if (error) throw error
+}
+
 export async function saveGameState(userId: string, data: unknown) {
   const { error } = await supabase.from('game_state').upsert({
     id: userId,

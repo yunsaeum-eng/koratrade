@@ -1,11 +1,11 @@
 'use client'
 
-import { createContext, useContext, useReducer, useEffect, useRef, ReactNode } from 'react'
-import { NPC, Message, ChatRoom, Episode, Badge, WorkNote } from '@/types'
+import { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react'
+import { NPC, Message, ChatRoom, Episode, Badge, WorkNote, TITLE_BY_LEVEL } from '@/types'
 import { NPCS, GROUP_ROOM } from '@/data/npcs'
 import { EP01 } from '@/data/episodes'
 import { PHASE_DEFS, getEpisodeExpressions } from '@/data/curriculum'
-import { saveGameState, loadGameState } from '@/services/gameData'
+import { saveGameState, loadGameState, updateProfileStats } from '@/services/gameData'
 
 // ─── Persisted shape ──────────────────────────────────────────────────────────
 
@@ -370,23 +370,31 @@ const GameContext = createContext<GameContextType | null>(null)
 
 export function GameProvider({ uid, children }: { uid: string; children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, makeInitialState)
-  const hydrated = useRef(false)
+  // useState (not useRef) so the save effect re-runs when hydration completes,
+  // even on first load when no prior state exists in Supabase.
+  const [hydrated, setHydrated] = useState(false)
 
   // Load from Supabase once on mount
   useEffect(() => {
     loadGameState(uid).then(saved => {
       if (saved) dispatch({ type: 'HYDRATE', saved: saved as PersistedGame })
-      hydrated.current = true
-    }).catch(() => { hydrated.current = true })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+      setHydrated(true)
+    }).catch(() => setHydrated(true))
   }, [uid])
 
-  // Persist to Supabase on every relevant change (only after initial load)
+  // Persist full game state to Supabase on every relevant change (only after initial load).
+  // hydrated in the dep array ensures the initial state is saved immediately on first load.
   useEffect(() => {
-    if (!hydrated.current) return
+    if (!hydrated) return
     saveGameState(uid, buildPersistedGame(state)).catch(console.error)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid, state.xp, state.level, state.currentSeason, state.gameClockMinutes, state.badges, state.workNotes, state.npcs, state.currentEpisode, state.currentPhase, state.completedEpisodeIds, state.expressionEncounters, state.messages, state.completedMissionIds])
+  }, [hydrated, uid, state.xp, state.level, state.currentSeason, state.gameClockMinutes, state.badges, state.workNotes, state.npcs, state.currentEpisode, state.currentPhase, state.completedEpisodeIds, state.expressionEncounters, state.messages, state.completedMissionIds])
+
+  // Keep profiles table in sync so other devices see current XP/level immediately on login.
+  useEffect(() => {
+    if (!hydrated) return
+    updateProfileStats(uid, state.xp, state.level, TITLE_BY_LEVEL[state.level] ?? 'Intern').catch(console.error)
+  }, [hydrated, uid, state.xp, state.level])
 
   return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>
 }
