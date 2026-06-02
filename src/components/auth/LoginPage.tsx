@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
+import { loadProfile } from '@/services/gameData'
 
 export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -10,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const { signInWithEmail, signUpWithEmail } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,16 +22,20 @@ export default function LoginPage() {
     try {
       if (mode === 'login') {
         await signInWithEmail(email, password)
-        // Routing is handled by the root page once profileLoading resolves
+        // Check whether this user has a profile to decide where to send them
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          const existing = await loadProfile(session.user.id).catch(() => null)
+          router.push(existing ? '/commute' : '/onboarding')
+        }
       } else {
         await signUpWithEmail(email, password)
-        // Routing is handled by the root page once profileLoading resolves
+        router.push('/onboarding')
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
       setSubmitting(false)
     }
-    // On success: don't reset submitting — the loading spinner will take over
   }
 
   return (

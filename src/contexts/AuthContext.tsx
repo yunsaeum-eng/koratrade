@@ -14,7 +14,6 @@ interface AuthContextType {
   user: LocalUser | null
   profile: UserProfile | null
   loading: boolean
-  profileLoading: boolean
   signInWithEmail: (email: string, password: string) => Promise<void>
   signUpWithEmail: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -27,43 +26,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<LocalUser | null>(null)
   const [profile, setProfileState] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [profileLoading, setProfileLoading] = useState(true)
 
   useEffect(() => {
-    // Initial session check — sets both loading flags when done
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let mounted = true
+
+    // Single source of truth for initial auth state.
+    // loading stays true until this resolves so no page renders prematurely.
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return
       if (session?.user) {
         const u = { uid: session.user.id, email: session.user.email! }
         setUser(u)
-        loadProfile(session.user.id).then(p => {
-          if (p) setProfileState(p)
-          setLoading(false)
-          setProfileLoading(false)
-        })
-      } else {
-        setLoading(false)
-        setProfileLoading(false)
+        const p = await loadProfile(session.user.id).catch(() => null)
+        if (!mounted) return
+        if (p) setProfileState(p)
       }
+      setLoading(false)
     })
 
-    // Fires on sign-in, sign-out, and token refresh
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Only handles changes AFTER initial load (sign-in, sign-out, token refresh).
+    // Skipping INITIAL_SESSION avoids racing with getSession above.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return
+      if (!mounted) return
       if (session?.user) {
         const u = { uid: session.user.id, email: session.user.email! }
         setUser(u)
-        setProfileLoading(true)
-        loadProfile(session.user.id).then(p => {
-          if (p) setProfileState(p)
-          setProfileLoading(false)
-        })
+        loadProfile(session.user.id)
+          .then(p => { if (mounted) setProfileState(p) })
+          .catch(() => { if (mounted) setProfileState(null) })
       } else {
         setUser(null)
         setProfileState(null)
-        setProfileLoading(false)
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const setProfile = (p: UserProfile) => {
@@ -86,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, profileLoading, signInWithEmail, signUpWithEmail, logout, setProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, signInWithEmail, signUpWithEmail, logout, setProfile }}>
       {children}
     </AuthContext.Provider>
   )
