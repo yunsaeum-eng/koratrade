@@ -54,7 +54,7 @@ export default function UserProfileModal({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)' }}>
-      <div className="w-full max-w-md mx-4 rounded-2xl shadow-xl overflow-hidden" style={{ background: 'white', maxHeight: '90vh' }}>
+      <div className="w-full max-w-md mx-4 rounded-2xl shadow-xl flex flex-col" style={{ background: 'white', maxHeight: '90vh' }}>
         {/* Header */}
         <div className="px-5 py-4 border-b flex items-center gap-3" style={{ borderColor: '#e0d8cc' }}>
           {profile ? (
@@ -76,7 +76,7 @@ export default function UserProfileModal({ onClose }: Props) {
           <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100" style={{ color: '#9c8c6e' }}>✕</button>
         </div>
 
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 70px)' }}>
+        <div className="overflow-y-auto flex-1 min-h-0">
           {profile && <>
             {/* Badges */}
             <div className="px-5 py-4 border-b" style={{ borderColor: '#e0d8cc' }}>
@@ -189,7 +189,7 @@ export default function UserProfileModal({ onClose }: Props) {
         </div>
 
         {/* Reset & Delete — pinned at bottom */}
-        <div className="px-5 py-3 border-t space-y-2" style={{ borderColor: '#e0d8cc' }}>
+        <div className="flex-shrink-0 px-5 py-3 border-t space-y-2" style={{ borderColor: '#e0d8cc' }}>
           {/* Reset progress */}
           {!resetConfirm && !deleteConfirm && (
             <button
