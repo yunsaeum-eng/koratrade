@@ -38,7 +38,7 @@ function npcRelType(npcId: string): string {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function ChatPane({ onBack }: { onBack?: () => void }) {
-  const { state, dispatch } = useGame()
+  const { state, dispatch, hydrated } = useGame()
   const { profile } = useAuth()
   const { lang } = useLanguage()
   const [input, setInput] = useState('')
@@ -155,11 +155,12 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
       })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, lang, profile, dispatch])
+  }, [state, lang, profile, dispatch, hydrated])
 
   // ── Initialize NPC DMs — scripted or AI greeting ─────────────────────────
   useEffect(() => {
     if (!roomId) return
+    if (!hydrated) return
     const alreadyHasMessages = (state.messages[roomId]?.length ?? 0) > 0
     if (alreadyHasMessages) return
     if (initFiredRef.current.has(roomId)) return

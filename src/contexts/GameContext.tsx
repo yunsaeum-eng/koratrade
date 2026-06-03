@@ -369,6 +369,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 interface GameContextType {
   state: GameState
   dispatch: (action: GameAction) => void
+  hydrated: boolean
 }
 
 const GameContext = createContext<GameContextType | null>(null)
@@ -441,7 +442,7 @@ export function GameProvider({ uid, children }: { uid: string; children: ReactNo
     updateProfileStats(uid, state.xp, state.level).catch(console.error)
   }, [hydrated, uid, state.xp, state.level])
 
-  return <GameContext.Provider value={{ state, dispatch: syncDispatch }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ state, dispatch: syncDispatch, hydrated }}>{children}</GameContext.Provider>
 }
 
 export function useGame() {
