@@ -97,7 +97,11 @@ export async function loadGameState(userId: string): Promise<unknown | null> {
 
 // ─── Chat history ──────────────────────────────────────────────────────────────
 
+const FALLBACK_CONTENTS = ['sorry, could you say that again', '잠깐만요', 'one moment', '잠시 후']
+
 export async function saveChatMessage(userId: string, roomId: string, message: Message) {
+  const msgContent = (message.content ?? '').toLowerCase()
+  if (FALLBACK_CONTENTS.some(f => msgContent.includes(f))) return
   const { error } = await supabase.from('chat_history').upsert({
     user_id: userId,
     room_id: roomId,
