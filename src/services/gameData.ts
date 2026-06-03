@@ -121,9 +121,12 @@ export async function loadChatHistory(userId: string): Promise<Record<string, Me
     .eq('user_id', userId)
     .order('created_at', { ascending: true })
   if (error || !data) return {}
+  const FALLBACK_CONTENTS = ['sorry, could you say that again', '잠깐만요', 'one moment']
   const result: Record<string, Message[]> = {}
   for (const row of data) {
     if (!result[row.room_id]) result[row.room_id] = []
+    const msgContent = (row.content ?? '').toLowerCase()
+    if (FALLBACK_CONTENTS.some(f => msgContent.includes(f))) continue
     result[row.room_id].push({
       id: row.message_id,
       roomId: row.room_id,
