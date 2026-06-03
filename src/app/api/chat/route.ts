@@ -337,14 +337,16 @@ export async function POST(req: NextRequest) {
   history.push({ role: 'user', content: body.userMessage })
 
   // Last 3 assistant messages from this NPC — used to detect repetition
+  const FALLBACK_STRINGS = ['sorry, could you say that again', 'one moment', '잠깐만요', '잠시 후']
   const recentNpcLines = body.conversationHistory
     .filter(m => m.role === 'assistant')
+    .filter(m => !FALLBACK_STRINGS.some(f => m.content.toLowerCase().includes(f)))
     .slice(-3)
     .map(m => m.content)
 
   const noRepeatSuffix = body.language !== 'english'
-    ? '\n\n경고: 방금 한 말과 비슷한 내용을 반복하지 마세요. 새로운 정보를 추가하거나, 질문하거나, 대화를 다른 방향으로 발전시키세요.'
-    : '\n\nWARNING: Do NOT repeat what you just said. Add new information, ask a question, or move the conversation forward in a different direction.'
+    ? '\n\n경고: 방금 한 말과 비슷한 내용을 반복하지 마세요. "잠깐만요", "다시 말씀해주세요" 같은 회피성 답변 절대 금지. 반드시 새로운 내용으로 직접 답하세요.'
+    : '\n\nWARNING: Do NOT say "Sorry, could you say that again" or any variation. Do NOT repeat what you just said. Give a direct, new response that moves the conversation forward.'
 
   try {
     const client = new Anthropic({ apiKey })
