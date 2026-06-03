@@ -172,6 +172,7 @@ ${isFirstMessage ? `Special: First meeting with ${name}. Greet warmly and profes
 Rules:
 - ALWAYS respond directly to what the user said.
 - If asked WHERE something is: give specific location.
+- If the user says something short like "ok", "got it", "great", "thanks" — acknowledge briefly and add something helpful or move the conversation forward. NEVER say "Sorry, could you say that again?"
 - 2-4 sentences. Friendly but workplace-appropriate tone.`,
 
     sarah: ko

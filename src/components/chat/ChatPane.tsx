@@ -157,6 +157,15 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, lang, profile, dispatch, hydrated])
 
+  // ── Script mode ────────────────────────────────────────────────────────────
+  const episodeId = state.currentEpisodeId ?? 'ep01'
+  const scriptData = getScript(roomId, episodeId)
+  const scriptMissions = getScriptMissions(roomId, episodeId)
+  // Script mode is active when: script exists AND not all its missions are complete AND script not done this session
+  const allScriptMissionsDone = scriptMissions.length > 0 && scriptMissions.every(id => state.completedMissionIds.includes(id))
+  const inScriptMode = !!scriptData && !allScriptMissionsDone && !scriptDone
+  const currentExchange = inScriptMode ? scriptData.exchanges[scriptExchangeIdx] ?? null : null
+
   // ── Initialize NPC DMs — scripted or AI greeting ─────────────────────────
   useEffect(() => {
     if (!roomId) return
@@ -202,15 +211,6 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
     }, delay)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId])
-
-  // ── Script mode ────────────────────────────────────────────────────────────
-  const episodeId = state.currentEpisodeId ?? 'ep01'
-  const scriptData = getScript(roomId, episodeId)
-  const scriptMissions = getScriptMissions(roomId, episodeId)
-  // Script mode is active when: script exists AND not all its missions are complete AND script not done this session
-  const allScriptMissionsDone = scriptMissions.length > 0 && scriptMissions.every(id => state.completedMissionIds.includes(id))
-  const inScriptMode = !!scriptData && !allScriptMissionsDone && !scriptDone
-  const currentExchange = inScriptMode ? scriptData.exchanges[scriptExchangeIdx] ?? null : null
 
   // Reset script/session state when room changes
   useEffect(() => {
