@@ -87,7 +87,7 @@ export default function MainLayout() {
         {view === 'chat'     && <ChatPane />}
         {view === 'profiles' && <CharacterProfiles />}
         {view === 'notes'    && <WorkNotes />}
-        {view === 'progress' && <SeasonMap />}
+        {view === 'progress' && <SeasonMap onSelectEpisode={() => setView('chat')} />}
       </div>
 
       {/* ── Desktop: Right sidebar ── */}
@@ -110,7 +110,7 @@ export default function MainLayout() {
         )}
         {view === 'profiles' && <CharacterProfiles />}
         {view === 'notes'    && <WorkNotes />}
-        {view === 'progress' && <SeasonMap />}
+        {view === 'progress' && <SeasonMap onSelectEpisode={() => { setView('chat'); setMobileShowChat(false) }} />}
       </div>
 
       {/* ── Mobile: Bottom tab bar ── */}

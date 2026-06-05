@@ -4,7 +4,7 @@ import { createContext, useContext, useReducer, useEffect, useState, useRef, use
 import { NPC, Message, ChatRoom, Episode, Badge, WorkNote, TITLE_BY_LEVEL } from '@/types'
 import { NPCS, GROUP_ROOM } from '@/data/npcs'
 import { EP01 } from '@/data/episodes'
-import { PHASE_DEFS, getEpisodeExpressions } from '@/data/curriculum'
+import { PHASE_DEFS, getEpisodeExpressions, getCurriculumEpisode } from '@/data/curriculum'
 import {
   saveGameState, loadGameState, updateProfileStats,
   saveChatMessage, loadChatHistory,
@@ -279,14 +279,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'SET_EPISODE': {
+      const newEpData = getCurriculumEpisode(action.episodeId)
+      const newExpressions = getEpisodeExpressions(action.episodeId)
       return {
         ...state,
         currentEpisodeId: action.episodeId,
         currentPhase: 1,
         expressionEncounters: {},
+        messages: {},
         currentEpisode: {
-          ...state.currentEpisode,
+          id: action.episodeId,
+          season: newEpData?.season ?? 1,
+          episode: newEpData?.episode ?? 1,
+          title: newEpData?.title ?? '',
+          titleKr: newEpData?.titleKr ?? '',
+          date: new Date().toISOString().slice(0, 10),
+          status: 'active' as const,
           progress: 0,
+          expressions: newExpressions,
         },
       }
     }
@@ -326,6 +336,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'HYDRATE': {
       const s = action.saved
+      const episodeId = s.currentEpisodeId ?? 'ep01'
+      const hydratedEpData = getCurriculumEpisode(episodeId) ?? EP01
+      const hydratedExpressions = getEpisodeExpressions(episodeId)
       return {
         ...state,
         npcs: NPCS.map(n => ({ ...n, relationship: s.npcRelationships?.[n.id] ?? n.relationship })),
@@ -336,14 +349,20 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         currentSeason: s.currentSeason ?? 1,
         gameClockMinutes: (s.gameClockMinutes ?? 540) >= 1080 ? 540 : (s.gameClockMinutes ?? 540),
         currentPhase: s.currentPhase ?? 1,
-        currentEpisodeId: s.currentEpisodeId ?? 'ep01',
+        currentEpisodeId: episodeId,
         completedEpisodeIds: s.completedEpisodeIds ?? [],
         expressionEncounters: s.expressionEncounters ?? {},
         completedMissionIds: s.completedMissionIds ?? [],
         currentEpisode: {
-          ...EP01,
+          id: episodeId,
+          season: hydratedEpData.season,
+          episode: hydratedEpData.episode,
+          title: hydratedEpData.title,
+          titleKr: hydratedEpData.titleKr,
+          date: EP01.date,
+          status: 'active' as const,
           progress: s.episodeProgress ?? 0,
-          expressions: EP01.expressions.map(e => ({
+          expressions: hydratedExpressions.map(e => ({
             ...e,
             learned: s.learnedExpressionIds?.includes(e.id) ?? false,
           })),

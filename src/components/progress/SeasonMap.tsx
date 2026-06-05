@@ -85,13 +85,14 @@ function RadarChart({ completedIds }: { completedIds: string[] }) {
 // ─── Episode card ─────────────────────────────────────────────────────────────
 
 function EpisodeCard({
-  ep, status, isCurrent, progress, completedDate,
+  ep, status, isCurrent, progress, completedDate, onSelect,
 }: {
   ep: typeof CURRICULUM[0]
   status: 'completed' | 'active' | 'locked'
   isCurrent: boolean
   progress: number
   completedDate?: string
+  onSelect?: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const emoji = EPISODE_EMOJI[ep.id] ?? '📋'
@@ -131,7 +132,27 @@ function EpisodeCard({
           )}
         </div>
 
-        {status !== 'locked' && <span className="text-xs" style={{ color: '#9c8c6e' }}>{expanded ? '▲' : '▼'}</span>}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {status !== 'locked' && onSelect && !isCurrent && (
+            <button
+              onClick={e => { e.stopPropagation(); onSelect() }}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+              style={{ background: status === 'completed' ? '#f2efe9' : '#8a6530', color: status === 'completed' ? '#8a6530' : 'white' }}
+            >
+              {status === 'completed' ? '다시 하기' : '시작하기'}
+            </button>
+          )}
+          {isCurrent && onSelect && (
+            <button
+              onClick={e => { e.stopPropagation(); onSelect() }}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+              style={{ background: '#8a6530', color: 'white' }}
+            >
+              이어하기
+            </button>
+          )}
+          {status !== 'locked' && <span className="text-xs" style={{ color: '#9c8c6e' }}>{expanded ? '▲' : '▼'}</span>}
+        </div>
       </button>
 
       {/* Progress bar for active */}
@@ -184,8 +205,8 @@ function EpisodeCard({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function SeasonMap() {
-  const { state } = useGame()
+export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () => void }) {
+  const { state, dispatch } = useGame()
   const { profile } = useAuth()
   const [activeSeason, setActiveSeason] = useState(1)
   const { completedEpisodeIds, currentEpisodeId, currentSeason, xp, level } = state
@@ -323,6 +344,10 @@ export default function SeasonMap() {
                         isCurrent={isCurrent}
                         progress={isCurrent ? state.currentEpisode.progress : (isCompleted ? 100 : 0)}
                         completedDate={isCompleted ? '완료' : undefined}
+                        onSelect={status !== 'locked' ? () => {
+                          dispatch({ type: 'SET_EPISODE', episodeId: ep.id })
+                          onSelectEpisode?.()
+                        } : undefined}
                       />
                     )
                   })}

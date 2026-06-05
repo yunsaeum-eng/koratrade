@@ -41,14 +41,19 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e instanceof MouseEvent ? e.target : e.touches[0]?.target
+      if (containerRef.current && target && !containerRef.current.contains(target as Node)) {
         setWordTooltip(null)
         setSelectionBar(null)
       }
     }
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
   }, [])
 
   const flashSaved = useCallback(() => {
@@ -134,8 +139,13 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
     } catch {/* ignore */}
   }, [])
 
+  // Touch: delay slightly so iOS can finalize the selection before we read it
+  const handleTouchEnd = useCallback(() => {
+    setTimeout(handleMouseUp, 150)
+  }, [handleMouseUp])
+
   return (
-    <div ref={containerRef} onDoubleClick={handleDoubleClick} onMouseUp={handleMouseUp}>
+    <div ref={containerRef} onDoubleClick={handleDoubleClick} onMouseUp={handleMouseUp} onTouchEnd={handleTouchEnd}>
       <TermHighlighter text={text} episodeNum={episodeNum} lang={lang} />
 
       {/* Word double-click tooltip */}

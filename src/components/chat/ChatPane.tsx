@@ -51,7 +51,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
   const [grammarNotes, setGrammarNotes] = useState<Record<string, { original: string; corrected: string; explanation: string }>>({})
   const [emailMode, setEmailMode] = useState(false)
   const [emailForm, setEmailForm] = useState({ subject: '', greeting: '', body: '', closing: '' })
-  const [gradeResult, setGradeResult] = useState<null | { score: number; pass: boolean; topStrength: string; mainFeedback: string; breakdown: Record<string, { score: number; max: number; comment: string }> }>(null)
+  const [gradeResult, setGradeResult] = useState<null | { score: number; pass: boolean; topStrength: string; mainFeedback: string; revisedOpening?: string; breakdown: Record<string, { score: number; max: number; comment: string }> }>(null)
   const [gradingEmail, setGradingEmail] = useState(false)
   const [scriptExchangeIdx, setScriptExchangeIdx] = useState(0)
   const [scriptDone, setScriptDone] = useState(false)
@@ -157,6 +157,11 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, lang, profile, dispatch, hydrated])
 
+  // Reset NPC greeting tracking when episode changes so each episode gets a fresh greeting
+  useEffect(() => {
+    initFiredRef.current = new Set()
+  }, [state.currentEpisodeId])
+
   // ── Script mode ────────────────────────────────────────────────────────────
   const episodeId = state.currentEpisodeId ?? 'ep01'
   const scriptData = getScript(roomId, episodeId)
@@ -210,7 +215,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
       })
     }, delay)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId])
+  }, [roomId, state.currentEpisodeId])
 
   // Reset script/session state when room changes
   useEffect(() => {
@@ -704,36 +709,51 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
               {gradeResult ? (
                 <div className="flex flex-col gap-3">
-                  {/* Score display */}
-                  <div className={`rounded-xl p-4 text-center ${gradeResult.pass ? 'bg-green-50' : 'bg-amber-50'}`}
-                    style={{ border: `1px solid ${gradeResult.pass ? '#d1fae5' : '#fde68a'}` }}>
-                    <div className="text-3xl font-bold" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>{gradeResult.score}</div>
-                    <div className="text-sm font-medium mt-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
-                      {gradeResult.pass ? (lang === 'ko' ? '통과! 이메일 발송 가능' : 'Pass! Email approved') : (lang === 'ko' ? '80점 이상 필요' : 'Need 80+ to pass')}
-                    </div>
-                  </div>
-                  <div className="rounded-xl p-3" style={{ background: '#faf8f4', border: '1px solid #e0d8cc' }}>
-                    <div className="text-xs font-semibold mb-1" style={{ color: '#8a6530' }}>
-                      {lang === 'ko' ? '잘한 점' : 'Strength'}
+                  {/* Strength */}
+                  <div className="rounded-xl p-3" style={{ background: '#f0faf4', border: '1px solid #b8e0c8' }}>
+                    <div className="text-xs font-semibold mb-1" style={{ color: '#256040' }}>
+                      {lang === 'ko' ? '✓ 잘한 점' : '✓ Strength'}
                     </div>
                     <div className="text-sm" style={{ color: '#1a1208' }}>{gradeResult.topStrength}</div>
                   </div>
-                  <div className="rounded-xl p-3" style={{ background: '#faf8f4', border: '1px solid #e0d8cc' }}>
-                    <div className="text-xs font-semibold mb-1" style={{ color: '#8a6530' }}>
-                      {lang === 'ko' ? '개선 포인트' : 'Feedback'}
+                  {/* Main feedback */}
+                  <div className="rounded-xl p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                    <div className="text-xs font-semibold mb-1" style={{ color: '#92400e' }}>
+                      {lang === 'ko' ? '💡 개선 포인트' : '💡 Feedback'}
                     </div>
                     <div className="text-sm" style={{ color: '#1a1208' }}>{gradeResult.mainFeedback}</div>
                   </div>
+                  {/* Revised opening example */}
+                  {gradeResult.revisedOpening && (
+                    <div className="rounded-xl p-3" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
+                      <div className="text-xs font-semibold mb-1" style={{ color: '#8a6530' }}>
+                        {lang === 'ko' ? '✏️ 수정 예시 (첫 문장)' : '✏️ Suggested opening'}
+                      </div>
+                      <div className="text-sm italic" style={{ color: '#6b5c3e' }}>"{gradeResult.revisedOpening}"</div>
+                    </div>
+                  )}
+                  {/* Detailed breakdown */}
                   <div className="grid grid-cols-2 gap-2">
                     {Object.entries(gradeResult.breakdown).map(([key, v]) => (
-                      <div key={key} className="rounded-lg p-2" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
+                      <div key={key} className="rounded-lg p-2" style={{ background: 'white', border: '1px solid #e0d8cc' }}>
                         <div className="text-xs" style={{ color: '#9c8c6e' }}>{key}</div>
-                        <div className="text-sm font-semibold" style={{ color: '#1a1208' }}>{v.score}/{v.max}</div>
+                        <div className="text-sm font-semibold" style={{ color: v.score >= v.max * 0.7 ? '#256040' : '#92400e' }}>{v.score}/{v.max}</div>
                         <div className="text-xs mt-0.5" style={{ color: '#6b5c3e' }}>{v.comment}</div>
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-2 mt-1">
+                  {/* Score reveal at bottom */}
+                  <div className={`rounded-xl p-4 text-center ${gradeResult.pass ? 'bg-green-50' : 'bg-amber-50'}`}
+                    style={{ border: `2px solid ${gradeResult.pass ? '#86efac' : '#fde68a'}` }}>
+                    <div className="text-xs font-semibold mb-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
+                      {lang === 'ko' ? '최종 점수' : 'Final Score'}
+                    </div>
+                    <div className="text-4xl font-bold" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>{gradeResult.score}</div>
+                    <div className="text-sm font-medium mt-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
+                      {gradeResult.pass ? (lang === 'ko' ? '통과! 이메일 발송 가능 ✓' : 'Pass! Email approved ✓') : (lang === 'ko' ? '80점 이상 필요 — 수정해 보세요' : 'Need 80+ to pass — try revising')}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
                     {!gradeResult.pass && (
                       <button onClick={() => setGradeResult(null)}
                         className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
