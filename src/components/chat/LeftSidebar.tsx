@@ -40,7 +40,7 @@ const NAV: { key: AppView; icon: string; tKey: TranslationKey }[] = [
 export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfterWork, gameTimeStr }: Props) {
   const { profile, logout } = useAuth()
   const { state, dispatch } = useGame()
-  const { lang, setLang, t } = useLanguage()
+  const { lang, setLang, t, isEn } = useLanguage()
   const [popup, setPopup] = useState<NpcPopup | null>(null)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -170,7 +170,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
                 >
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0" style={{ background: '#f2efe9' }}>💼</div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate" style={{ color: '#1a1208', fontSize: '13px' }}>{room.name}</div>
+                    <div className="font-medium truncate" style={{ color: '#1a1208', fontSize: '13px' }}>{isEn && room.id === 'team-general' ? 'Overseas Sales 💼' : room.name}</div>
                     {room.lastMessage && <div className="text-xs truncate" style={{ color: '#9c8c6e' }}>{room.lastMessage}</div>}
                   </div>
                   {room.unreadCount > 0 && (
@@ -281,7 +281,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
               </div>
               <div>
                 <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>{popupNpc.name}</div>
-                <div className="text-xs" style={{ color: '#9c8c6e' }}>{popupNpc.roleKr}</div>
+                <div className="text-xs" style={{ color: '#9c8c6e' }}>{isEn ? popupNpc.role : popupNpc.roleKr}</div>
               </div>
             </div>
             <div className="mb-2">

@@ -41,6 +41,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
   const { state, dispatch, hydrated } = useGame()
   const { profile } = useAuth()
   const { lang } = useLanguage()
+  const isEn = lang === 'en'
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [hintOpen, setHintOpen] = useState(false)
@@ -494,10 +495,10 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
             </div>
             <div>
               <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>{npc.name}</div>
-              <div className="text-xs" style={{ color: '#9c8c6e' }}>{npc.roleKr}</div>
+              <div className="text-xs" style={{ color: '#9c8c6e' }}>{isEn ? npc.role : npc.roleKr}</div>
             </div>
             <div className="ml-auto text-xs px-2 py-1 rounded-full" style={{ background: '#f2efe9', color: '#6b5c3e' }}>
-              관계도 {npc.relationship}%
+              {isEn ? 'Trust' : '관계도'} {npc.relationship}%
             </div>
           </>
         ) : (
@@ -512,11 +513,12 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
           const ep = getCurriculumEpisode(state.currentEpisodeId)
           const focus = ep?.objectives?.[0]
           if (!focus) return null
+          const focusText = isEn ? (ep?.objectivesEn?.[0] ?? focus) : focus
           return (
             <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl border" style={{ background: '#faf5ec', borderColor: '#e8d8b8' }}>
               <span className="text-sm flex-shrink-0">💪</span>
               <span className="text-xs flex-1 leading-relaxed" style={{ color: '#6b5c3e' }}>
-                <strong style={{ color: '#8a6530' }}>오늘 목표:</strong> {focus}
+                <strong style={{ color: '#8a6530' }}>{isEn ? "Today's goal:" : '오늘 목표:'}</strong> {focusText}
               </span>
               <button onClick={() => setBannerDismissed(true)} className="text-xs flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full hover:bg-amber-200" style={{ color: '#9c8c6e' }}>✕</button>
             </div>

@@ -122,6 +122,7 @@ export interface EpisodePhase {
   duration: string        // e.g. "10 min"
   clockAdvance: number    // game-minutes this phase contributes (60/120/150/90/120)
   description: string
+  descriptionEn?: string
 }
 
 export interface CurriculumEpisode {
@@ -130,6 +131,7 @@ export interface CurriculumEpisode {
   episode: number
   title: string
   objectives?: string[]
+  objectivesEn?: string[]
   estimatedMinutes?: number
   titleKr: string
   synopsis: string

@@ -3,11 +3,11 @@ import { EpisodePhase, CurriculumEpisode, Expression } from '@/types'
 // ─── Phase definitions (shared across all episodes) ──────────────────────────
 
 export const PHASE_DEFS: EpisodePhase[] = [
-  { id: 1, name: 'Morning Briefing',        nameKr: '아침 브리핑',         duration: '10 min', clockAdvance: 60,  description: '팀 모임 및 오늘 업무 개요 공유' },
-  { id: 2, name: 'Internal Communication',  nameKr: '내부 커뮤니케이션',   duration: '20 min', clockAdvance: 120, description: '동료 및 상사와 업무 조율·보고' },
-  { id: 3, name: 'Core Work Mission',        nameKr: '핵심 업무',           duration: '25 min', clockAdvance: 150, description: '에피소드 핵심 과제 수행' },
-  { id: 4, name: 'Buyer Communication',      nameKr: '바이어 커뮤니케이션', duration: '15 min', clockAdvance: 90,  description: '해외 바이어 이메일 작성 또는 답변' },
-  { id: 5, name: 'Wrap Up',                  nameKr: '마무리',              duration: '10 min', clockAdvance: 120, description: '일일 결과 정리 및 팀 보고' },
+  { id: 1, name: 'Morning Briefing',        nameKr: '아침 브리핑',         duration: '10 min', clockAdvance: 60,  description: '팀 모임 및 오늘 업무 개요 공유',        descriptionEn: "Team gathering and overview of today's tasks" },
+  { id: 2, name: 'Internal Communication',  nameKr: '내부 커뮤니케이션',   duration: '20 min', clockAdvance: 120, description: '동료 및 상사와 업무 조율·보고',           descriptionEn: 'Coordinate and report with colleagues and manager' },
+  { id: 3, name: 'Core Work Mission',        nameKr: '핵심 업무',           duration: '25 min', clockAdvance: 150, description: '에피소드 핵심 과제 수행',                 descriptionEn: "Complete the episode's core task" },
+  { id: 4, name: 'Buyer Communication',      nameKr: '바이어 커뮤니케이션', duration: '15 min', clockAdvance: 90,  description: '해외 바이어 이메일 작성 또는 답변',      descriptionEn: 'Write or respond to overseas buyer emails' },
+  { id: 5, name: 'Wrap Up',                  nameKr: '마무리',              duration: '10 min', clockAdvance: 120, description: '일일 결과 정리 및 팀 보고',               descriptionEn: 'Wrap up daily results and report to the team' },
 ]
 
 // ─── Episode emojis ───────────────────────────────────────────────────────────
@@ -101,6 +101,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '업무 지시를 받고 마감을 확인하는 표현을 쓸 수 있다',
       'KoraTrade 회사 구조와 해외영업팀 역할을 이해한다',
     ],
+    objectivesEn: [
+      'Introduce yourself naturally in English on your first day',
+      'Greet your manager and colleagues with appropriate formality',
+      'Understand task instructions and confirm deadlines',
+      "Understand KoraTrade's structure and the overseas sales team role",
+    ],
     synopsis: 'James가 들뜬 표정으로 사무실 투어. Sarah의 짧은 공식 환영 인사. Min의 긴장한 자기소개. Lisa는 거의 눈길도 안 줌. 박 과장의 짧고 냉담한 한 마디.',
     phases: PHASE_DEFS,
     expressions: [
@@ -123,6 +129,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '실수했을 때 자연스럽고 적절하게 사과할 수 있다',
       '타부서 동료에게 정중하게 요청하는 방법을 안다',
       '바이어 DB가 무엇인지 이해하고 기본 구조를 파악한다',
+    ],
+    objectivesEn: [
+      'Ask questions confidently without embarrassment',
+      'Apologize naturally and appropriately after a mistake',
+      'Request help from colleagues in other departments politely',
+      'Understand what a buyer database is and its basic structure',
     ],
     synopsis: '박 과장과 납기 관련 갈등. Lisa가 서류 실수를 냉정하게 지적하고 수정을 도와줌. Min이 자기도 모르겠다고 고백. James가 사내 정치 인사이더 정보를 공유.',
     phases: PHASE_DEFS,
@@ -148,6 +160,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '비즈니스 이메일의 기본 구조를 이해한다',
       '초안 작성 후 수정하는 업무 사이클을 경험한다',
     ],
+    objectivesEn: [
+      'Report task progress to your manager clearly',
+      'Learn how to ask for and incorporate feedback',
+      'Understand the basic structure of business emails',
+      'Experience the draft-and-revise work cycle',
+    ],
     synopsis: 'Sarah가 바이어 조사 업무를 지시. James가 KOTRA 활용법 설명. Min도 같은 업무를 받아 라이벌 구도. Min이 리스트 먼저 제출하지만 파산한 회사 포함.',
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep02',
@@ -171,6 +189,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '바쁜 상대방에게 시간 조율을 제안할 수 있다',
       '도움받았을 때 진심 어린 감사를 표현할 수 있다',
       '한국 직장 내 부탁 문화의 특수성을 이해한다',
+    ],
+    objectivesEn: [
+      'Request cooperation from other departments politely',
+      'Suggest scheduling with busy colleagues',
+      'Express genuine gratitude when receiving help',
+      'Understand the nuances of Korean workplace culture for making requests',
     ],
     synopsis: '조사 중 Galeries Lafayette Sport 발견, 구매 담당자로 Sophie Beaumont 확인. Sarah에게 보고하자 묘한 표정 변화. James도 그 이름을 어디서 들어봤다고 함. LinkedIn에서 Sarah와 Sophie가 공통 지인 1명.',
     phases: PHASE_DEFS,
@@ -196,6 +220,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '이메일 제목줄을 효과적으로 작성하는 법을 안다',
       '이메일 발송 전 체크리스트를 습관화한다',
     ],
+    objectivesEn: [
+      'Write all five types of business emails',
+      'Distinguish and write inquiry, follow-up, apology, thank-you, and report emails',
+      'Write effective subject lines for business emails',
+      'Build a habit of using a pre-send email checklist',
+    ],
     synopsis: 'Sophie Beaumont에게 보낼 첫 콜드 이메일 작성. James가 절반을 다시 씀. Sarah가 첨삭투성이로 돌려보냄. 세 번 다시 씀. 발송 직후 브로셔 첨부 누락 발견.',
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep04',
@@ -220,6 +250,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '동료를 칭찬하고 격려하는 표현을 쓸 수 있다',
       '우선순위 조율과 일정 변경을 요청할 수 있다',
     ],
+    objectivesEn: [
+      'Share your opinion naturally in meetings',
+      'Know how to deliver bad news professionally',
+      'Use expressions to praise and encourage colleagues',
+      'Negotiate priorities and request schedule changes',
+    ],
     synopsis: '2주간 답장 없음. Min이 먼저 바이어 회신을 받음. James가 팔로업 전략 코칭. 박 과장이 자신의 실패담을 처음으로 꺼냄.',
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep05',
@@ -243,6 +279,12 @@ export const CURRICULUM: CurriculumEpisode[] = [
       '한 달간의 업무 성과를 영어로 보고할 수 있다',
       'S2 바이어 발굴 업무에 대한 브리핑을 이해한다',
       '동료들과 의미있는 관계를 형성했음을 확인한다',
+    ],
+    objectivesEn: [
+      'Fluently use all 30 expressions learned in Season 1',
+      'Report one month of work achievements in English',
+      'Understand the briefing for Season 2 buyer prospecting work',
+      'Confirm you have built meaningful relationships with colleagues',
     ],
     synopsis: '18일 침묵 끝에 Sophie Beaumont로부터 짧고 정중한 회신. Sarah가 이름을 보고 조용해짐. James는 들떠있지만 Sophie가 까다롭다고 경고. Sarah가 사석에서 Sophie와 옛 동료였다고 처음 언급.',
     phases: PHASE_DEFS,

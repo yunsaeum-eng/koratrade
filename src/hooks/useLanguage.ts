@@ -43,5 +43,5 @@ export function useLanguage() {
 
   const t = useCallback((key: TranslationKey) => tr(key, uiLang), [uiLang])
 
-  return { lang, setLang, uiLang, setUiLang, t }
+  return { lang, setLang, uiLang, setUiLang, t, isEn: uiLang === 'english' }
 }

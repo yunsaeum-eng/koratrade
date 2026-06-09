@@ -8,7 +8,7 @@ import { getMissionsForEpisode, getMissionsForPhase } from '@/data/missions'
 
 export default function RightSidebar() {
   const { state, dispatch } = useGame()
-  const { t } = useLanguage()
+  const { t, isEn } = useLanguage()
   const { currentEpisode, currentPhase, expressionEncounters } = state
   const [showAllNotes, setShowAllNotes] = useState(false)
   const [expandedMissionId, setExpandedMissionId] = useState<string | null>(null)
@@ -103,11 +103,12 @@ export default function RightSidebar() {
             <div className="rounded-xl border overflow-hidden" style={{ borderColor: allDone ? '#b8e0c8' : '#e0d8cc', background: allDone ? '#f0faf4' : 'white' }}>
               {objectives.map((obj, idx) => {
                 const checked = idx < checkedCount
+                const displayText = isEn ? (currEp?.objectivesEn?.[idx] ?? obj) : obj
                 return (
                   <div key={idx} className="flex items-start gap-2 px-3 py-2 border-b last:border-0" style={{ borderColor: '#f2efe9' }}>
                     <span className="text-sm flex-shrink-0 mt-0.5">{checked ? '✅' : '☐'}</span>
                     <span className="text-xs leading-relaxed" style={{ color: checked ? '#256040' : '#1a1208', textDecoration: checked ? 'none' : 'none' }}>
-                      {obj}
+                      {displayText}
                     </span>
                   </div>
                 )
@@ -129,8 +130,8 @@ export default function RightSidebar() {
 
         {/* Phase name */}
         <div className="mb-2 px-2.5 py-1.5 rounded-lg" style={{ background: '#f2efe9' }}>
-          <div className="text-xs font-semibold" style={{ color: '#1a1208' }}>{phaseDef?.nameKr ?? ''}</div>
-          <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{phaseDef?.description ?? ''}</div>
+          <div className="text-xs font-semibold" style={{ color: '#1a1208' }}>{isEn ? (phaseDef?.name ?? '') : (phaseDef?.nameKr ?? '')}</div>
+          <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{isEn ? (phaseDef?.descriptionEn ?? phaseDef?.description ?? '') : (phaseDef?.description ?? '')}</div>
         </div>
 
         {/* Overall episode mission progress */}
@@ -174,7 +175,7 @@ export default function RightSidebar() {
                       <div className="text-xs font-medium leading-tight" style={{
                         color: status === 'completed' ? '#256040' : '#1a1208',
                       }}>
-                        {mission.nameKr}
+                        {isEn ? mission.name : mission.nameKr}
                       </div>
                       <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>+{mission.xp} XP</div>
                     </div>
@@ -222,7 +223,9 @@ export default function RightSidebar() {
           {currentEpisode.expressions.map(expr => {
             const encounters = expressionEncounters[expr.id] ?? 0
             const MIN_ENCOUNTERS = 3
-            const encounterLabel = `${Math.min(encounters, MIN_ENCOUNTERS)}/${MIN_ENCOUNTERS} 반복`
+            const encounterLabel = isEn
+              ? `${Math.min(encounters, MIN_ENCOUNTERS)}/${MIN_ENCOUNTERS} reps`
+              : `${Math.min(encounters, MIN_ENCOUNTERS)}/${MIN_ENCOUNTERS} 반복`
             return (
               <button
                 key={expr.id}
@@ -253,7 +256,7 @@ export default function RightSidebar() {
                       </div>
                     </div>
                     {!expr.learned && (
-                      <div className="text-xs mt-1 font-semibold" style={{ color: '#8a6530' }}>클릭하면 +{expr.xp} XP</div>
+                      <div className="text-xs mt-1 font-semibold" style={{ color: '#8a6530' }}>{isEn ? `Tap for +${expr.xp} XP` : `클릭하면 +${expr.xp} XP`}</div>
                     )}
                   </div>
                 </div>
