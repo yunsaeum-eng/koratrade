@@ -6,6 +6,7 @@ import { useGame } from '@/contexts/GameContext'
 import { NPCS } from '@/data/npcs'
 import { useLanguage } from '@/hooks/useLanguage'
 import { AppView } from '@/types'
+import { TranslationKey } from '@/data/translations'
 import LanguageSwitcher from './LanguageSwitcher'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
@@ -29,17 +30,17 @@ interface Props {
   gameTimeStr: string
 }
 
-const NAV = [
-  { key: 'chat' as AppView, icon: '💬', label: 'Chat' },
-  { key: 'notes' as AppView, icon: '📚', label: 'Notes' },
-  { key: 'profiles' as AppView, icon: '👥', label: 'People' },
-  { key: 'progress' as AppView, icon: '🗺️', label: 'Progress' },
+const NAV: { key: AppView; icon: string; tKey: TranslationKey }[] = [
+  { key: 'chat',     icon: '💬', tKey: 'chat' },
+  { key: 'notes',    icon: '📚', tKey: 'notes' },
+  { key: 'profiles', icon: '👥', tKey: 'people' },
+  { key: 'progress', icon: '🗺️', tKey: 'progress' },
 ]
 
 export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfterWork, gameTimeStr }: Props) {
   const { profile, logout } = useAuth()
   const { state, dispatch } = useGame()
-  const { lang, setLang } = useLanguage()
+  const { lang, setLang, t } = useLanguage()
   const [popup, setPopup] = useState<NpcPopup | null>(null)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -98,37 +99,37 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
                     <>
                       <button onClick={() => { onOpenProfile(); setSettingsOpen(false) }}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
-                        style={{ color: '#1a1208' }}>프로필 수정</button>
+                        style={{ color: '#1a1208' }}>{t('editProfile')}</button>
                       <div style={{ height: 1, background: '#f0ece4' }} />
                       <button onClick={() => setSettingsMode('reset')}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
-                        style={{ color: '#c0392b' }}>처음부터 다시 시작</button>
+                        style={{ color: '#c0392b' }}>{t('resetProgress')}</button>
                       <button onClick={() => setSettingsMode('delete')}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
-                        style={{ color: '#c0392b' }}>회원 탈퇴</button>
+                        style={{ color: '#c0392b' }}>{t('deleteAccount')}</button>
                       <div style={{ height: 1, background: '#f0ece4' }} />
                       <button onClick={() => { logout(); setSettingsOpen(false) }}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
-                        style={{ color: '#9c8c6e' }}>로그아웃</button>
+                        style={{ color: '#9c8c6e' }}>{t('logoutMenu')}</button>
                     </>
                   )}
                   {settingsMode === 'reset' && (
                     <div className="p-3 space-y-2">
-                      <p className="text-xs font-medium text-center" style={{ color: '#c0392b' }}>진행상황을 초기화할까요?</p>
-                      <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>XP, 관계도, 에피소드가 삭제됩니다. 계정은 유지됩니다.</p>
+                      <p className="text-xs font-medium text-center" style={{ color: '#c0392b' }}>{t('confirmReset')}</p>
+                      <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>{t('resetWarning')}</p>
                       <div className="flex gap-2 pt-1">
-                        <button onClick={() => setSettingsMode('menu')} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
-                        <button onClick={handleGearReset} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>초기화하기</button>
+                        <button onClick={() => setSettingsMode('menu')} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>{t('cancel')}</button>
+                        <button onClick={handleGearReset} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>{t('doReset')}</button>
                       </div>
                     </div>
                   )}
                   {settingsMode === 'delete' && (
                     <div className="p-3 space-y-2">
-                      <p className="text-xs font-medium text-center" style={{ color: '#c0392b' }}>정말 탈퇴하시겠어요?</p>
-                      <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>모든 데이터가 삭제됩니다.</p>
+                      <p className="text-xs font-medium text-center" style={{ color: '#c0392b' }}>{t('confirmDelete')}</p>
+                      <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>{t('deleteWarning')}</p>
                       <div className="flex gap-2 pt-1">
-                        <button onClick={() => setSettingsMode('menu')} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
-                        <button onClick={handleGearDelete} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>탈퇴하기</button>
+                        <button onClick={() => setSettingsMode('menu')} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>{t('cancel')}</button>
+                        <button onClick={handleGearDelete} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>{t('doDelete')}</button>
                       </div>
                     </div>
                   )}
@@ -149,7 +150,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
             style={{ color: view === n.key ? '#8a6530' : '#9c8c6e', borderBottom: `2px solid ${view === n.key ? '#8a6530' : 'transparent'}` }}
           >
             <span>{n.icon}</span>
-            <span className="text-xs">{n.label}</span>
+            <span className="text-xs">{t(n.tKey)}</span>
           </button>
         ))}
       </div>
@@ -159,7 +160,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
         {view === 'chat' ? (
           <>
             <div className="px-3 mb-1">
-              <p className="text-xs font-semibold px-1 mb-1.5 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>채널</p>
+              <p className="text-xs font-semibold px-1 mb-1.5 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{t('channels')}</p>
               {state.rooms.filter(r => r.type === 'group').map(room => (
                 <button
                   key={room.id}
@@ -180,7 +181,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
             </div>
 
             <div className="px-3 mt-3">
-              <p className="text-xs font-semibold px-1 mb-1.5 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>다이렉트</p>
+              <p className="text-xs font-semibold px-1 mb-1.5 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{t('direct')}</p>
               {state.rooms.filter(r => r.type === 'dm').map(room => {
                 const npc = getNpc(room.participants[0])
                 const ch = npc ? getChar(npc.id) : undefined
@@ -248,7 +249,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
                 className="text-xs px-2 py-1 rounded-lg hover:bg-gray-100 cursor-pointer"
                 style={{ color: '#9c8c6e' }}
               >
-                퇴근
+                {t('logout')}
               </div>
             </button>
             <div className="mt-2 h-1 rounded-full" style={{ background: '#e0d8cc' }}>
@@ -285,7 +286,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
             </div>
             <div className="mb-2">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs" style={{ color: '#9c8c6e' }}>관계도</span>
+                <span className="text-xs" style={{ color: '#9c8c6e' }}>{t('relationship')}</span>
                 <span className="text-xs font-mono" style={{ color: '#8a6530' }}>{popupNpc.relationship}%</span>
               </div>
               <div className="h-1.5 rounded-full" style={{ background: '#e0d8cc' }}>
@@ -294,7 +295,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
             </div>
             <div className="flex items-center gap-1.5 mb-2">
               <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: popupNpc.isOnline ? '#256040' : '#ccc' }} />
-              <span className="text-xs" style={{ color: '#9c8c6e' }}>{isAfterWork ? '퇴근 🏠' : popupNpc.moodLabel}</span>
+              <span className="text-xs" style={{ color: '#9c8c6e' }}>{isAfterWork ? t('afterWork') : popupNpc.moodLabel}</span>
             </div>
             <div className="text-xs px-2 py-1.5 rounded-lg" style={{ background: '#f2efe9', color: '#6b5c3e' }}>
               💼 {popupNpc.personality.split(',')[0].trim()}

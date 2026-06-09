@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { UserProfile, ExtendedProfile, Message } from '@/types'
 
 export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
-  const payload: Record<string, unknown> = {
+  const payloadBase: Record<string, unknown> = {
     id: profile.uid,
     name: profile.name,
     avatar: profile.avatar,
@@ -10,15 +10,26 @@ export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
     goal: profile.goal,
     level: profile.level,
     xp: profile.xp,
-    ...(profile.uiLanguage ? { ui_language: profile.uiLanguage } : {}),
     ...(ext ? {
       english_level: ext.englishLevel,
       industry: ext.industry,
       motivation: ext.learningReason,
     } : {}),
   }
-  console.log('[saveProfile] upserting uid:', profile.uid, 'payload:', payload)
-  const { error } = await supabase.from('profiles').upsert(payload)
+  const payload: Record<string, unknown> = profile.uiLanguage
+    ? { ...payloadBase, ui_language: profile.uiLanguage }
+    : payloadBase
+
+  console.log('[saveProfile] upserting uid:', profile.uid, 'payload keys:', Object.keys(payload))
+  let { error } = await supabase.from('profiles').upsert(payload)
+
+  // ui_language column may not exist yet — retry without it
+  if (error && (error.code === '42703' || error.message?.includes('ui_language'))) {
+    console.warn('[saveProfile] ui_language column missing, retrying without it')
+    const retry = await supabase.from('profiles').upsert(payloadBase)
+    error = retry.error
+  }
+
   if (error) {
     console.error('[saveProfile] Supabase error:', error.code, error.message, error.details, error.hint)
     throw error

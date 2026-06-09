@@ -253,7 +253,7 @@ export default function OnboardingPage() {
                       <CharacterAvatar src={opt.src} alt={opt.label} variant="large" />
                     </div>
                     <span className="text-xs font-semibold" style={{ color: avatarGender === opt.key ? '#8a6530' : '#6b5c3e' }}>
-                      {opt.label}
+                      {isEn ? (opt.key === 'female' ? 'Female character' : 'Male character') : opt.label}
                     </span>
                   </button>
                 ))}

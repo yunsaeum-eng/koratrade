@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useGame } from '@/contexts/GameContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { ExtendedProfile, Badge } from '@/types'
 import { BADGE_DEFS } from '@/data/badges'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
@@ -15,6 +16,7 @@ interface Props { onClose: () => void }
 export default function UserProfileModal({ onClose }: Props) {
   const { user, profile } = useAuth()
   const { state } = useGame()
+  const { t } = useLanguage()
   const [ext, setExt] = useState<ExtendedProfile>({ jobGoal: '', englishLevel: 'beginner', industry: '', learningReason: '' })
   const [saved, setSaved] = useState(false)
   const [resetConfirm, setResetConfirm] = useState(false)
@@ -80,7 +82,7 @@ export default function UserProfileModal({ onClose }: Props) {
           {profile && <>
             {/* Badges */}
             <div className="px-5 py-4 border-b" style={{ borderColor: '#e0d8cc' }}>
-              <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#9c8c6e' }}>획득한 배지</div>
+              <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#9c8c6e' }}>{t('badges')}</div>
               <div className="flex flex-wrap gap-2">
                 {allBadgeDefs.map(def => {
                   const earned = earnedIds.has(def.id)
@@ -108,7 +110,7 @@ export default function UserProfileModal({ onClose }: Props) {
 
             {/* XP progress */}
             <div className="px-5 py-4 border-b" style={{ borderColor: '#e0d8cc' }}>
-              <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#9c8c6e' }}>레벨 현황</div>
+              <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#9c8c6e' }}>{t('levelStatus')}</div>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-sm font-semibold" style={{ color: '#1a1208' }}>Lv.{profile.level}</span>
                 <span className="text-xs font-mono" style={{ color: '#9c8c6e' }}>{state.xp} / {profile.level * 200} XP</span>
@@ -121,11 +123,11 @@ export default function UserProfileModal({ onClose }: Props) {
             {/* Extended profile form */}
             <div className="px-5 py-4 space-y-4">
               <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9c8c6e' }}>
-                학습 프로필 <span className="normal-case font-normal">(NPC가 자연스럽게 참고합니다)</span>
+                {t('learningProfile')}
               </div>
 
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>커리어 목표</label>
+                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>{t('careerGoal')}</label>
                 <input
                   value={ext.jobGoal}
                   onChange={e => setExt(p => ({ ...p, jobGoal: e.target.value }))}
@@ -136,9 +138,9 @@ export default function UserProfileModal({ onClose }: Props) {
               </div>
 
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>영어 수준</label>
+                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>{t('englishLevel')}</label>
                 <div className="flex gap-2">
-                  {[['beginner', '초급'], ['intermediate', '중급'], ['advanced', '고급']].map(([val, label]) => (
+                  {[['beginner', t('beginnerLevel')], ['intermediate', t('intermediateLevel')], ['advanced', t('advancedLevel')]].map(([val, label]) => (
                     <button
                       key={val}
                       onClick={() => setExt(p => ({ ...p, englishLevel: val as ExtendedProfile['englishLevel'] }))}
@@ -156,7 +158,7 @@ export default function UserProfileModal({ onClose }: Props) {
               </div>
 
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>관심 산업</label>
+                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>{t('industry')}</label>
                 <input
                   value={ext.industry}
                   onChange={e => setExt(p => ({ ...p, industry: e.target.value }))}
@@ -167,7 +169,7 @@ export default function UserProfileModal({ onClose }: Props) {
               </div>
 
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>학습 동기</label>
+                <label className="text-xs font-medium block mb-1" style={{ color: '#6b5c3e' }}>{t('learningReason')}</label>
                 <textarea
                   value={ext.learningReason}
                   onChange={e => setExt(p => ({ ...p, learningReason: e.target.value }))}
@@ -182,7 +184,7 @@ export default function UserProfileModal({ onClose }: Props) {
                 className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
                 style={{ background: saved ? '#256040' : '#8a6530' }}
               >
-                {saved ? '✓ 저장됨' : '저장하기'}
+                {saved ? t('saved') : t('save')}
               </button>
             </div>
           </>}
@@ -197,16 +199,16 @@ export default function UserProfileModal({ onClose }: Props) {
               className="w-full py-2 rounded-xl text-sm font-medium border-2 transition-all"
               style={{ borderColor: '#e0c8c8', color: '#c0392b', background: 'white' }}
             >
-              처음부터 다시 시작
+              {t('resetProgress')}
             </button>
           )}
           {resetConfirm && (
             <div className="rounded-xl border-2 p-3 space-y-2" style={{ borderColor: '#e0c8c8', background: '#fff5f5' }}>
-              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>정말 모든 진행상황을 초기화할까요?</p>
-              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>에피소드 진행, XP, 관계도가 모두 삭제됩니다. 계정은 유지됩니다.</p>
+              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>{t('confirmReset')}</p>
+              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>{t('resetWarning')}</p>
               <div className="flex gap-2">
-                <button onClick={() => setResetConfirm(false)} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
-                <button onClick={handleReset} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>초기화하기</button>
+                <button onClick={() => setResetConfirm(false)} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>{t('cancel')}</button>
+                <button onClick={handleReset} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>{t('doReset')}</button>
               </div>
             </div>
           )}
@@ -214,16 +216,16 @@ export default function UserProfileModal({ onClose }: Props) {
           {/* Delete account */}
           {!resetConfirm && !deleteConfirm && (
             <button onClick={() => setDeleteConfirm(true)} className="w-full py-1 text-xs text-center" style={{ color: '#9c8c6e' }}>
-              회원 탈퇴
+              {t('deleteAccount')}
             </button>
           )}
           {deleteConfirm && (
             <div className="rounded-xl border-2 p-3 space-y-2" style={{ borderColor: '#e0c8c8', background: '#fff5f5' }}>
-              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>정말 탈퇴하시겠어요?</p>
-              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>모든 데이터가 삭제되며 복구할 수 없습니다.</p>
+              <p className="text-xs text-center font-medium" style={{ color: '#c0392b' }}>{t('confirmDelete')}</p>
+              <p className="text-xs text-center" style={{ color: '#9c8c6e' }}>{t('deleteWarning')}</p>
               <div className="flex gap-2">
-                <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>취소</button>
-                <button onClick={handleDelete} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>탈퇴하기</button>
+                <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-1.5 rounded-lg text-xs border" style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}>{t('cancel')}</button>
+                <button onClick={handleDelete} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#c0392b' }}>{t('doDelete')}</button>
               </div>
             </div>
           )}

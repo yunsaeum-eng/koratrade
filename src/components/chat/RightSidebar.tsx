@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { useGame } from '@/contexts/GameContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { getCurriculumEpisode, PHASE_DEFS } from '@/data/curriculum'
 import { getMissionsForEpisode, getMissionsForPhase } from '@/data/missions'
 
 export default function RightSidebar() {
   const { state, dispatch } = useGame()
+  const { t } = useLanguage()
   const { currentEpisode, currentPhase, expressionEncounters } = state
   const [showAllNotes, setShowAllNotes] = useState(false)
   const [expandedMissionId, setExpandedMissionId] = useState<string | null>(null)
@@ -85,12 +87,12 @@ export default function RightSidebar() {
             <div className="flex items-center gap-1.5">
               <span>🎯</span>
               <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: allDone ? '#256040' : '#9c8c6e' }}>
-                오늘의 학습 목표
+                {t('todaysGoals')}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               {allDone
-                ? <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: '#f0faf4', color: '#256040' }}>목표 달성! ✓</span>
+                ? <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: '#f0faf4', color: '#256040' }}>{t('goalAchieved')}</span>
                 : <span className="text-xs" style={{ color: '#9c8c6e' }}>{checkedCount}/{objectives.length}</span>
               }
               <span className="text-xs" style={{ color: '#9c8c6e' }}>{objectivesOpen ? '▲' : '▼'}</span>
@@ -119,7 +121,7 @@ export default function RightSidebar() {
       <div>
         {/* Phase header */}
         <div className="flex items-center justify-between mb-1.5">
-          <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>오늘의 미션</div>
+          <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{t('todaysMissions')}</div>
           <span className="text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: '#fdf8f0', color: '#8a6530' }}>
             Phase {currentPhase}/5
           </span>
@@ -135,7 +137,7 @@ export default function RightSidebar() {
         {totalMissions > 0 && (
           <div className="mb-2">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs" style={{ color: '#9c8c6e' }}>에피소드 미션</span>
+              <span className="text-xs" style={{ color: '#9c8c6e' }}>{t('episodeMissions')}</span>
               <span className="text-xs font-semibold" style={{ color: completedCount === totalMissions ? '#256040' : '#8a6530' }}>
                 {completedCount}/{totalMissions}
               </span>
@@ -187,7 +189,7 @@ export default function RightSidebar() {
                           className="text-xs px-2 py-0.5 rounded border"
                           style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}
                         >
-                          이 미션 취소
+                          {t('undoMission')}
                         </button>
                       )}
                     </div>
@@ -198,14 +200,14 @@ export default function RightSidebar() {
           </div>
         ) : (
           <div className="text-center py-3 text-xs" style={{ color: '#9c8c6e' }}>
-            이 단계는 자동으로 진행됩니다...
+            {t('autoProgress')}
           </div>
         )}
 
         {/* All missions done for episode */}
         {totalMissions > 0 && completedCount === totalMissions && (
           <div className="mt-2 py-2 px-3 rounded-xl text-center text-xs font-semibold" style={{ background: '#f0faf4', color: '#256040' }}>
-            모든 미션 완료! 🎉
+            {t('allMissionsDone')}
           </div>
         )}
       </div>
@@ -213,7 +215,7 @@ export default function RightSidebar() {
       {/* Today's expressions */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>오늘의 표현</div>
+          <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{t('todaysExpressions')}</div>
           <span className="text-xs" style={{ color: '#8a6530' }}>{learnedCount}/{currentEpisode.expressions.length}</span>
         </div>
         <div className="space-y-2">
@@ -264,7 +266,7 @@ export default function RightSidebar() {
       {/* Work notes */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>업무 노트</div>
+          <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{t('workNotes')}</div>
           <button onClick={() => setShowAllNotes(!showAllNotes)} className="text-xs" style={{ color: '#8a6530' }}>
             {showAllNotes ? '접기' : '전체 보기'}
           </button>
@@ -285,7 +287,7 @@ export default function RightSidebar() {
 
       {/* XP summary */}
       <div className="bg-white rounded-xl border p-3" style={{ borderColor: '#e0d8cc' }}>
-        <div className="text-xs font-semibold mb-2" style={{ color: '#9c8c6e' }}>오늘 획득 XP</div>
+        <div className="text-xs font-semibold mb-2" style={{ color: '#9c8c6e' }}>{t('xpSummary')}</div>
         <div className="font-mono text-2xl font-semibold" style={{ color: '#8a6530' }}>
           {state.xp} <span className="text-sm font-normal">XP</span>
         </div>

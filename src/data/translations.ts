@@ -69,6 +69,69 @@ export const translations = {
     languageEnglish: 'English',
     languageHintKo: 'UI와 힌트가 한국어로 표시됩니다',
     languageHintEn: 'UI and hints in English',
+
+    // Sidebar / navigation
+    channels: '채널',
+    direct: '다이렉트',
+    relationship: '관계도',
+    logout: '퇴근',
+    afterWork: '퇴근 🏠',
+    editProfile: '프로필 수정',
+    resetProgress: '처음부터 다시 시작',
+    deleteAccount: '회원 탈퇴',
+    logoutMenu: '로그아웃',
+    cancel: '취소',
+    confirmReset: '진행상황을 초기화할까요?',
+    resetWarning: 'XP, 관계도, 에피소드가 삭제됩니다. 계정은 유지됩니다.',
+    doReset: '초기화하기',
+    confirmDelete: '정말 탈퇴하시겠어요?',
+    deleteWarning: '모든 데이터가 삭제됩니다.',
+    doDelete: '탈퇴하기',
+
+    // Characters / levels
+    femaleCharacter: '여성 캐릭터',
+    maleCharacter: '남성 캐릭터',
+    beginnerLevel: '초급',
+    intermediateLevel: '중급',
+    advancedLevel: '고급',
+
+    // Save states
+    save: '저장하기',
+    saving: '저장 중...',
+    saved: '✓ 저장됨',
+    saveFailed: '저장에 실패했습니다. 다시 시도해주세요.',
+
+    // Profile modal
+    badges: '획득한 배지',
+    levelStatus: '레벨 현황',
+    learningProfile: '학습 프로필',
+    careerGoal: '커리어 목표',
+    englishLevel: '영어 수준',
+    industry: '관심 산업',
+    learningReason: '학습 동기',
+
+    // Mission labels
+    episodeMissions: '에피소드 미션',
+    allMissionsDone: '모든 미션 완료! 🎉',
+    undoMission: '이 미션 취소',
+    autoProgress: '이 단계는 자동으로 진행됩니다...',
+
+    // End of day screen
+    endOfDay: '오늘 업무 종료',
+    wellDone: '수고했어요!',
+    dailySummary: '오늘의 결산',
+    totalXp: '총 XP',
+    expressionsLearned: '학습 표현',
+    level: '레벨',
+    tomorrowPreview: '내일 예고 🎬',
+    continueUsing: '계속 이용하기 →',
+    allFeaturesAvailable: '모든 기능은 정상적으로 이용 가능합니다',
+
+    // Pre-work screen
+    beforeWork: '출근 전입니다',
+    workHoursInfo: '업무 시간은 09:00~18:00 입니다',
+    untilWork: '출근까지',
+    earlyEntry: '미리 입장하기 (테스트)',
   },
   english: {
     // Episode selection
@@ -138,6 +201,69 @@ export const translations = {
     languageEnglish: 'English',
     languageHintKo: 'UI and hints in Korean',
     languageHintEn: 'UI and hints in English',
+
+    // Sidebar / navigation
+    channels: 'Channels',
+    direct: 'Direct',
+    relationship: 'Relationship',
+    logout: 'Log out',
+    afterWork: 'Off work 🏠',
+    editProfile: 'Edit Profile',
+    resetProgress: 'Reset progress',
+    deleteAccount: 'Delete account',
+    logoutMenu: 'Log out',
+    cancel: 'Cancel',
+    confirmReset: 'Reset your progress?',
+    resetWarning: 'XP, relationships, and episodes will be deleted. Your account remains.',
+    doReset: 'Reset',
+    confirmDelete: 'Delete your account?',
+    deleteWarning: 'All data will be deleted.',
+    doDelete: 'Delete',
+
+    // Characters / levels
+    femaleCharacter: 'Female character',
+    maleCharacter: 'Male character',
+    beginnerLevel: 'Beginner',
+    intermediateLevel: 'Intermediate',
+    advancedLevel: 'Advanced',
+
+    // Save states
+    save: 'Save',
+    saving: 'Saving...',
+    saved: '✓ Saved',
+    saveFailed: 'Failed to save. Please try again.',
+
+    // Profile modal
+    badges: 'Badges Earned',
+    levelStatus: 'Level Status',
+    learningProfile: 'Learning Profile',
+    careerGoal: 'Career Goal',
+    englishLevel: 'English Level',
+    industry: 'Industry',
+    learningReason: 'Learning Motivation',
+
+    // Mission labels
+    episodeMissions: 'Episode Missions',
+    allMissionsDone: 'All missions complete! 🎉',
+    undoMission: 'Undo mission',
+    autoProgress: 'This phase progresses automatically...',
+
+    // End of day screen
+    endOfDay: 'Work Day Over',
+    wellDone: 'Great work!',
+    dailySummary: "Today's Summary",
+    totalXp: 'Total XP',
+    expressionsLearned: 'Expressions',
+    level: 'Level',
+    tomorrowPreview: "Tomorrow's Preview 🎬",
+    continueUsing: 'Continue →',
+    allFeaturesAvailable: 'All features are available',
+
+    // Pre-work screen
+    beforeWork: 'Before Work Hours',
+    workHoursInfo: 'Work hours are 09:00–18:00',
+    untilWork: 'Time until work',
+    earlyEntry: 'Enter early (test)',
   },
 } as const
 

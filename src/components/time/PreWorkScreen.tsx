@@ -1,6 +1,7 @@
 'use client'
 
 import { formatCountdown } from '@/hooks/useTimePhase'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface Props {
   secondsUntil9: number
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export default function PreWorkScreen({ secondsUntil9, dateStr, onSkip }: Props) {
+  const { t } = useLanguage()
+
   return (
     <div className="flex flex-col items-center justify-center text-center px-6">
       <div className="font-serif text-2xl mb-2" style={{ color: '#8a6530' }}>KoraTrade Inc.</div>
@@ -18,11 +21,11 @@ export default function PreWorkScreen({ secondsUntil9, dateStr, onSkip }: Props)
         🌅
       </div>
 
-      <div className="font-semibold mb-1" style={{ color: '#1a1208' }}>출근 전입니다</div>
-      <div className="text-sm mb-6" style={{ color: '#9c8c6e' }}>업무 시간은 09:00~18:00 입니다</div>
+      <div className="font-semibold mb-1" style={{ color: '#1a1208' }}>{t('beforeWork')}</div>
+      <div className="text-sm mb-6" style={{ color: '#9c8c6e' }}>{t('workHoursInfo')}</div>
 
       <div className="rounded-2xl px-8 py-4 mb-8 border" style={{ background: '#faf8f4', borderColor: '#e0d8cc' }}>
-        <div className="text-xs mb-1" style={{ color: '#9c8c6e' }}>출근까지</div>
+        <div className="text-xs mb-1" style={{ color: '#9c8c6e' }}>{t('untilWork')}</div>
         <div className="font-mono text-4xl font-light" style={{ color: '#1a1208' }}>{formatCountdown(secondsUntil9)}</div>
       </div>
 
@@ -33,7 +36,7 @@ export default function PreWorkScreen({ secondsUntil9, dateStr, onSkip }: Props)
         className="text-xs px-4 py-2 rounded-xl border transition-colors hover:bg-gray-50"
         style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}
       >
-        미리 입장하기 (테스트)
+        {t('earlyEntry')}
       </button>
     </div>
   )
