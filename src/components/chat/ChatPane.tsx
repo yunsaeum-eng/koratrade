@@ -51,7 +51,23 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
   const [grammarNotes, setGrammarNotes] = useState<Record<string, { original: string; corrected: string; explanation: string }>>({})
   const [emailMode, setEmailMode] = useState(false)
   const [emailForm, setEmailForm] = useState({ subject: '', greeting: '', body: '', closing: '' })
-  const [gradeResult, setGradeResult] = useState<null | { score: number; pass: boolean; topStrength: string; mainFeedback: string; revisedOpening?: string; breakdown: Record<string, { score: number; max: number; comment: string }> }>(null)
+  type GradeResult = {
+    score: number
+    pass: boolean
+    topStrength: string
+    mainFeedback: string
+    revisedOpening?: string
+    breakdown: Record<string, { score: number; max: number; comment: string }>
+    feedback?: {
+      correctedEmail?: string
+      errors?: Array<{ original: string; corrected: string; explanation: string }>
+      structureFeedback?: { greeting: string; body: string; closing: string }
+      vocabularySuggestions?: Array<{ original: string; better: string }>
+      overallAdvice?: string
+    }
+  }
+  const [gradeResult, setGradeResult] = useState<GradeResult | null>(null)
+  const [showScore, setShowScore] = useState(false)
   const [gradingEmail, setGradingEmail] = useState(false)
   const [scriptExchangeIdx, setScriptExchangeIdx] = useState(0)
   const [scriptDone, setScriptDone] = useState(false)
@@ -358,6 +374,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
     if (!emailForm.subject.trim() || !emailForm.body.trim()) return
     setGradingEmail(true)
     setGradeResult(null)
+    setShowScore(false)
     try {
       const res = await fetch('/api/grade-email', {
         method: 'POST',
@@ -716,13 +733,79 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                     </div>
                     <div className="text-sm" style={{ color: '#1a1208' }}>{gradeResult.topStrength}</div>
                   </div>
+
+                  {/* Corrected email */}
+                  {gradeResult.feedback?.correctedEmail && (
+                    <div className="rounded-xl p-3" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
+                      <div className="text-xs font-semibold mb-1" style={{ color: '#8a6530' }}>
+                        {lang === 'ko' ? '✏️ 수정된 버전' : '✏️ Corrected Version'}
+                      </div>
+                      <pre className="text-xs whitespace-pre-wrap leading-relaxed" style={{ color: '#6b5c3e', fontFamily: 'inherit' }}>{gradeResult.feedback.correctedEmail}</pre>
+                    </div>
+                  )}
+
+                  {/* Grammar & errors */}
+                  {gradeResult.feedback?.errors && gradeResult.feedback.errors.length > 0 && (
+                    <div className="rounded-xl p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                      <div className="text-xs font-semibold mb-2" style={{ color: '#92400e' }}>
+                        {lang === 'ko' ? '🔴 문법 & 언어 오류' : '🔴 Grammar & Language Errors'}
+                      </div>
+                      <div className="space-y-2">
+                        {gradeResult.feedback.errors.map((err, i) => (
+                          <div key={i} className="text-xs">
+                            <span className="line-through opacity-60" style={{ color: '#c0392b' }}>{err.original}</span>
+                            <span style={{ color: '#9c8c6e' }}> → </span>
+                            <span className="font-semibold" style={{ color: '#256040' }}>{err.corrected}</span>
+                            <div className="mt-0.5" style={{ color: '#6b5c3e' }}>{err.explanation}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Structure feedback */}
+                  {gradeResult.feedback?.structureFeedback && (
+                    <div className="rounded-xl p-3" style={{ background: 'white', border: '1px solid #e0d8cc' }}>
+                      <div className="text-xs font-semibold mb-2" style={{ color: '#9c8c6e' }}>
+                        {lang === 'ko' ? '📐 구조 피드백' : '📐 Structure Feedback'}
+                      </div>
+                      {(['greeting', 'body', 'closing'] as const).map(key => (
+                        <div key={key} className="text-xs mb-1">
+                          <span className="font-semibold capitalize" style={{ color: '#8a6530' }}>{key}: </span>
+                          <span style={{ color: '#1a1208' }}>{gradeResult.feedback?.structureFeedback?.[key]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Vocabulary suggestions */}
+                  {gradeResult.feedback?.vocabularySuggestions && gradeResult.feedback.vocabularySuggestions.length > 0 && (
+                    <div className="rounded-xl p-3" style={{ background: '#f0f4ff', border: '1px solid #c7d2fe' }}>
+                      <div className="text-xs font-semibold mb-2" style={{ color: '#4338ca' }}>
+                        {lang === 'ko' ? '📚 어휘 개선 제안' : '📚 Vocabulary Suggestions'}
+                      </div>
+                      <div className="space-y-1">
+                        {gradeResult.feedback.vocabularySuggestions.map((s, i) => (
+                          <div key={i} className="text-xs">
+                            <span className="opacity-60" style={{ color: '#6b5c3e' }}>{s.original}</span>
+                            <span style={{ color: '#9c8c6e' }}> → </span>
+                            <span className="font-semibold" style={{ color: '#4338ca' }}>{s.better}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Main feedback */}
                   <div className="rounded-xl p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
                     <div className="text-xs font-semibold mb-1" style={{ color: '#92400e' }}>
-                      {lang === 'ko' ? '💡 개선 포인트' : '💡 Feedback'}
+                      {lang === 'ko' ? '💡 종합 코멘트' : '💡 Overall Advice'}
                     </div>
-                    <div className="text-sm" style={{ color: '#1a1208' }}>{gradeResult.mainFeedback}</div>
+                    <div className="text-sm" style={{ color: '#1a1208' }}>
+                      {gradeResult.feedback?.overallAdvice || gradeResult.mainFeedback}
+                    </div>
                   </div>
+
                   {/* Revised opening example */}
                   {gradeResult.revisedOpening && (
                     <div className="rounded-xl p-3" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
@@ -732,6 +815,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                       <div className="text-sm italic" style={{ color: '#6b5c3e' }}>"{gradeResult.revisedOpening}"</div>
                     </div>
                   )}
+
                   {/* Detailed breakdown */}
                   <div className="grid grid-cols-2 gap-2">
                     {Object.entries(gradeResult.breakdown).map(([key, v]) => (
@@ -742,31 +826,46 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                       </div>
                     ))}
                   </div>
-                  {/* Score reveal at bottom */}
-                  <div className={`rounded-xl p-4 text-center ${gradeResult.pass ? 'bg-green-50' : 'bg-amber-50'}`}
-                    style={{ border: `2px solid ${gradeResult.pass ? '#86efac' : '#fde68a'}` }}>
-                    <div className="text-xs font-semibold mb-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
-                      {lang === 'ko' ? '최종 점수' : 'Final Score'}
-                    </div>
-                    <div className="text-4xl font-bold" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>{gradeResult.score}</div>
-                    <div className="text-sm font-medium mt-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
-                      {gradeResult.pass ? (lang === 'ko' ? '통과! 이메일 발송 가능 ✓' : 'Pass! Email approved ✓') : (lang === 'ko' ? '80점 이상 필요 — 수정해 보세요' : 'Need 80+ to pass — try revising')}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    {!gradeResult.pass && (
-                      <button onClick={() => setGradeResult(null)}
-                        className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                        style={{ background: '#faf0dd', color: '#8a6530' }}>
-                        {lang === 'ko' ? '수정하기' : 'Revise'}
-                      </button>
-                    )}
-                    <button onClick={() => { setEmailMode(false); setGradeResult(null); setEmailForm({ subject: '', greeting: '', body: '', closing: '' }) }}
-                      className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                      style={{ background: gradeResult.pass ? '#256040' : '#e0d8cc', color: gradeResult.pass ? 'white' : '#6b5c3e' }}>
-                      {gradeResult.pass ? (lang === 'ko' ? '완료' : 'Done') : (lang === 'ko' ? '닫기' : 'Close')}
+
+                  {/* Score reveal — only shown after button click */}
+                  {!showScore ? (
+                    <button
+                      onClick={() => setShowScore(true)}
+                      className="w-full py-3 rounded-xl text-sm font-semibold"
+                      style={{ background: '#8a6530', color: 'white' }}
+                    >
+                      {lang === 'ko' ? '점수 확인하기 →' : 'See Your Score →'}
                     </button>
-                  </div>
+                  ) : (
+                    <>
+                      <div className={`rounded-xl p-4 text-center ${gradeResult.pass ? 'bg-green-50' : 'bg-amber-50'}`}
+                        style={{ border: `2px solid ${gradeResult.pass ? '#86efac' : '#fde68a'}` }}>
+                        <div className="text-xs font-semibold mb-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
+                          {lang === 'ko' ? '최종 점수' : 'Final Score'}
+                        </div>
+                        <div className="text-4xl font-bold" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>{gradeResult.score}</div>
+                        <div className="text-sm font-medium mt-1" style={{ color: gradeResult.pass ? '#256040' : '#92400e' }}>
+                          {gradeResult.pass
+                            ? (lang === 'ko' ? '통과! 이메일 발송 가능 ✓' : 'Pass! Email approved ✓')
+                            : (lang === 'ko' ? '80점 이상 필요 — 수정해 보세요' : 'Need 80+ to pass — try revising')}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {!gradeResult.pass && (
+                          <button onClick={() => { setGradeResult(null); setShowScore(false) }}
+                            className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                            style={{ background: '#faf0dd', color: '#8a6530' }}>
+                            {lang === 'ko' ? '수정하기' : 'Revise'}
+                          </button>
+                        )}
+                        <button onClick={() => { setEmailMode(false); setGradeResult(null); setShowScore(false); setEmailForm({ subject: '', greeting: '', body: '', closing: '' }) }}
+                          className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                          style={{ background: gradeResult.pass ? '#256040' : '#e0d8cc', color: gradeResult.pass ? 'white' : '#6b5c3e' }}>
+                          {gradeResult.pass ? (lang === 'ko' ? '완료' : 'Done') : (lang === 'ko' ? '닫기' : 'Close')}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <>

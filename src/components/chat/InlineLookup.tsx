@@ -40,9 +40,11 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
   const [savedToast, setSavedToast] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const isTouch = typeof window !== 'undefined' && navigator.maxTouchPoints > 0
+
   useEffect(() => {
     const handler = (e: MouseEvent | TouchEvent) => {
-      const target = e instanceof MouseEvent ? e.target : e.touches[0]?.target
+      const target = e instanceof MouseEvent ? e.target : (e as TouchEvent).touches[0]?.target
       if (containerRef.current && target && !containerRef.current.contains(target as Node)) {
         setWordTooltip(null)
         setSelectionBar(null)
@@ -55,6 +57,54 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
       document.removeEventListener('touchstart', handler)
     }
   }, [])
+
+  // Touch devices: use selectionchange to detect text selection in this container
+  useEffect(() => {
+    if (!isTouch) return
+    const handleSelectionChange = () => {
+      const sel = document.getSelection()
+      const phrase = sel?.toString().trim()
+      if (!phrase || !containerRef.current) {
+        setSelectionBar(null)
+        return
+      }
+      if (!sel || sel.rangeCount === 0) return
+      const range = sel.getRangeAt(0)
+      if (!containerRef.current.contains(range.commonAncestorContainer)) return
+
+      const words = phrase.split(/\s+/).filter(Boolean)
+      if (words.length === 1) {
+        // Single word — show word tooltip
+        try {
+          const rect = range.getBoundingClientRect()
+          if (rect.width === 0 && rect.height === 0) return
+          setSelectionBar(null)
+          setWordTooltip({ word: phrase, korean: '', example: '', x: rect.left + rect.width / 2, y: rect.top, bottom: rect.bottom })
+          setWordLoading(true)
+          fetch('/api/lookup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ word: phrase, context: text, type: 'word' }),
+          })
+            .then(r => r.json())
+            .then(data => setWordTooltip(prev => prev ? { ...prev, korean: data.korean ?? '', example: data.example ?? '' } : null))
+            .catch(() => setWordTooltip(prev => prev ? { ...prev, korean: '번역 실패' } : null))
+            .finally(() => setWordLoading(false))
+        } catch {/* ignore */}
+      } else if (words.length >= 2 && words.length <= 6) {
+        // Multi-word — show selection bar
+        try {
+          const rect = range.getBoundingClientRect()
+          if (rect.width === 0 && rect.height === 0) return
+          setWordTooltip(null)
+          setSelectionBar({ phrase, x: rect.left + rect.width / 2, y: rect.top, bottom: rect.bottom })
+        } catch {/* ignore */}
+      }
+    }
+
+    document.addEventListener('selectionchange', handleSelectionChange)
+    return () => document.removeEventListener('selectionchange', handleSelectionChange)
+  }, [isTouch, text])
 
   const flashSaved = useCallback(() => {
     setSavedToast(true)

@@ -19,7 +19,7 @@ import { useStoryEngine } from '@/hooks/useStoryEngine'
 import { useMissionEngine } from '@/hooks/useMissionEngine'
 import { AppView } from '@/types'
 
-export default function MainLayout() {
+export default function MainLayout({ embedded }: { embedded?: boolean }) {
   const [leftWidth, setLeftWidth] = useState(220)
   const [rightWidth, setRightWidth] = useState(256)
   const [view, setView] = useState<AppView>('chat')
@@ -72,7 +72,7 @@ export default function MainLayout() {
   }
 
   return (
-    <div ref={containerRef} className="h-screen flex overflow-hidden" style={{ background: '#f2efe9' }}>
+    <div ref={containerRef} className={`${embedded ? 'h-full' : 'h-screen'} flex overflow-hidden`} style={{ background: '#f2efe9' }}>
 
       {/* ── Desktop: Left sidebar ── */}
       <div className="hidden md:flex flex-shrink-0" style={{ width: leftWidth }}>

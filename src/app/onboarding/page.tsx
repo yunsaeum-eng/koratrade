@@ -7,12 +7,13 @@ import { CHARACTER_IMAGES } from '@/config/characters'
 import { useAuth } from '@/contexts/AuthContext'
 import { saveProfile } from '@/services/gameData'
 import { UserProfile, Goal, GOAL_LABELS } from '@/types'
+import { UILang } from '@/data/translations'
 
 const GOALS: { key: Goal; emoji: string; desc: string }[] = [
-  { key: 'job', emoji: '🎯', desc: '취업 준비 중' },
-  { key: 'work', emoji: '💼', desc: '현직 스킬 향상' },
-  { key: 'cert', emoji: '📜', desc: '자격증 대비' },
-  { key: 'fun', emoji: '🎮', desc: '그냥 재미로' },
+  { key: 'job', emoji: '🎯', desc: '취업 준비 중 / Job hunting' },
+  { key: 'work', emoji: '💼', desc: '현직 스킬 향상 / Skill upgrade' },
+  { key: 'cert', emoji: '📜', desc: '자격증 대비 / Certification' },
+  { key: 'fun', emoji: '🎮', desc: '그냥 재미로 / Just for fun' },
 ]
 
 const GENDER_OPTIONS: { key: 'female' | 'male'; src: string; label: string }[] = [
@@ -22,6 +23,7 @@ const GENDER_OPTIONS: { key: 'female' | 'male'; src: string; label: string }[] =
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0)
+  const [uiLang, setUiLang] = useState<UILang>('korean')
   const [name, setName] = useState('')
   const [avatarGender, setAvatarGender] = useState<'female' | 'male' | null>(null)
   const [goal, setGoal] = useState<Goal>('job')
@@ -34,6 +36,8 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!loading && !user) router.replace('/')
   }, [loading, user, router])
+
+  const isEn = uiLang === 'english'
 
   const handleFinish = async () => {
     if (!user || !avatarGender) return
@@ -49,9 +53,13 @@ export default function OnboardingPage() {
       xp: 0,
       title: 'Intern',
       createdAt: new Date(),
+      uiLanguage: uiLang,
     }
     setSaving(true)
     setSaveError('')
+    // Save ui_lang to localStorage immediately
+    localStorage.setItem('kt_ui_lang', uiLang)
+    localStorage.setItem('kt_lang', uiLang === 'english' ? 'en' : 'ko')
     try {
       await saveProfile(profile)
       setProfile(profile)
@@ -76,24 +84,39 @@ export default function OnboardingPage() {
     const year = today.getFullYear()
     const month = today.getMonth() + 1
     const day = today.getDate()
-    const formattedDate = `${year}년 ${month}월 ${day}일`
+    const formattedDate = isEn ? `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}` : `${year}년 ${month}월 ${day}일`
 
     return (
       <div className="min-h-full flex items-center justify-center p-4" style={{ background: '#f2efe9' }}>
         <div className="max-w-sm w-full">
           <div className="bg-white rounded-2xl p-8 shadow-sm border text-center" style={{ borderColor: '#e0d8cc' }}>
             <div className="text-4xl mb-4">🎉</div>
-            <div className="font-serif text-2xl mb-1" style={{ color: '#8a6530' }}>합격을 축하드립니다!</div>
-            <p className="text-sm mb-4" style={{ color: '#6b5c3e' }}>KoraTrade Inc. 해외영업팀</p>
+            <div className="font-serif text-2xl mb-1" style={{ color: '#8a6530' }}>
+              {isEn ? 'Congratulations!' : '합격을 축하드립니다!'}
+            </div>
+            <p className="text-sm mb-4" style={{ color: '#6b5c3e' }}>KoraTrade Inc. {isEn ? 'International Sales Team' : '해외영업팀'}</p>
             <div className="border rounded-xl p-5 mb-5 text-left" style={{ borderColor: '#e0d8cc', background: '#faf8f4' }}>
               <div className="text-xs font-semibold mb-3 tracking-widest uppercase" style={{ color: '#9c8c6e' }}>Offer Letter</div>
               <p className="text-sm leading-relaxed" style={{ color: '#1a1208' }}>
-                <strong>{name}</strong> 님,<br /><br />
-                KoraTrade Inc. 해외영업팀 Junior Sales Representative로 채용됨을 알려드립니다.<br /><br />
-                입사 예정일: <strong>{formattedDate} 월요일 09:00</strong><br />
-                부서: 해외영업팀<br />
-                직급: Junior Sales Representative<br /><br />
-                <span style={{ color: '#9c8c6e', fontSize: '11px' }}>작성일: {formattedDate}</span>
+                {isEn ? (
+                  <>
+                    Dear <strong>{name}</strong>,<br /><br />
+                    We are pleased to inform you that you have been selected for the position of Junior Sales Representative at KoraTrade Inc.<br /><br />
+                    Start date: <strong>{formattedDate} Monday 09:00</strong><br />
+                    Department: International Sales<br />
+                    Title: Junior Sales Representative<br /><br />
+                    <span style={{ color: '#9c8c6e', fontSize: '11px' }}>Date: {formattedDate}</span>
+                  </>
+                ) : (
+                  <>
+                    <strong>{name}</strong> 님,<br /><br />
+                    KoraTrade Inc. 해외영업팀 Junior Sales Representative로 채용됨을 알려드립니다.<br /><br />
+                    입사 예정일: <strong>{formattedDate} 월요일 09:00</strong><br />
+                    부서: 해외영업팀<br />
+                    직급: Junior Sales Representative<br /><br />
+                    <span style={{ color: '#9c8c6e', fontSize: '11px' }}>작성일: {formattedDate}</span>
+                  </>
+                )}
               </p>
             </div>
             <button
@@ -101,7 +124,7 @@ export default function OnboardingPage() {
               className="w-full py-3 rounded-xl text-white font-semibold"
               style={{ background: '#8a6530' }}
             >
-              첫 출근하기 →
+              {isEn ? 'Start First Day →' : '첫 출근하기 →'}
             </button>
           </div>
         </div>
@@ -109,29 +132,85 @@ export default function OnboardingPage() {
     )
   }
 
+  const TOTAL_STEPS = 4
+
   return (
     <div className="min-h-full flex items-center justify-center p-4" style={{ background: '#f2efe9' }}>
       <div className="max-w-sm w-full">
         <div className="text-center mb-6">
           <div className="font-serif text-2xl" style={{ color: '#8a6530' }}>KoraTrade Inc.</div>
-          <p className="text-sm mt-1" style={{ color: '#9c8c6e' }}>입사 지원서</p>
+          <p className="text-sm mt-1" style={{ color: '#9c8c6e' }}>
+            {isEn ? 'Application Form' : '입사 지원서'}
+          </p>
         </div>
 
         {/* Progress */}
         <div className="flex gap-1.5 mb-6">
-          {[0, 1, 2].map(i => (
+          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
             <div key={i} className="flex-1 h-1 rounded-full transition-all" style={{ background: i <= step ? '#8a6530' : '#e0d8cc' }} />
           ))}
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border" style={{ borderColor: '#e0d8cc' }}>
+          {/* Step 0: Language */}
           {step === 0 && (
             <div>
-              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>이름이 뭐예요?</h2>
-              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>팀원들이 부를 이름을 알려주세요</p>
+              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
+                학습 언어를 선택하세요 / Choose your interface language
+              </h2>
+              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>UI, hints, and feedback will be in this language</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setUiLang('korean')}
+                  className="flex-1 py-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all"
+                  style={{
+                    borderColor: uiLang === 'korean' ? '#8a6530' : '#e0d8cc',
+                    background: uiLang === 'korean' ? '#faf5ec' : 'white',
+                  }}
+                >
+                  <span className="text-3xl">🇰🇷</span>
+                  <div>
+                    <div className="font-semibold text-sm" style={{ color: uiLang === 'korean' ? '#8a6530' : '#1a1208' }}>한국어</div>
+                    <div className="text-xs" style={{ color: '#9c8c6e' }}>Korean UI</div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setUiLang('english')}
+                  className="flex-1 py-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all"
+                  style={{
+                    borderColor: uiLang === 'english' ? '#8a6530' : '#e0d8cc',
+                    background: uiLang === 'english' ? '#faf5ec' : 'white',
+                  }}
+                >
+                  <span className="text-3xl">🌏</span>
+                  <div>
+                    <div className="font-semibold text-sm" style={{ color: uiLang === 'english' ? '#8a6530' : '#1a1208' }}>English</div>
+                    <div className="text-xs" style={{ color: '#9c8c6e' }}>English UI</div>
+                  </div>
+                </button>
+              </div>
+              <button
+                onClick={() => setStep(1)}
+                className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white"
+                style={{ background: '#8a6530' }}
+              >
+                {isEn ? 'Next →' : '다음 →'}
+              </button>
+            </div>
+          )}
+
+          {/* Step 1: Name */}
+          {step === 1 && (
+            <div>
+              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
+                {isEn ? "What's your name?" : '이름이 뭐예요?'}
+              </h2>
+              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>
+                {isEn ? 'Your name as your teammates will call you' : '팀원들이 부를 이름을 알려주세요'}
+              </p>
               <input
                 type="text"
-                placeholder="예: 김지훈, Alex, ..."
+                placeholder={isEn ? 'e.g. Alex, Kim, ...' : '예: 김지훈, Alex, ...'}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-lg text-sm border outline-none"
@@ -139,20 +218,25 @@ export default function OnboardingPage() {
                 autoFocus
               />
               <button
-                onClick={() => name.trim() && setStep(1)}
+                onClick={() => name.trim() && setStep(2)}
                 disabled={!name.trim()}
                 className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
                 style={{ background: '#8a6530' }}
               >
-                다음 →
+                {isEn ? 'Next →' : '다음 →'}
               </button>
             </div>
           )}
 
-          {step === 1 && (
+          {/* Step 2: Character */}
+          {step === 2 && (
             <div>
-              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>캐릭터를 선택해요</h2>
-              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>게임에서 사용할 캐릭터를 고르세요</p>
+              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
+                {isEn ? 'Choose your character' : '캐릭터를 선택해요'}
+              </h2>
+              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>
+                {isEn ? 'Select your in-game avatar' : '게임에서 사용할 캐릭터를 고르세요'}
+              </p>
 
               <div className="flex gap-3 justify-center mb-5">
                 {GENDER_OPTIONS.map(opt => (
@@ -176,20 +260,25 @@ export default function OnboardingPage() {
               </div>
 
               <button
-                onClick={() => avatarGender && setStep(2)}
+                onClick={() => avatarGender && setStep(3)}
                 disabled={!avatarGender}
                 className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
                 style={{ background: '#8a6530' }}
               >
-                다음 →
+                {isEn ? 'Next →' : '다음 →'}
               </button>
             </div>
           )}
 
-          {step === 2 && (
+          {/* Step 3: Goal */}
+          {step === 3 && (
             <div>
-              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>학습 목표가 뭐예요?</h2>
-              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>맞춤 스토리 구성에 활용돼요</p>
+              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
+                {isEn ? "What's your learning goal?" : '학습 목표가 뭐예요?'}
+              </h2>
+              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>
+                {isEn ? 'Used to personalize your story' : '맞춤 스토리 구성에 활용돼요'}
+              </p>
               <div className="space-y-2">
                 {GOALS.map(g => (
                   <button key={g.key} onClick={() => setGoal(g.key)}
@@ -206,7 +295,9 @@ export default function OnboardingPage() {
               </div>
               {saveError && <p className="text-xs text-red-500 mt-2">{saveError}</p>}
               <button onClick={handleFinish} disabled={saving} className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#8a6530' }}>
-                {saving ? '저장 중...' : '지원서 제출 🎉'}
+                {saving
+                  ? (isEn ? 'Saving...' : '저장 중...')
+                  : (isEn ? 'Submit Application 🎉' : '지원서 제출 🎉')}
               </button>
             </div>
           )}

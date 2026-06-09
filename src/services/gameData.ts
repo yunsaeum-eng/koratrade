@@ -10,6 +10,7 @@ export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
     goal: profile.goal,
     level: profile.level,
     xp: profile.xp,
+    ...(profile.uiLanguage ? { ui_language: profile.uiLanguage } : {}),
     ...(ext ? {
       english_level: ext.englishLevel,
       industry: ext.industry,
@@ -26,8 +27,9 @@ export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
 }
 
 export async function loadProfile(userId: string): Promise<UserProfile | null> {
-  const { data, error } = await supabase.from('profiles').select('id, name, avatar, avatar_bg, goal, english_level, industry, motivation, xp, level, streak_days, last_login_date').eq('id', userId).maybeSingle()
+  const { data, error } = await supabase.from('profiles').select('id, name, avatar, avatar_bg, goal, english_level, industry, motivation, xp, level, streak_days, last_login_date, ui_language').eq('id', userId).maybeSingle()
   if (error || !data) return null
+  const uiLang = (data.ui_language === 'english' ? 'english' : 'korean') as 'korean' | 'english'
   return {
     uid: data.id,
     email: '',
@@ -40,6 +42,7 @@ export async function loadProfile(userId: string): Promise<UserProfile | null> {
     xp: data.xp ?? 0,
     title: 'Intern',
     createdAt: new Date(),
+    uiLanguage: uiLang,
   }
 }
 
@@ -99,7 +102,7 @@ export async function loadGameState(userId: string): Promise<unknown | null> {
 
 const FALLBACK_CONTENTS = ['sorry, could you say that again', '잠깐만요', 'one moment', '잠시 후']
 
-export async function saveChatMessage(userId: string, roomId: string, message: Message) {
+export async function saveChatMessage(userId: string, roomId: string, message: Message, episodeId?: string) {
   const msgContent = (message.content ?? '').toLowerCase()
   if (FALLBACK_CONTENTS.some(f => msgContent.includes(f))) return
   const { error } = await supabase.from('chat_history').upsert({
@@ -114,23 +117,30 @@ export async function saveChatMessage(userId: string, roomId: string, message: M
     is_read: message.isRead,
     attachment_type: message.attachmentType ?? null,
     attachment_name: message.attachmentName ?? null,
+    episode_id: episodeId ?? null,
   }, { onConflict: 'user_id,message_id' })
   if (error) console.error('[saveChatMessage]', error.code, error.message)
 }
 
-export async function loadChatHistory(userId: string): Promise<Record<string, Message[]>> {
-  const { data, error } = await supabase
+export async function loadChatHistory(userId: string, episodeId?: string): Promise<Record<string, Message[]>> {
+  let query = supabase
     .from('chat_history')
     .select('room_id, message_id, sender_id, content, type, triggers_hint, game_timestamp, is_read, attachment_type, attachment_name, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: true })
+
+  if (episodeId) {
+    query = query.eq('episode_id', episodeId)
+  }
+
+  const { data, error } = await query
   if (error || !data) return {}
-  const FALLBACK_CONTENTS = ['sorry, could you say that again', '잠깐만요', 'one moment']
+  const LOAD_FALLBACKS = ['sorry, could you say that again', '잠깐만요', 'one moment']
   const result: Record<string, Message[]> = {}
   for (const row of data) {
     if (!result[row.room_id]) result[row.room_id] = []
     const msgContent = (row.content ?? '').toLowerCase()
-    if (FALLBACK_CONTENTS.some(f => msgContent.includes(f))) continue
+    if (LOAD_FALLBACKS.some(f => msgContent.includes(f))) continue
     result[row.room_id].push({
       id: row.message_id,
       roomId: row.room_id,

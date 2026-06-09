@@ -398,17 +398,22 @@ export function GameProvider({ uid, children }: { uid: string; children: ReactNo
   const [hydrated, setHydrated] = useState(false)
   // Ref mirrors hydrated so syncDispatch closure never goes stale
   const hydratedRef = useRef(false)
+  // Ref mirrors currentEpisodeId so syncDispatch closure never goes stale
+  const currentEpisodeIdRef = useRef('ep01')
 
   // Load from all Supabase tables on mount and HYDRATE state
   useEffect(() => {
-    Promise.all([
-      loadGameState(uid).catch(() => null),
-      loadChatHistory(uid).catch(() => ({} as Record<string, Message[]>)),
-      loadRelationships(uid).catch(() => ({} as Record<string, number>)),
-      loadCompletedMissions(uid).catch(() => [] as string[]),
-    ]).then(([blob, chatFromTable, relsFromTable, missionsFromTable]) => {
+    loadGameState(uid).catch(() => null).then(async (blob) => {
       const saved = (blob ?? {}) as PersistedGame
-      // Dedicated tables take priority over blob (unlimited history, always up to date)
+      const episodeId = saved.currentEpisodeId ?? 'ep01'
+      currentEpisodeIdRef.current = episodeId
+
+      const [chatFromTable, relsFromTable, missionsFromTable] = await Promise.all([
+        loadChatHistory(uid, episodeId).catch(() => ({} as Record<string, Message[]>)),
+        loadRelationships(uid).catch(() => ({} as Record<string, number>)),
+        loadCompletedMissions(uid).catch(() => [] as string[]),
+      ])
+
       const chatHistory = Object.keys(chatFromTable as Record<string, Message[]>).length > 0
         ? chatFromTable as Record<string, Message[]>
         : saved.chatHistory
@@ -429,12 +434,17 @@ export function GameProvider({ uid, children }: { uid: string; children: ReactNo
     })
   }, [uid])
 
+  // Keep episodeIdRef in sync with state changes (for SET_EPISODE dispatches)
+  useEffect(() => {
+    currentEpisodeIdRef.current = state.currentEpisodeId
+  }, [state.currentEpisodeId])
+
   // Dispatch wrapper: fires granular Supabase writes for specific actions
   const syncDispatch = useCallback((action: GameAction) => {
     dispatch(action)
     if (!hydratedRef.current) return
     if (action.type === 'ADD_MESSAGE') {
-      saveChatMessage(uid, action.roomId, action.message).catch(console.error)
+      saveChatMessage(uid, action.roomId, action.message, currentEpisodeIdRef.current).catch(console.error)
     }
     if (action.type === 'COMPLETE_MISSION') {
       saveCompletedMission(uid, action.missionId).catch(console.error)

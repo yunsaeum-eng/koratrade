@@ -1,14 +1,16 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { GameProvider } from '@/contexts/GameContext'
-import EpisodeSelectionScreen from '@/components/episodes/EpisodeSelectionScreen'
+import PlayScreen from '@/components/episodes/PlayScreen'
 
-export default function MainPage() {
+export default function PlayPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const params = useParams()
+  const episodeId = params?.episodeId as string ?? 'ep01'
 
   useEffect(() => {
     if (!user) router.replace('/')
@@ -18,7 +20,7 @@ export default function MainPage() {
 
   return (
     <GameProvider uid={user.uid}>
-      <EpisodeSelectionScreen />
+      <PlayScreen episodeId={episodeId} />
     </GameProvider>
   )
 }

@@ -39,7 +39,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(u)
         const p = await loadProfile(session.user.id).catch(() => null)
         if (!mounted) return
-        if (p) setProfileState(p)
+        if (p) {
+          setProfileState(p)
+          // Sync ui_language from Supabase to localStorage for useLanguage hook
+          if (p.uiLanguage && typeof window !== 'undefined') {
+            localStorage.setItem('kt_ui_lang', p.uiLanguage)
+            localStorage.setItem('kt_lang', p.uiLanguage === 'english' ? 'en' : 'ko')
+          }
+        }
       }
       setLoading(false)
     })
@@ -53,7 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const u = { uid: session.user.id, email: session.user.email! }
         setUser(u)
         loadProfile(session.user.id)
-          .then(p => { if (mounted) setProfileState(p) })
+          .then(p => {
+            if (!mounted) return
+            setProfileState(p)
+            if (p?.uiLanguage && typeof window !== 'undefined') {
+              localStorage.setItem('kt_ui_lang', p.uiLanguage)
+              localStorage.setItem('kt_lang', p.uiLanguage === 'english' ? 'en' : 'ko')
+            }
+          })
           .catch(() => { if (mounted) setProfileState(null) })
       } else {
         setUser(null)

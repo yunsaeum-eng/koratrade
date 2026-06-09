@@ -40,6 +40,7 @@ export interface UserProfile {
   xp: number
   title: string
   createdAt: Date
+  uiLanguage?: 'korean' | 'english'
 }
 
 export interface NPC {

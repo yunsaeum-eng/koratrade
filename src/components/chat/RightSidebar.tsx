@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useGame } from '@/contexts/GameContext'
-import { getCurriculumEpisode, getCheckedObjectives, PHASE_DEFS } from '@/data/curriculum'
+import { getCurriculumEpisode, PHASE_DEFS } from '@/data/curriculum'
 import { getMissionsForEpisode, getMissionsForPhase } from '@/data/missions'
 
 export default function RightSidebar() {
@@ -17,8 +17,6 @@ export default function RightSidebar() {
 
   const currEp = getCurriculumEpisode(state.currentEpisodeId)
   const objectives = currEp?.objectives ?? []
-  const checkedCount = getCheckedObjectives(progressPct, objectives.length)
-  const allDone = objectives.length > 0 && checkedCount >= objectives.length
 
   // Mission data for current episode
   const allEpisodeMissions = getMissionsForEpisode(state.currentEpisodeId)
@@ -26,14 +24,21 @@ export default function RightSidebar() {
   const totalMissions = allEpisodeMissions.length
   const missionProgressPct = totalMissions > 0 ? Math.round((completedCount / totalMissions) * 100) : 0
 
+  // Objectives check ONLY when missions are completed — never auto-check from progress
+  const completedForEp = completedCount
+  const checkedCount = objectives.length > 0 && totalMissions > 0
+    ? Math.floor((completedForEp / totalMissions) * objectives.length)
+    : 0
+  const allDone = objectives.length > 0 && checkedCount >= objectives.length
+
   // Current phase label
   const phaseDef = PHASE_DEFS[currentPhase - 1]
   const currentPhaseMissions = getMissionsForPhase(state.currentEpisodeId, currentPhase)
 
   const getMissionStatus = (missionId: string, missionPhase: number): 'completed' | 'active' | 'locked' => {
     if (state.completedMissionIds.includes(missionId)) return 'completed'
-    if (missionPhase < currentPhase) return 'completed'  // past phases assumed complete
     if (missionPhase === currentPhase) return 'active'
+    if (missionPhase < currentPhase) return 'active'  // past phases still playable, not auto-complete
     return 'locked'
   }
 
