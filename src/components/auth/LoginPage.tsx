@@ -33,8 +33,8 @@ export default function LoginPage() {
           console.log('[LOGIN] 2. profiles table result:', existing
             ? { name: existing.name, goal: existing.goal, level: existing.level }
             : 'null — no profile row found')
-          const destination = existing ? '/commute' : '/onboarding'
-          console.log('[LOGIN] 3. Redirecting to:', destination, existing ? '(profile exists)' : '(no profile → onboarding)')
+          const destination = (existing && existing.name?.trim()) ? '/commute' : '/onboarding'
+          console.log('[LOGIN] 3. Redirecting to:', destination, (existing && existing.name?.trim()) ? '(complete profile)' : '(no/incomplete profile → onboarding)')
           router.push(destination)
         } else {
           console.warn('[LOGIN] 3. No session after signIn — not redirecting')

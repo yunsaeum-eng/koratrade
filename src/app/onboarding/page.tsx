@@ -30,12 +30,17 @@ export default function OnboardingPage() {
   const [showOfferLetter, setShowOfferLetter] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
-  const { user, setProfile, loading } = useAuth()
+  const { user, profile, setProfile, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !user) router.replace('/')
-  }, [loading, user, router])
+    if (loading) return
+    if (!user) { router.replace('/'); return }
+    // Returning user with a complete profile — skip onboarding entirely
+    if (profile && profile.name && profile.name.trim() !== '') {
+      router.replace('/main')
+    }
+  }, [loading, user, profile, router])
 
   const isEn = uiLang === 'english'
 

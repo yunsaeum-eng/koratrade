@@ -15,9 +15,13 @@ export default function Home() {
   useEffect(() => {
     if (loading) return
     console.log('[PAGE] auth resolved — user:', user?.uid ?? 'null', '| profile:', profile ? profile.name : 'null')
-    if (user && profile) {
-      console.log('[PAGE] stored session + profile found → redirecting to /commute')
+    const profileComplete = profile && profile.name && profile.name.trim() !== ''
+    if (user && profileComplete) {
+      console.log('[PAGE] stored session + complete profile → redirecting to /commute')
       router.replace('/commute')
+    } else if (user && profile && !profileComplete) {
+      console.log('[PAGE] stored session + incomplete profile → redirecting to /onboarding')
+      router.replace('/onboarding')
     } else if (user && !profile) {
       console.log('[PAGE] stored session but NO profile → showing login page (user must log in explicitly)')
     } else {
@@ -37,7 +41,7 @@ export default function Home() {
   }
 
   // Fully onboarded user — redirecting to /commute, don't flash the login page
-  if (user && profile) return null
+  if (user && profile && profile.name?.trim()) return null
 
   return <LoginPage />
 }
