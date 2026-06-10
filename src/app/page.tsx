@@ -15,16 +15,17 @@ export default function Home() {
   useEffect(() => {
     if (loading) return
     console.log('[PAGE] auth resolved — user:', user?.uid ?? 'null', '| profile:', profile ? profile.name : 'null')
-    const profileComplete = !!(profile && profile.name && profile.name.trim() !== '')
-    if (user && profileComplete && profile!.uiLanguage) {
+    if (user && profile?.name?.trim() && profile.uiLanguage) {
       console.log('[PAGE] returning user + language set → /commute')
       router.replace('/commute')
-    } else if (user && profileComplete && !profile!.uiLanguage) {
+    } else if (user && profile?.name?.trim() && !profile.uiLanguage) {
       console.log('[PAGE] returning user + no language → /onboarding/language')
       router.replace('/onboarding/language')
-    } else if (user && !profileComplete) {
-      console.log('[PAGE] new user or incomplete profile → /onboarding')
+    } else if (user && profile && !profile.name?.trim()) {
+      console.log('[PAGE] profile row exists but name empty → /onboarding')
       router.replace('/onboarding')
+    } else if (user && !profile) {
+      console.log('[PAGE] session but no profile row → show login (must log in explicitly)')
     } else {
       console.log('[PAGE] no session → showing login page')
     }
