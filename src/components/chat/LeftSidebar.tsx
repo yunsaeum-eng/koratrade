@@ -217,7 +217,9 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
           </>
         ) : (
           <div className="px-4 py-6 text-center text-xs" style={{ color: '#9c8c6e' }}>
-            {view === 'notes' ? '업무 노트' : '인물 도감'}이 오른쪽에 표시됩니다
+            {isEn
+              ? (view === 'notes' ? 'Work Notes are shown on the right.' : 'Character Profiles are shown on the right.')
+              : `${view === 'notes' ? '업무 노트' : '인물 도감'}이 오른쪽에 표시됩니다`}
           </div>
         )}
       </div>
@@ -295,10 +297,12 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
             </div>
             <div className="flex items-center gap-1.5 mb-2">
               <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: popupNpc.isOnline ? '#256040' : '#ccc' }} />
-              <span className="text-xs" style={{ color: '#9c8c6e' }}>{isAfterWork ? t('afterWork') : popupNpc.moodLabel}</span>
+              <span className="text-xs" style={{ color: '#9c8c6e' }}>
+                {isAfterWork ? t('afterWork') : (isEn ? (popupNpc.moodLabelEn ?? popupNpc.moodLabel) : popupNpc.moodLabel)}
+              </span>
             </div>
             <div className="text-xs px-2 py-1.5 rounded-lg" style={{ background: '#f2efe9', color: '#6b5c3e' }}>
-              💼 {popupNpc.personality.split(',')[0].trim()}
+              💼 {isEn ? (popupNpc.personalityEn ?? popupNpc.personality.split(',')[0].trim()) : popupNpc.personality.split(',')[0].trim()}
             </div>
           </div>
         )

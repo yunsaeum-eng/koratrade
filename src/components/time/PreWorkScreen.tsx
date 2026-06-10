@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function PreWorkScreen({ secondsUntil9, dateStr, onSkip }: Props) {
-  const { t } = useLanguage()
+  const { t, isEn } = useLanguage()
 
   return (
     <div className="flex flex-col items-center justify-center text-center px-6">
@@ -29,7 +29,7 @@ export default function PreWorkScreen({ secondsUntil9, dateStr, onSkip }: Props)
         <div className="font-mono text-4xl font-light" style={{ color: '#1a1208' }}>{formatCountdown(secondsUntil9)}</div>
       </div>
 
-      <div className="text-xs mb-4" style={{ color: '#9c8c6e' }}>오늘의 미션: S1·EP01 — First Day Jitters</div>
+      <div className="text-xs mb-4" style={{ color: '#9c8c6e' }}>{isEn ? "Today's mission: S1·EP01 — First Day Jitters" : '오늘의 미션: S1·EP01 — First Day Jitters'}</div>
 
       <button
         onClick={onSkip}

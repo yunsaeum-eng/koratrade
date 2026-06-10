@@ -88,7 +88,7 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
           })
             .then(r => r.json())
             .then(data => setWordTooltip(prev => prev ? { ...prev, korean: data.korean ?? '', example: data.example ?? '' } : null))
-            .catch(() => setWordTooltip(prev => prev ? { ...prev, korean: '번역 실패' } : null))
+            .catch(() => setWordTooltip(prev => prev ? { ...prev, korean: lang !== 'ko' ? 'Translation failed' : '번역 실패' } : null))
             .finally(() => setWordLoading(false))
         } catch {/* ignore */}
       } else if (words.length >= 2 && words.length <= 6) {
@@ -163,7 +163,7 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
       const data = await res.json()
       setWordTooltip(prev => prev ? { ...prev, korean: data.korean ?? '', example: data.example ?? '' } : null)
     } catch {
-      setWordTooltip(prev => prev ? { ...prev, korean: '번역 실패' } : null)
+      setWordTooltip(prev => prev ? { ...prev, korean: lang !== 'ko' ? 'Translation failed' : '번역 실패' } : null)
     }
     setWordLoading(false)
   }, [text])
@@ -203,6 +203,7 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
         <WordTooltipCard
           tooltip={wordTooltip}
           loading={wordLoading}
+          lang={lang}
           onAdd={() => saveToExpressions(wordTooltip.word, wordTooltip.korean)}
           onDismiss={() => setWordTooltip(null)}
         />
@@ -213,6 +214,7 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
         <SelectionActionBar
           bar={selectionBar}
           context={text}
+          lang={lang}
           onSave={saveToExpressions}
           onDismiss={() => setSelectionBar(null)}
         />
@@ -222,7 +224,7 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
       {savedToast && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] px-4 py-2 rounded-full text-xs font-semibold shadow-lg pointer-events-none"
           style={{ background: '#256040', color: 'white' }}>
-          표현 저장됨 ✓
+          {lang !== 'ko' ? 'Expression saved ✓' : '표현 저장됨 ✓'}
         </div>
       )}
     </div>
@@ -231,9 +233,10 @@ export default function InlineLookup({ text, episodeNum, lang, senderId, episode
 
 // ── WordTooltipCard ────────────────────────────────────────────────────────────
 
-function WordTooltipCard({ tooltip, loading, onAdd, onDismiss }: {
+function WordTooltipCard({ tooltip, loading, lang, onAdd, onDismiss }: {
   tooltip: WordTooltip
   loading: boolean
+  lang: string
   onAdd: () => void
   onDismiss: () => void
 }) {
@@ -258,7 +261,7 @@ function WordTooltipCard({ tooltip, loading, onAdd, onDismiss }: {
         <button onClick={onDismiss} className="text-xs flex-shrink-0 opacity-40 hover:opacity-100" style={{ color: '#9c8c6e' }}>✕</button>
       </div>
       {loading ? (
-        <div style={{ color: '#9c8c6e' }}>번역 중...</div>
+        <div style={{ color: '#9c8c6e' }}>{lang !== 'ko' ? 'Looking up...' : '번역 중...'}</div>
       ) : (
         <>
           {tooltip.korean && <div className="mb-1" style={{ color: '#1a1208' }}>{tooltip.korean}</div>}
@@ -268,7 +271,7 @@ function WordTooltipCard({ tooltip, loading, onAdd, onDismiss }: {
             className="w-full py-1.5 rounded-lg text-xs font-medium text-left px-2"
             style={{ background: '#faf0dd', color: '#8a6530' }}
           >
-            + 표현 모음에 추가
+            {lang !== 'ko' ? '+ Add to expressions' : '+ 표현 모음에 추가'}
           </button>
         </>
       )}
@@ -278,9 +281,10 @@ function WordTooltipCard({ tooltip, loading, onAdd, onDismiss }: {
 
 // ── SelectionActionBar ─────────────────────────────────────────────────────────
 
-function SelectionActionBar({ bar, context, onSave, onDismiss }: {
+function SelectionActionBar({ bar, context, lang, onSave, onDismiss }: {
   bar: SelectionBar
   context: string
+  lang: string
   onSave: (phrase: string, korean?: string) => Promise<void>
   onDismiss: () => void
 }) {
@@ -304,7 +308,7 @@ function SelectionActionBar({ bar, context, onSave, onDismiss }: {
       })
       setLookupData(await res.json())
     } catch {
-      setLookupData({ korean: '번역 실패' })
+      setLookupData({ korean: lang !== 'ko' ? 'Translation failed' : '번역 실패' })
     }
     setLoading(false)
   }
@@ -334,7 +338,7 @@ function SelectionActionBar({ bar, context, onSave, onDismiss }: {
             className="flex-1 text-xs px-2 py-1.5 rounded-lg font-medium"
             style={{ background: '#faf0dd', color: '#8a6530' }}
           >
-            🔍 뜻 보기
+            {lang !== 'ko' ? '🔍 Look up' : '🔍 뜻 보기'}
           </button>
           <button
             onClick={handleSave}
@@ -342,7 +346,7 @@ function SelectionActionBar({ bar, context, onSave, onDismiss }: {
             className="flex-1 text-xs px-2 py-1.5 rounded-lg font-medium disabled:opacity-50"
             style={{ background: '#f0faf4', color: '#256040' }}
           >
-            📒 표현 저장
+            {lang !== 'ko' ? '📒 Save' : '📒 표현 저장'}
           </button>
           <button onClick={onDismiss} className="text-xs px-1" style={{ color: '#9c8c6e' }}>✕</button>
         </div>
@@ -350,13 +354,13 @@ function SelectionActionBar({ bar, context, onSave, onDismiss }: {
         <div className="p-3 text-xs">
           <div className="font-semibold mb-2 pr-4" style={{ color: '#8a6530' }}>"{bar.phrase}"</div>
           {loading ? (
-            <div style={{ color: '#9c8c6e' }}>설명 불러오는 중...</div>
+            <div style={{ color: '#9c8c6e' }}>{lang !== 'ko' ? 'Loading...' : '설명 불러오는 중...'}</div>
           ) : lookupData ? (
             <div className="space-y-1">
-              {lookupData.korean && <div style={{ color: '#1a1208' }}><strong>의미:</strong> {lookupData.korean}</div>}
-              {lookupData.usage && <div style={{ color: '#6b5c3e' }}><strong>사용 시점:</strong> {lookupData.usage}</div>}
+              {lookupData.korean && <div style={{ color: '#1a1208' }}><strong>{lang !== 'ko' ? 'Meaning:' : '의미:'}</strong> {lookupData.korean}</div>}
+              {lookupData.usage && <div style={{ color: '#6b5c3e' }}><strong>{lang !== 'ko' ? 'When to use:' : '사용 시점:'}</strong> {lookupData.usage}</div>}
               {lookupData.similar?.length ? (
-                <div style={{ color: '#6b5c3e' }}><strong>유사 표현:</strong> {lookupData.similar.join(', ')}</div>
+                <div style={{ color: '#6b5c3e' }}><strong>{lang !== 'ko' ? 'Similar:' : '유사 표현:'}</strong> {lookupData.similar.join(', ')}</div>
               ) : null}
             </div>
           ) : null}
@@ -367,9 +371,9 @@ function SelectionActionBar({ bar, context, onSave, onDismiss }: {
               className="flex-1 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
               style={{ background: '#f0faf4', color: '#256040' }}
             >
-              📒 표현 저장
+              {lang !== 'ko' ? '📒 Save' : '📒 표현 저장'}
             </button>
-            <button onClick={onDismiss} className="px-2 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>닫기</button>
+            <button onClick={onDismiss} className="px-2 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>{lang !== 'ko' ? 'Close' : '닫기'}</button>
           </div>
         </div>
       )}

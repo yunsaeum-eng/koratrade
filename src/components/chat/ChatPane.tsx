@@ -392,7 +392,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
           type: 'ADD_MESSAGE', roomId,
           message: {
             id: `email-${Date.now()}`, roomId, senderId: 'player',
-            content: `[이메일 제출] ${emailForm.subject}`,
+            content: `${isEn ? '[Email Submitted]' : '[이메일 제출]'} ${emailForm.subject}`,
             type: 'text', timestamp: new Date(), isRead: true,
           },
         })
@@ -547,14 +547,14 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: '#faf5ec' }}>📄</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-semibold truncate" style={{ color: '#1a1208' }}>{msg.attachmentName}</div>
-                    <div className="text-xs" style={{ color: '#9c8c6e' }}>KoraTrade 문서</div>
+                    <div className="text-xs" style={{ color: '#9c8c6e' }}>{isEn ? 'KoraTrade Document' : 'KoraTrade 문서'}</div>
                   </div>
                   <button onClick={() => {
                     setOpenDoc({ type: msg.attachmentType!, name: msg.attachmentName! })
                     runMissionCheck(`(USER_ACTION: opened document "${msg.attachmentType}")`, roomId)
                   }}
                     className="text-xs px-3 py-1.5 rounded-lg font-semibold flex-shrink-0" style={{ background: '#8a6530', color: 'white' }}>
-                    열어보기
+                    {isEn ? 'Open' : '열어보기'}
                   </button>
                 </div>
               </div>

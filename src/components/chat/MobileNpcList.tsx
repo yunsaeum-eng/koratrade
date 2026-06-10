@@ -1,6 +1,7 @@
 'use client'
 
 import { useGame } from '@/contexts/GameContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { NPCS } from '@/data/npcs'
 import { CHARACTER_IMAGES } from '@/config/characters'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
@@ -13,6 +14,7 @@ interface Props {
 
 export default function MobileNpcList({ onSelectRoom }: Props) {
   const { state, dispatch } = useGame()
+  const { isEn } = useLanguage()
 
   const handleSelect = (roomId: string) => {
     dispatch({ type: 'SET_ACTIVE_ROOM', roomId })
@@ -71,7 +73,7 @@ export default function MobileNpcList({ onSelectRoom }: Props) {
                 {room.lastMessage
                   ? <div className="text-xs truncate mt-0.5" style={{ color: '#9c8c6e' }}>{room.lastMessage}</div>
                   : <div className="text-xs mt-0.5" style={{ color: '#b8a88a' }}>
-                      {room.type === 'group' ? '팀 채널' : npc?.roleKr ?? ''}
+                      {room.type === 'group' ? (isEn ? 'Team Channel' : '팀 채널') : (isEn ? (npc?.role ?? '') : (npc?.roleKr ?? ''))}
                     </div>
                 }
               </div>

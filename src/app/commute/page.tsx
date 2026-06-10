@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { NPCS } from '@/data/npcs'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
@@ -16,6 +17,7 @@ const getChar = (id: string) => CHARACTER_IMAGES[id as CharKey]
 
 export default function CommutePage() {
   const { user, profile, loading } = useAuth()
+  const { isEn } = useLanguage()
   const router = useRouter()
   const [savedClock, setSavedClock] = useState(540)
   const [gameXp, setGameXp] = useState(0)
@@ -67,7 +69,9 @@ export default function CommutePage() {
             {isResume ? clockToStr(savedClock) : '09:00'}
           </div>
           <div className="text-xs" style={{ color: '#9c8c6e' }}>
-            {isResume ? '이전 세션 진행 중 — 이어서 출근하세요' : '오늘의 업무 시작 준비'}
+            {isResume
+            ? (isEn ? 'Previous session in progress — resume where you left off' : '이전 세션 진행 중 — 이어서 출근하세요')
+            : (isEn ? "Ready to start today's work" : '오늘의 업무 시작 준비')}
           </div>
         </div>
 
@@ -109,10 +113,10 @@ export default function CommutePage() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#8a6530' }}>Season 1</span>
-                  <span className="text-xs" style={{ color: '#9c8c6e' }}>EP {doneCount}/{s1eps.length} 완료</span>
+                  <span className="text-xs" style={{ color: '#9c8c6e' }}>{isEn ? `EP ${doneCount}/${s1eps.length} done` : `EP ${doneCount}/${s1eps.length} 완료`}</span>
                 </div>
                 <button onClick={() => setMapOpen(o => !o)} className="text-xs" style={{ color: '#8a6530' }}>
-                  {mapOpen ? '접기' : '전체 보기'}
+                  {mapOpen ? (isEn ? 'Collapse' : '접기') : (isEn ? 'View all' : '전체 보기')}
                 </button>
               </div>
 
@@ -125,9 +129,9 @@ export default function CommutePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-mono font-semibold" style={{ color: '#8a6530' }}>EP{String(currentEp.episode).padStart(2, '0')}</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold" style={{ background: '#8a6530', color: 'white' }}>진행중</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold" style={{ background: '#8a6530', color: 'white' }}>{isEn ? 'In Progress' : '진행중'}</span>
                   </div>
-                  <div className="text-sm font-semibold truncate" style={{ color: '#1a1208' }}>{currentEp.titleKr}</div>
+                  <div className="text-sm font-semibold truncate" style={{ color: '#1a1208' }}>{isEn ? currentEp.title : currentEp.titleKr}</div>
                 </div>
               </div>
 
@@ -157,7 +161,7 @@ export default function CommutePage() {
 
         {/* Team status */}
         <div className="bg-white rounded-2xl border p-4 mb-4" style={{ borderColor: '#e0d8cc' }}>
-          <h3 className="text-xs font-semibold mb-3 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>오늘의 팀원 현황</h3>
+          <h3 className="text-xs font-semibold mb-3 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{isEn ? "Today's Team" : '오늘의 팀원 현황'}</h3>
           <div className="space-y-2.5">
             {NPCS.filter(n => n.isOnline).map(npc => {
               const ch = getChar(npc.id)
@@ -171,9 +175,11 @@ export default function CommutePage() {
                   }
                   <div className="flex-1 min-w-0">
                     <span className="text-sm font-medium" style={{ color: '#1a1208' }}>{npc.name}</span>
-                    <span className="text-xs ml-1.5" style={{ color: '#9c8c6e' }}>{npc.roleKr}</span>
+                    <span className="text-xs ml-1.5" style={{ color: '#9c8c6e' }}>{isEn ? npc.role : npc.roleKr}</span>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#f2efe9', color: '#6b5c3e' }}>{npc.moodLabel}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#f2efe9', color: '#6b5c3e' }}>
+                    {isEn ? (npc.moodLabelEn ?? npc.moodLabel) : npc.moodLabel}
+                  </span>
                 </div>
               )
             })}
@@ -182,7 +188,7 @@ export default function CommutePage() {
 
         {/* Today's mission */}
         <div className="bg-white rounded-2xl border p-4 mb-5" style={{ borderColor: '#e0d8cc' }}>
-          <h3 className="text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>오늘의 미션</h3>
+          <h3 className="text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{isEn ? "Today's Mission" : '오늘의 미션'}</h3>
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-mono font-semibold flex-shrink-0"
               style={{ background: '#faf5ec', color: '#8a6530', border: '1px solid #e8d8b8' }}>E01</div>
@@ -190,9 +196,11 @@ export default function CommutePage() {
               <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>
                 S{EP01.season}·EP{EP01.episode} — {EP01.title}
               </div>
-              <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{EP01.titleKr}</div>
+              <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{isEn ? EP01.title : EP01.titleKr}</div>
               <div className="text-xs mt-2 leading-relaxed" style={{ color: '#6b5c3e' }}>
-                KoraTrade에 첫 출근! James가 자리를 안내해 주고, 오늘의 핵심 표현 5가지를 배워보세요.
+                {isEn
+                  ? 'Your first day at KoraTrade! James will show you around and help you learn 5 key expressions.'
+                  : 'KoraTrade에 첫 출근! James가 자리를 안내해 주고, 오늘의 핵심 표현 5가지를 배워보세요.'}
               </div>
             </div>
           </div>
@@ -204,11 +212,13 @@ export default function CommutePage() {
           className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-all active:scale-95"
           style={{ background: 'linear-gradient(135deg, #8a6530 0%, #a07a3a 100%)' }}
         >
-          {isResume ? `이어서 출근하기 (${clockToStr(savedClock)}부터) →` : '출근하기 →'}
+          {isResume
+            ? (isEn ? `Resume from ${clockToStr(savedClock)} →` : `이어서 출근하기 (${clockToStr(savedClock)}부터) →`)
+            : (isEn ? 'Start Work →' : '출근하기 →')}
         </button>
 
         <p className="text-center text-xs mt-3" style={{ color: '#9c8c6e' }}>
-          KoraTrade Inc. · 해외영업팀 · 09:00 ~ 18:00
+          {isEn ? 'KoraTrade Inc. · Overseas Sales · 09:00 ~ 18:00' : 'KoraTrade Inc. · 해외영업팀 · 09:00 ~ 18:00'}
         </p>
       </div>
     </div>

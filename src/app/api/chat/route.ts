@@ -296,6 +296,11 @@ Rules: Respond to exactly what was written. 2-3 sentences. Professional and slig
       : `\n\nCurrent game time: ${t}. Any references to schedules or events must make sense relative to this time.`
   }
 
+  // ── Hard English enforcement ───────────────────────────────────────────────
+  if (!ko) {
+    prompt += '\n\nCRITICAL: You are in English-only mode. Your response MUST be 100% in English. Do NOT use any Korean characters or Korean words. Not even one character. If you find yourself writing Korean, stop and rewrite in English.'
+  }
+
   return prompt
 }
 

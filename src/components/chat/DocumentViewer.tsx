@@ -89,8 +89,8 @@ export default function DocumentViewer({ docType, docName, lang, onClose }: Prop
       note: {
         id: `doc-${docType}-${Date.now()}`,
         type: 'memo',
-        content: `[문서] ${docName}`,
-        context: `${docType} 문서 참조`,
+        content: `${lang === 'ko' ? '[문서]' : '[Document]'} ${docName}`,
+        context: `${docType} ${lang === 'ko' ? '문서 참조' : 'document reference'}`,
         addedAt: new Date().toISOString(),
         source: 'auto',
       },
@@ -114,7 +114,7 @@ export default function DocumentViewer({ docType, docName, lang, onClose }: Prop
             className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all flex-shrink-0"
             style={{ background: saved ? '#256040' : '#f2efe9', color: saved ? 'white' : '#8a6530' }}
           >
-            {saved ? '✓ 저장됨' : '업무 노트에 저장'}
+            {saved ? (lang === 'ko' ? '✓ 저장됨' : '✓ Saved') : (lang === 'ko' ? '업무 노트에 저장' : 'Save to Notes')}
           </button>
           <button
             onClick={onClose}
@@ -163,7 +163,7 @@ export default function DocumentViewer({ docType, docName, lang, onClose }: Prop
                     <div key={i} className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#8a6530', animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
-                <div className="text-sm" style={{ color: '#9c8c6e' }}>문서를 생성하는 중...</div>
+                <div className="text-sm" style={{ color: '#9c8c6e' }}>{lang === 'ko' ? '문서를 생성하는 중...' : 'Generating document...'}</div>
               </div>
             ) : html ? (
               <div
@@ -173,7 +173,7 @@ export default function DocumentViewer({ docType, docName, lang, onClose }: Prop
                 style={{ lineHeight: 1.6 }}
               />
             ) : (
-              <div className="text-center py-8 text-sm" style={{ color: '#9c8c6e' }}>문서를 불러오지 못했습니다.</div>
+              <div className="text-center py-8 text-sm" style={{ color: '#9c8c6e' }}>{lang === 'ko' ? '문서를 불러오지 못했습니다.' : 'Could not load the document.'}</div>
             )}
           </div>
         )}

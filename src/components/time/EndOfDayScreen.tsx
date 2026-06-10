@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function EndOfDayScreen({ xpTotal, learnedCount, level, onDismiss }: Props) {
-  const { t } = useLanguage()
+  const { t, isEn } = useLanguage()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(26,18,8,0.5)' }}>
@@ -45,8 +45,17 @@ export default function EndOfDayScreen({ xpTotal, learnedCount, level, onDismiss
         <div className="px-6 py-4 border-b" style={{ borderColor: '#e0d8cc' }}>
           <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#9c8c6e' }}>{t('tomorrowPreview')}</div>
           <p className="text-sm leading-relaxed" style={{ color: '#6b5c3e' }}>
-            Sarah 팀장이 첫 번째 과제를 내려보낸다. Sophie Beaumont에게 보낼 콜드 이메일 마감은 내일 오전 10시.
-            James가 조용히 귀띔한다 — <span style={{ color: '#8a6530' }}>"소피는 까다롭지만 방법이 있어요."</span>
+            {isEn ? (
+              <>
+                Sarah sends down the first real task. The cold email to Sophie Beaumont is due tomorrow at 10 AM.
+                James leans over quietly — <span style={{ color: '#8a6530' }}>"Sophie is tough, but there&apos;s a way in."</span>
+              </>
+            ) : (
+              <>
+                Sarah 팀장이 첫 번째 과제를 내려보낸다. Sophie Beaumont에게 보낼 콜드 이메일 마감은 내일 오전 10시.
+                James가 조용히 귀띔한다 — <span style={{ color: '#8a6530' }}>"소피는 까다롭지만 방법이 있어요."</span>
+              </>
+            )}
           </p>
         </div>
 

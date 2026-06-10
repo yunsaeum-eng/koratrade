@@ -55,9 +55,11 @@ export interface NPC {
   avatar: string
   mood: 'good' | 'neutral' | 'busy' | 'bad'
   moodLabel: string
+  moodLabelEn?: string
   relationship: number  // 0-100
   isOnline: boolean
   personality: string
+  personalityEn?: string
   speechStyle: string
 }
 
