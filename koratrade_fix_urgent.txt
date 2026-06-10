@@ -1,0 +1,151 @@
+KoraTrade — Urgent Fixes
+========================
+Read all source files first, then implement everything below.
+
+---
+
+FIX 1 — Onboarding Submit Failure
+-----------------------------------
+Problem: On the onboarding screen (goal selection step), clicking "Submit Application" shows
+"저장에 실패했습니다. 다시 시도해주세요." and does nothing.
+
+Steps to fix:
+1. Open src/app/onboarding/page.tsx
+2. Find the handleFinish (or handleSubmit) function
+3. Add console.log at every step to trace where it fails
+4. Check that saveProfile() is being called with the correct columns that exist in Supabase profiles table
+   - Allowed columns: id, name, avatar, avatar_bg, goal, english_level, industry, motivation, xp, level, streak_days, last_login_date, ui_language
+   - Do NOT include: email, avatar_gender, title, job_goal, learning_reason, or any column not in that list
+5. Make sure the function is async and properly awaits saveProfile()
+6. If ui_language column does not exist yet in Supabase, add a fallback so it doesn't crash:
+   - Wrap ui_language in a try/catch or use optional inclusion
+7. After fixing, the submit button should successfully save and redirect to /commute
+
+---
+
+FIX 2 — Full English UI when English is selected
+--------------------------------------------------
+Problem: When user selects "English" during onboarding, subsequent screens (character selection,
+avatar gender, etc.) still show Korean text. The entire onboarding flow and main app UI must
+switch to English.
+
+Steps to fix:
+
+2A. Onboarding pages — translate all steps to English when ui_language === 'english':
+  - Character/avatar selection: "여성 캐릭터" → "Female character", "남성 캐릭터" → "Male character"
+  - Avatar color labels: translate all Korean labels
+  - Goal selection: already bilingual, keep as is
+  - English level: "초급" → "Beginner", "중급" → "Intermediate", "고급" → "Advanced"
+  - Industry input placeholder: translate
+  - Learning reason placeholder: translate
+  - All button text: "다음" → "Next", "이전" → "Back", "완료" → "Done", "저장하기" → "Save"
+  - Step indicator labels: translate
+
+2B. Detect ui_language during onboarding:
+  - The user selects language BEFORE the character/avatar steps
+  - Store the selected language in component state immediately when selected
+  - Use this state to conditionally render Korean or English labels for ALL subsequent steps in onboarding
+  - Do NOT wait for Supabase to load — use local state
+
+2C. Main app UI — apply ui_language from profile:
+  - In src/hooks/useLanguage.ts (or create if missing), load ui_language from AuthContext profile
+  - Export a t(key: string) function or a lang variable ('korean' | 'english')
+  - Apply to ALL UI text in:
+    - src/components/chat/LeftSidebar.tsx (채팅 tab labels, NPC names section headers)
+    - src/components/chat/RightSidebar.tsx (오늘의 학습목표, 오늘의 미션, 오늘의 표현 labels)
+    - src/components/chat/MainLayout.tsx (tab bar: 채팅/Chat, 노트/Notes, 인물/People, 진행/Progress)
+    - src/components/chat/ChatPane.tsx (send button, placeholder text, hint button)
+    - src/components/profile/UserProfileModal.tsx (all labels and buttons)
+    - src/components/time/PreWorkScreen.tsx (all text)
+    - src/components/time/EndOfDayScreen.tsx (all text)
+    - src/app/main/page.tsx (all text)
+
+2D. Translation map — add to src/hooks/useLanguage.ts or src/data/translations.ts:
+```
+const UI = {
+  korean: {
+    chat: '채팅',
+    notes: '노트',
+    people: '인물',
+    progress: '진행',
+    todaysGoals: '오늘의 학습목표',
+    todaysMissions: '오늘의 미션',
+    todaysExpressions: '오늘의 표현',
+    send: '보내기',
+    typeMessage: '메시지를 입력하세요...',
+    relationship: '관계도',
+    phase: '페이즈',
+    femaleCharacter: '여성 캐릭터',
+    maleCharacter: '남성 캐릭터',
+    next: '다음',
+    back: '이전',
+    save: '저장하기',
+    saving: '저장 중...',
+    saved: '저장됨 ✓',
+    saveFailed: '저장에 실패했습니다. 다시 시도해주세요.',
+    beginnerLevel: '초급',
+    intermediateLevel: '중급',
+    advancedLevel: '고급',
+    englishLevel: '영어 수준',
+    industry: '관심 산업',
+    learningReason: '학습 동기',
+    submitApplication: '지원서 제출',
+    logout: '퇴근',
+    resetProgress: '처음부터 다시 시작',
+    deleteAccount: '회원 탈퇴',
+    workNotes: '업무 노트',
+    expressions: '표현 모음',
+    terms: '무역 용어',
+    xpEarned: 'XP 획득',
+    level: '레벨',
+    badges: '획득한 배지',
+  },
+  english: {
+    chat: 'Chat',
+    notes: 'Notes',
+    people: 'People',
+    progress: 'Progress',
+    todaysGoals: "Today's Goals",
+    todaysMissions: "Today's Missions",
+    todaysExpressions: "Today's Expressions",
+    send: 'Send',
+    typeMessage: 'Type a message...',
+    relationship: 'Relationship',
+    phase: 'Phase',
+    femaleCharacter: 'Female character',
+    maleCharacter: 'Male character',
+    next: 'Next',
+    back: 'Back',
+    save: 'Save',
+    saving: 'Saving...',
+    saved: 'Saved ✓',
+    saveFailed: 'Failed to save. Please try again.',
+    beginnerLevel: 'Beginner',
+    intermediateLevel: 'Intermediate',
+    advancedLevel: 'Advanced',
+    englishLevel: 'English level',
+    industry: 'Industry',
+    learningReason: 'Learning motivation',
+    submitApplication: 'Submit Application',
+    logout: 'Log out',
+    resetProgress: 'Reset progress',
+    deleteAccount: 'Delete account',
+    workNotes: 'Work Notes',
+    expressions: 'Expressions',
+    terms: 'Trade Terms',
+    xpEarned: 'XP Earned',
+    level: 'Level',
+    badges: 'Badges Earned',
+  }
+}
+```
+
+2E. NPC chat language:
+  - When ui_language === 'english', pass language: 'english' to the chat API
+  - The chat API already handles English mode — make sure ui_language from profile maps to this correctly
+  - In English mode, all NPC hints, mission descriptions, expression translations should be in English
+
+---
+
+After implementing both fixes:
+git add -A && git commit -m "fix: onboarding submit error, full English UI support" && git push

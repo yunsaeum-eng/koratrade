@@ -1,0 +1,186 @@
+KoraTrade — English UI Remaining Fixes
+=======================================
+Read ALL source files thoroughly first, then fix everything below.
+All fixes apply ONLY when ui_language === 'english'. Korean mode unchanged.
+
+---
+
+FIX 1 — Today's Expressions: replace Korean translation with usage context
+---------------------------------------------------------------------------
+In the right sidebar expressions section, each expression card currently shows:
+  - Expression text (English) ✓
+  - Korean translation below ← REMOVE in English mode
+  - Tag label (Korean) ← translate
+  - "클릭하면 +20 XP" / "X/3 반복" ← translate
+
+When isEn:
+  - Instead of Korean translation, show a SHORT usage context in English
+    e.g. "I'm not entirely sure — could you clarify?"
+    → usage: "Use when you need more information without sounding rude"
+  - Each expression in src/data/dialogues.ts or wherever expressions are defined:
+    Add a 'usageEn' field with a one-line usage description in English
+    Examples:
+      "I'm not entirely sure — could you clarify?" → usageEn: "Use when asking for clarification politely"
+      "I apologize for the mistake. I'll make sure it doesn't happen again." → usageEn: "Use when apologizing formally in a workplace"
+      "Could I ask you something? I want to make sure I understand correctly." → usageEn: "Use when asking a question with polite framing"
+      "I might be missing something, but would it be possible to...?" → usageEn: "Use when making a tentative request"
+      "I'll look into it and get back to you." → usageEn: "Use when you need time before responding"
+    Add usageEn to ALL expressions across all episodes.
+  - Tag label: translate Korean tags to English
+    "실수 사과" → "Apologizing"
+    "명확화 요청" → "Clarification"
+    "이해 확인" → "Confirming understanding"
+    "정중한 요청" → "Polite request"
+    "확인 후 답변" → "Deferring response"
+    "첫 자기소개" → "Self-introduction"
+    "감사 표현" → "Expressing thanks"
+    "도움 요청" → "Asking for help"
+    Add English tag names to ALL expression tags across all episodes.
+  - "클릭하면 +20 XP" → "Tap for +20 XP" (already done — verify)
+  - "X/3 반복" → "X/3 reps" (already done — verify)
+
+---
+
+FIX 2 — Work Notes tab: translate all content to English
+----------------------------------------------------------
+In src/components/notes/WorkNotes.tsx (or wherever work notes are rendered):
+
+2A. Header:
+  - "업무 노트" → isEn ? "Work Notes" : "업무 노트"
+  - "학습한 내용이 자동 저장됩니다" → isEn ? "Your learning is saved automatically" : "학습한 내용이 자동 저장됩니다"
+
+2B. Tab labels:
+  - "용어집" → isEn ? "Glossary" : "용어집"
+  - "표현모음" → isEn ? "Expressions" : "표현모음"
+  - "틀린문장" → isEn ? "Corrections" : "틀린문장"
+  - "내 메모" → isEn ? "My Notes" : "내 메모"
+  - "+ 직접 추가" → isEn ? "+ Add manually" : "+ 직접 추가"
+
+2C. Default glossary terms (Incoterms, Cold Email, Follow-up):
+  In src/data/badges.ts or wherever default notes are defined (DEFAULT_NOTES in GameContext or storage):
+  Each term has: content (Korean name), translation (Korean explanation), context (Korean detail)
+  Add English versions:
+    Incoterms:
+      translationEn: "International trade terms"
+      contextEn: "FOB, CIF — define who bears shipping cost and risk"
+    Cold Email:
+      translationEn: "Cold email"
+      contextEn: "A sales email sent to someone with no prior relationship"
+    Follow-up:
+      translationEn: "Follow-up"
+      contextEn: "A message sent after a previous contact to continue the conversation"
+  When isEn, show translationEn and contextEn instead of Korean fields.
+
+2D. Tag labels in notes:
+  - "무역" → isEn ? "Trade" : "무역"
+  - "영업" → isEn ? "Sales" : "영업"
+  - "자동저장" → isEn ? "Auto-saved" : "자동저장"
+  Apply to ALL tags in the notes section.
+
+2E. Left panel hint text:
+  - "업무 노트이 오른쪽에 표시됩니다" → isEn ? "Work notes appear on the right" : "업무 노트이 오른쪽에 표시됩니다"
+
+---
+
+FIX 3 — People (Characters) tab: translate all content to English
+------------------------------------------------------------------
+In src/components/profiles/CharacterProfiles.tsx (or similar):
+
+3A. Header:
+  - "Characters" ✓ already English
+  - "관계도가 높아질수록 더 많은 정보가 공개됩니다" → isEn ? "More info unlocks as your relationship grows" : "관계도가 높아질수록..."
+
+3B. NPC job titles — show titleEn when isEn:
+  - James Park: "해외영업 대리 3년차" → "Sales Associate, 3 years"
+  - Sarah Kim: "해외영업팀장 10년차" → "Head of Overseas Sales, 10 years"
+  - Lisa Lee: "무역서류팀 5년차" → "Trade Documentation, 5 years"  
+    (NOTE: was "브랜드/마케팅팀" in sidebar — check actual data and use consistent titleEn)
+  - Min Choi: "해외영업팀 신입 동기" → "Fellow New Hire, Overseas Sales"
+  - Mr. Park / 박철수 과장: "생산관리팀 과장 15년차" → "Production Manager, 15 years"
+    ALSO rename display name: isEn ? "Mr. Park" : "박철수 과장"
+  - Amanda Ross: already English ✓
+  - Any other NPCs: add titleEn
+
+3C. Personality trait tags:
+  - "친근함" → "Friendly"
+  - "유머" → "Humor"
+  - "냉철함" → "Cool-headed"
+  - "신뢰" → "Trustworthy"
+  - "꼼꼼함" → "Detail-oriented"
+  - "원칙주의" → "By-the-book"
+  - "솔직함" → "Candid"
+  - "고민 많음" → "Overthinks"
+  - "무뚝뚝함" → "Blunt"
+  - "완벽주의" → "Perfectionist"
+  Add traitEn to ALL personality traits in NPC data. Show traitEn when isEn.
+
+3D. Locked character text:
+  - "S2 클리어 후 공개" → isEn ? "Unlocks after Season 2" : "S2 클리어 후 공개"
+
+3E. Left panel hint:
+  - "인물 도감이 오른쪽에 표시됩니다" → isEn ? "Character profiles appear on the right" : "인물 도감이 오른쪽에 표시됩니다"
+
+---
+
+FIX 4 — Progress tab: translate all content to English
+-------------------------------------------------------
+In src/components/progress/SeasonMap.tsx or progress panel:
+
+4A. All Korean labels → English when isEn:
+  - Season/Episode titles → use titleEn
+  - Mission names → use nameEn
+  - Status labels → translate
+  - XP labels → English
+  - Any Korean text → English
+
+4B. Left panel hint:
+  - Any Korean hint text → English when isEn
+
+---
+
+FIX 5 — NPC sending Korean messages in English mode
+-----------------------------------------------------
+In src/app/api/chat/route.ts:
+
+5A. Root cause: when language === 'english' is passed, some NPC prompts still have Korean
+  character descriptions that bleed into responses.
+
+5B. Fix: when language === 'english':
+  - Remove ALL Korean text from the system prompt entirely
+  - The identityLine, professionalism rule, character prompt, and group chat reminder
+    must ALL be English-only
+  - Currently the code does: ko ? koreanPrompt : englishPrompt
+    Verify this is working for EVERY section of buildSystemPrompt()
+  - Check: identityLine selection (ko ? entry[1] : entry[0]) — verify entry[0] is always English
+  - Check: professionalism rule — verify English version has no Korean
+  - Check: character prompts (james, sarah, min, lisa, park, sophie) — verify English versions exist and have no Korean
+  - Check: group chat lines — verify English versions exist
+  - Check: noRepeatSuffix — verify English version
+
+5C. Also ensure: when ui_language === 'english' in the profile, ChatPane.tsx passes
+  language: 'english' to the API (not 'korean').
+  Check: in ChatPane.tsx, find where language is passed to the API body.
+  It should be: language: profile?.uiLanguage === 'english' ? 'english' : (lang === 'ko' ? 'korean' : 'english')
+  Make sure ui_language from profile OVERRIDES the lang toggle state when set to english.
+
+---
+
+FIX 6 — Remaining Korean text anywhere in English mode
+-------------------------------------------------------
+Do a thorough pass through ALL components. Any hardcoded Korean string that is visible
+in the UI must be wrapped in isEn ? englishVersion : koreanVersion.
+
+Specifically check:
+  - src/components/time/PreWorkScreen.tsx — all text
+  - src/components/time/EndOfDayScreen.tsx — all text  
+  - src/components/ui/BadgeToast.tsx — badge names and descriptions
+  - src/components/ui/MissionToast.tsx — mission completion text
+  - src/components/ui/EtiquetteToast.tsx — etiquette tip text
+  - src/components/chat/PhaseIndicator.tsx — phase labels
+  - src/app/main/page.tsx — episode selection screen all text
+  - Any modal or overlay text
+
+---
+
+After implementing all fixes:
+git add -A && git commit -m "fix: English UI complete - expressions usage context, notes, people tab, NPC language enforcement" && git push

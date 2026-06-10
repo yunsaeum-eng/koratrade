@@ -1,0 +1,62 @@
+KoraTrade — Fix: Skip Onboarding for Existing Users
+=====================================================
+Read ALL source files first, then implement the fix below.
+
+---
+
+PROBLEM
+-------
+Users who already have an account and have completed onboarding are being shown
+the onboarding flow again on every login (name input, avatar selection, congratulations
+screen, "Start First Day" button etc.).
+
+This should only appear for brand new users who have never completed onboarding.
+
+---
+
+FIX — Onboarding skip logic
+-----------------------------
+
+1. In src/app/page.tsx (or wherever the root redirect logic is):
+   After login/auth resolves, check if the user already has a completed profile:
+   - If profile exists AND profile.name is not empty → skip onboarding → go to /main (episode select)
+   - If profile does not exist OR profile.name is empty → go to /onboarding
+
+2. In src/contexts/AuthContext.tsx (or wherever auth+profile loading happens):
+   After loading the user session, load their profile from Supabase.
+   The redirect decision must happen AFTER profile is loaded, not before.
+   Add a flag like: profileComplete = profile && profile.name && profile.name.trim() !== ''
+
+3. In src/app/onboarding/page.tsx:
+   At the top of the component, add a guard:
+   - If user is already logged in AND profileComplete → immediately redirect to /main
+   - Do NOT show any onboarding step to returning users
+
+4. In src/app/commute/page.tsx (the commute/animation screen):
+   This screen is fine to show on every login as a "good morning" screen.
+   After commute animation ends → redirect to /main (not onboarding).
+   Make sure the commute page does NOT redirect to onboarding for returning users.
+
+5. The congratulations / "Start First Day" screen:
+   This should only appear at the END of the onboarding flow for NEW users.
+   It must NOT appear for returning users under any circumstance.
+   Add a check: only show this screen if the user just completed onboarding
+   (e.g. use a flag like isNewUser or check if this is their first session).
+
+6. Supabase profile check:
+   Use the existing loadProfile() function from src/services/gameData.ts.
+   A user is considered "onboarded" if:
+     - profile exists in the profiles table
+     - profile.name is not null and not empty
+   If these conditions are met → user is returning → skip onboarding entirely.
+
+---
+
+SUMMARY of redirect flow:
+  NEW user:     login → onboarding → congratulations → commute → /main
+  RETURNING user: login → commute → /main
+
+---
+
+After implementing:
+git add -A && git commit -m "fix: skip onboarding for returning users, redirect to main directly" && git push

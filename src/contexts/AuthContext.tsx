@@ -48,7 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       }
-      setLoading(false)
+      if (mounted) setLoading(false)
+    }).catch(() => {
+      if (mounted) setLoading(false)
     })
 
     // Only handles changes AFTER initial load (sign-in, sign-out, token refresh).

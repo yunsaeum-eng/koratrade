@@ -1,0 +1,159 @@
+KoraTrade — Complete English UI Sweep
+======================================
+Read EVERY source file in the project. Then do the following:
+
+---
+
+APPROACH
+--------
+Do NOT fix files one by one based on a list.
+Instead: scan EVERY .tsx, .ts file in src/ and find ALL hardcoded Korean strings.
+For each Korean string found, wrap it with isEn ? 'English version' : 'Korean version'.
+This is a complete sweep — no Korean string should remain visible in English mode.
+
+---
+
+SPECIFIC ISSUES TO FIX (from screenshots)
+------------------------------------------
+
+1. NPC MESSAGES IN KOREAN (Mr. Park sending Korean messages in English mode)
+   File: src/app/api/chat/route.ts
+   - The 'park' character prompt MUST be English-only when language === 'english'
+   - Check buildSystemPrompt(): when ko === false, ALL parts must be English:
+     * identityLine: use entry[0] (English)
+     * professionalism rule: use English version
+     * character prompt (prompts[npcId]): use English version
+     * group chat line: use English version
+   - For Mr. Park specifically, verify the English prompt exists and is correct
+   - Park's English prompt should be something like:
+     "Logistics & Operations manager, 15 years. Handles shipping, customs, inventory.
+      Very direct, few words, no warmth. 1-2 sentences max."
+   - Make sure ALL NPCs have complete English prompts with no Korean text at all
+
+2. NPC HOVER TOOLTIP IN KOREAN ("기분 좋음", "친근·유머" etc.)
+   Find the component that renders the NPC hover popup (LeftSidebar.tsx or similar)
+   - Mood/status text: "기분 좋음" → isEn ? "Good mood" : "기분 좋음"
+   - All mood states: add English versions
+     "기분 좋음" → "Good mood"
+     "기분 나쁨" → "Bad mood"  
+     "바쁨" → "Busy"
+     "보통" → "Neutral"
+     "긴장됨" → "Tense"
+   - Personality trait tags in tooltip: "친근·유머" → isEn ? "Friendly · Humor" : "친근·유머"
+   - "Relationship" label: already English ✓
+   - Any other Korean text in the tooltip → English
+
+3. COMMUTE SCREEN IN KOREAN
+   File: src/components/time/PreWorkScreen.tsx (or src/app/commute/page.tsx)
+   Translate EVERY string to English when isEn:
+   - Day labels, time labels, NPC dialogue lines, button text, motivational text
+   - NPC lines shown during commute: add English versions for each
+   - ALL text in this screen must be in English when isEn
+
+4. EPISODE ENTRY SCREEN IN KOREAN
+   Any screen shown when clicking an episode before the main play screen:
+   - Translate ALL text
+
+---
+
+COMPLETE SWEEP INSTRUCTIONS
+-----------------------------
+Go through these files and translate ALL visible Korean strings:
+
+src/app/api/chat/route.ts
+  - ALL NPC prompts: verify English versions exist for james, sarah, lisa, min, park, sophie
+  - ALL identity lines: verify English versions
+  - Group chat lines: verify English versions
+  - No Korean should appear in any prompt when ko === false
+
+src/components/chat/LeftSidebar.tsx
+  - NPC tooltip: mood text, trait tags, any Korean labels
+  - Channel/Direct labels (already fixed — verify)
+  - Any remaining Korean strings
+
+src/components/chat/RightSidebar.tsx
+  - Already partially fixed — verify ALL strings are translated
+  - Phase label, mission phase name, any remaining Korean
+
+src/components/chat/ChatPane.tsx
+  - Input placeholder, send button, hint text
+  - Any inline Korean strings
+
+src/components/chat/MainLayout.tsx
+  - Tab labels: verify all 4 tabs translated
+
+src/components/time/PreWorkScreen.tsx
+  - Translate EVERYTHING
+
+src/components/time/EndOfDayScreen.tsx
+  - Translate EVERYTHING
+
+src/components/notes/WorkNotes.tsx
+  - Already partially fixed — verify ALL strings translated
+  - Tab labels, headers, term descriptions, tag labels
+
+src/components/profiles/CharacterProfiles.tsx
+  - NPC titles, trait tags, locked text, header text
+  - Already partially fixed — verify complete
+
+src/components/progress/SeasonMap.tsx
+  - ALL labels, episode titles, mission names, status text
+
+src/components/ui/BadgeToast.tsx
+  - Badge name and description: add English versions to badge data
+  - Show English when isEn
+
+src/components/ui/MissionToast.tsx
+  - Mission completion message: translate when isEn
+
+src/components/ui/EtiquetteToast.tsx
+  - Etiquette tip text: translate when isEn
+
+src/components/chat/PhaseIndicator.tsx
+  - Phase name/label: translate when isEn
+
+src/data/npcs.ts or wherever NPC data lives
+  - Add English mood states for all NPCs
+  - Add English trait descriptions
+
+src/data/badges.ts
+  - Add nameEn and descriptionEn to ALL badge definitions
+
+---
+
+HOW TO HANDLE MISSING ENGLISH TRANSLATIONS
+-------------------------------------------
+If you encounter a Korean string that doesn't have an English version yet:
+  - Create a reasonable English translation yourself
+  - Do NOT leave it as Korean in English mode
+  - Add it inline: isEn ? 'Your English translation here' : '한국어'
+
+---
+
+LANGUAGE DETECTION
+------------------
+Use the existing useLanguage hook or isEn pattern throughout.
+If a component doesn't have access to isEn yet, import useLanguage() and add it.
+Pattern: const { isEn } = useLanguage()
+
+---
+
+NPC LANGUAGE ENFORCEMENT (most critical)
+-----------------------------------------
+The #1 priority is making sure NPCs NEVER respond in Korean when English mode is on.
+
+In src/app/api/chat/route.ts, add this at the top of the POST handler:
+  const isEnglishMode = body.language === 'english'
+
+In buildSystemPrompt(), when !ko (English mode):
+  Add this line at the END of the prompt (after everything else):
+  "CRITICAL: You are in English-only mode. Your response MUST be 100% in English.
+   Do NOT use any Korean characters or Korean words. Not even one character.
+   If you find yourself writing Korean, stop and rewrite in English."
+
+This hard enforcement line must be added when language === 'english'.
+
+---
+
+After completing the full sweep:
+git add -A && git commit -m "fix: complete English UI sweep - all Korean strings translated, NPC English enforcement" && git push

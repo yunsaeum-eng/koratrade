@@ -1,0 +1,92 @@
+KoraTrade — Fix: Login Flow for New vs Returning Users
+=======================================================
+Read ALL source files first, then implement everything below.
+
+---
+
+PROBLEM
+-------
+Currently all users (new and returning) go through the full onboarding flow after login.
+The correct behavior:
+  NEW user:       language select → nickname → character → welcome screen → /main
+  RETURNING user: language select → /main (episode select)
+
+---
+
+FLOW DESIGN
+-----------
+
+Step 1 — Login/Signup screen (src/components/auth/LoginPage.tsx or src/app/page.tsx)
+  - User enters email/password and clicks login OR signs up
+  - After auth resolves, check if profile exists and is complete:
+      const profile = await loadProfile(user.uid)
+      const isNewUser = !profile || !profile.name || profile.name.trim() === ''
+  - If isNewUser → go to /onboarding
+  - If returning user → go to /onboarding/language (language select only, then /main)
+
+  ACTUALLY — simpler approach:
+  - After auth, load profile
+  - If profile.name exists and not empty → user is returning → go to /onboarding/language-only
+    OR: store ui_language selection in a separate quick step before /main
+  - If profile.name is empty/null → new user → full onboarding
+
+---
+
+IMPLEMENTATION
+--------------
+
+1. Create a lightweight language selection page: src/app/onboarding/language/page.tsx
+   This page:
+   - Shows ONLY the language selection step (한국어 / English)
+   - No other onboarding steps
+   - On select → save ui_language to Supabase profiles table
+   - On save success → redirect to /commute (then to /main)
+   - Design: same style as existing onboarding, just the language card step
+   - If user already has ui_language set in profile → skip this page too, go straight to /commute
+
+2. Update the root redirect logic (src/app/page.tsx or src/contexts/AuthContext.tsx):
+   After auth + profile load:
+
+   if (!profile || !profile.name || profile.name.trim() === '') {
+     // NEW USER → full onboarding
+     router.push('/onboarding')
+   } else if (!profile.uiLanguage) {
+     // RETURNING USER, no language set yet → language select only
+     router.push('/onboarding/language')
+   } else {
+     // RETURNING USER, fully set up → straight to commute/main
+     router.push('/commute')
+   }
+
+3. Update src/app/onboarding/page.tsx:
+   - Add guard at the top: if user is returning (profile.name exists) → redirect to /onboarding/language
+   - The full onboarding flow (nickname, avatar, welcome) is ONLY for new users
+   - First step of onboarding: language selection (already exists — keep as step 1)
+   - After language step → continue to nickname, avatar, welcome for NEW users only
+
+4. The welcome/congratulations screen ("Start First Day" button):
+   - Only show for NEW users at the end of onboarding
+   - After clicking "Start First Day" → redirect to /commute → /main
+   - NEVER show this to returning users
+
+5. src/app/commute/page.tsx:
+   - This screen is fine for both new and returning users as a "good morning" transition
+   - After commute animation → always go to /main (episode select)
+   - Make sure it does NOT redirect to /onboarding
+
+---
+
+SUMMARY
+-------
+NEW user login flow:
+  /login → auth → profile empty → /onboarding (language → nickname → avatar → welcome) → /commute → /main
+
+RETURNING user login flow:
+  /login → auth → profile exists → 
+    if uiLanguage not set: /onboarding/language → /commute → /main
+    if uiLanguage set: /commute → /main
+
+---
+
+After implementing:
+git add -A && git commit -m "fix: separate login flow for new vs returning users, language-only step for returning" && git push

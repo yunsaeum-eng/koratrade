@@ -1,0 +1,64 @@
+KoraTrade — Fix: Restore Login/Signup Screen
+=============================================
+Read ALL source files first, then fix the issue below.
+
+---
+
+PROBLEM
+-------
+The login/signup screen has disappeared entirely.
+Users cannot log in or create an account.
+This was accidentally broken by a previous change to the auth/redirect flow.
+
+---
+
+FIX
+---
+
+1. Restore src/components/auth/LoginPage.tsx (or src/app/login/page.tsx or wherever login UI lives)
+   - The login screen must show email + password fields
+   - Toggle between "로그인 / Log in" and "회원가입 / Sign up" modes
+   - On submit: call Supabase auth (signInWithPassword or signUp)
+   - This screen must NOT be removed or bypassed
+
+2. Restore root redirect logic in src/app/page.tsx:
+   The ONLY correct logic is:
+
+   if (loading) → show loading spinner
+   if (!user) → show LoginPage (or redirect to /login)
+   if (user && profile loaded) → decide where to send them:
+     - new user (no profile.name) → /onboarding
+     - returning user (profile.name exists, no uiLanguage) → /onboarding/language
+     - returning user (profile.name exists, uiLanguage set) → /commute
+
+   DO NOT redirect unauthenticated users away from the login screen.
+   DO NOT remove the LoginPage component from the render tree.
+
+3. If LoginPage component file was deleted or overwritten, recreate it with:
+   - Email input field
+   - Password input field  
+   - Submit button: "로그인 / Log in"
+   - Toggle to signup mode: "계정이 없으신가요? 회원가입 / Don't have an account? Sign up"
+   - In signup mode: show email + password + confirm password
+   - On successful signup → goes to /onboarding
+   - On successful login → goes through the redirect logic above
+   - Error handling: show error message if login fails
+   - Style: match existing KoraTrade design (cream background, gold colors)
+
+4. Make sure src/app/page.tsx renders LoginPage when user is not authenticated:
+   if (!user) return <LoginPage />
+   (or equivalent redirect to /login route)
+
+---
+
+DO NOT change:
+- Onboarding flow
+- Episode select page
+- Any other pages
+
+ONLY restore the login screen and the unauthenticated redirect logic.
+
+---
+
+After fixing:
+git add -A && git commit -m "fix: restore login/signup screen, fix unauthenticated redirect" && git push

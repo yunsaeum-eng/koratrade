@@ -1,0 +1,221 @@
+KoraTrade — English UI Overhaul
+================================
+Read ALL source files in the project first, then implement everything below.
+This applies ONLY when ui_language === 'english'. Korean mode must remain unchanged.
+
+---
+
+CONTEXT
+-------
+When a user selects English during onboarding, the entire play UI must be in English.
+Currently most UI text is hardcoded in Korean. We need to make everything language-aware.
+The approach: add English fields to all data files, and use ui_language to switch.
+
+---
+
+TASK 1 — Data files: add English fields
+-----------------------------------------
+
+1A. src/data/missions.ts
+  For every mission definition, add nameEn and descriptionEn fields:
+  Example:
+    { id: 'apologize', name: '실수에 사과하기', nameEn: 'Apologize for a Mistake',
+      description: '동료 및 상사와 업무 조율·보고', descriptionEn: 'Coordinate and report to colleagues and manager' }
+  Add English fields to ALL missions.
+
+1B. src/data/episodes.ts
+  For every episode, add titleEn and descriptionEn:
+  Example:
+    { id: 'ep01', title: '첫 출근, 자기소개', titleEn: 'First Day, Introductions',
+      description: '...', descriptionEn: '...' }
+  Add to ALL episodes.
+
+1C. src/data/curriculum.ts
+  For every learning goal (오늘의 학습목표 items), add an English version field (goalEn or textEn).
+  Example:
+    { id: 'g1', text: '모르는 것을 부끄럽지 않게 물어보는 표현을 쓸 수 있다',
+      textEn: 'Use expressions to ask questions without embarrassment' }
+
+1D. src/data/npcs.ts (or wherever NPC data is defined)
+  For every NPC, add titleEn field for their job title:
+  Example:
+    james: { name: 'James Park', title: '해외영업 대리 (3년차)', titleEn: 'Sales Associate (3 years)' }
+    sarah: { title: '해외영업팀장 (10년차)', titleEn: 'Head of Overseas Sales (10 years)' }
+    lisa:  { title: '브랜드/마케팅팀 (5년차)', titleEn: 'Brand & Marketing (5 years)' }
+    min:   { title: '신입 동기', titleEn: 'Fellow New Hire' }
+    park:  { title: '물류/운영팀 과장 (15년차)', titleEn: 'Logistics Manager (15 years)' }
+    sophie: { title: '해외 바이어', titleEn: 'Overseas Buyer' }
+
+1E. src/data/dialogues.ts or wherever phase/mission labels are defined
+  Add English labels for:
+  - Phase names: "내부 커뮤니케이션" → "Internal Communication"
+  - Any other Korean-only labels
+
+1F. src/data/npcProfiles.ts (if exists)
+  Add English descriptions for each NPC's profile text.
+
+---
+
+TASK 2 — useLanguage hook
+---------------------------
+Update src/hooks/useLanguage.ts (or create it if missing):
+
+export function useLanguage() {
+  const { profile } = useAuth()
+  const lang = profile?.uiLanguage === 'english' ? 'english' : 'korean'
+  const isEn = lang === 'english'
+  return { lang, isEn }
+}
+
+This hook is used everywhere to decide which text to show.
+
+---
+
+TASK 3 — Right Sidebar (RightSidebar.tsx)
+------------------------------------------
+Apply isEn to ALL text:
+
+3A. Section headers:
+  - "오늘의 학습목표" → isEn ? "TODAY'S GOALS" : "오늘의 학습목표"
+  - "오늘의 미션" → isEn ? "TODAY'S MISSIONS" : "오늘의 미션"
+  - "오늘의 표현" → isEn ? "TODAY'S EXPRESSIONS" : "오늘의 표현"
+  - "에피소드 미션" → isEn ? "Episode Missions" : "에피소드 미션"
+  - "Phase X/Y" → isEn ? "Phase X of Y" : "Phase X/Y"
+
+3B. Learning goals list:
+  - Show goal.textEn when isEn, goal.text when Korean
+
+3C. Mission items:
+  - Show mission.nameEn and mission.descriptionEn when isEn
+
+3D. Expression cards:
+  - Expression name: already in English (keep)
+  - Tag below expression: isEn ? show English tag name : Korean tag name
+  - "클릭하면 +20 XP" → isEn ? "Tap for +20 XP" : "클릭하면 +20 XP"
+  - "X/3 반복" → isEn ? "X/3 reps" : "X/3 반복"
+
+3E. Relationship indicator:
+  - "관계도 X%" → isEn ? "Trust X%" : "관계도 X%"
+
+---
+
+TASK 4 — Left Sidebar (LeftSidebar.tsx)
+-----------------------------------------
+4A. Section labels:
+  - "채널" → isEn ? "CHANNELS" : "채널"
+  - "다이렉트" → isEn ? "DIRECT" : "다이렉트"
+
+4B. NPC subtitle under name:
+  - Show npc.titleEn when isEn, npc.title when Korean
+
+4C. Channel name "해외영업팀 🏢":
+  - isEn ? "Overseas Sales Team 🏢" : "해외영업팀 🏢"
+
+---
+
+TASK 5 — Top bar / MainLayout
+--------------------------------
+5A. Tab bar labels:
+  - 채팅/Chat, 노트/Notes, 인물/People, 진행/Progress
+  - isEn ? English : Korean for all four tabs
+
+5B. Game clock area — no change needed (time is universal)
+
+5C. "한국어 / Eng" language toggle button — keep as is (it's already bilingual)
+
+---
+
+TASK 6 — Chat area (ChatPane.tsx)
+------------------------------------
+6A. Input placeholder:
+  - isEn ? "Type a message..." : "메시지를 입력하세요..."
+
+6B. Send button:
+  - isEn ? "send" : "보내기" (already likely "send" in English mode — verify)
+
+6C. "오늘 목표:" banner at top of chat:
+  - isEn ? "Today's goal:" : "오늘 목표:"
+  - Goal text: use textEn when isEn
+
+6D. "Don't understand a term? Just ask! 😊" footer:
+  - Already English — keep
+
+6E. Hint button tooltip / HintPopup:
+  - All hint text should be in English when isEn
+  - Update hint data or pass isEn to HintPopup
+
+---
+
+TASK 7 — Episode play header (/play/[episodeId])
+--------------------------------------------------
+7A. "← Episodes" back button: already English — keep
+7B. Episode title: show episode.titleEn when isEn
+7C. Key mission pills: show mission.nameEn when isEn
+7D. "EP02 · Survival Week" format — use titleEn
+
+---
+
+TASK 8 — Episode selection screen (/main)
+-------------------------------------------
+8A. Season label: isEn ? "Season 1" : "시즌 1" (Season is same in both)
+8B. Episode cards:
+  - Title: show titleEn when isEn
+  - Mission preview pills: show nameEn when isEn
+  - Status badges: isEn ? "Completed" / "In Progress" / "Locked" : "완료" / "진행중" / "잠금"
+  - Buttons: isEn ? "Review →" / "Continue →" / "Start →" : "복습하기 →" / "이어하기 →" / "시작하기 →"
+
+---
+
+TASK 9 — Profile modal (UserProfileModal.tsx)
+-----------------------------------------------
+9A. All labels:
+  - "획득한 배지" → isEn ? "Badges Earned" : "획득한 배지"
+  - "영어 수준" → isEn ? "English Level" : "영어 수준"
+  - "관심 산업" → isEn ? "Industry" : "관심 산업"
+  - "학습 동기" → isEn ? "Learning Motivation" : "학습 동기"
+  - "저장하기" → isEn ? "Save" : "저장하기"
+  - "처음부터 다시 시작" → isEn ? "Reset Progress" : "처음부터 다시 시작"
+  - "회원 탈퇴" → isEn ? "Delete Account" : "회원 탈퇴"
+  - Level/XP labels in English
+
+9B. English level buttons:
+  - isEn ? "Beginner / Intermediate / Advanced" : "초급 / 중급 / 고급"
+
+---
+
+TASK 10 — PreWorkScreen and EndOfDayScreen
+-------------------------------------------
+10A. PreWorkScreen (morning commute screen before play):
+  - All text: translate to English when isEn
+  - Day label, time, encouragement message
+
+10B. EndOfDayScreen (end of episode / day screen):
+  - "오늘의 정리" → isEn ? "Day Summary" : "오늘의 정리"
+  - XP gained, missions completed labels → English when isEn
+  - Button text → English when isEn
+
+---
+
+TASK 11 — NPC system prompt language
+--------------------------------------
+In src/app/api/chat/route.ts:
+  - When language === 'english' (passed from ChatPane based on ui_language):
+    - NPC responses must be 100% English, no Korean mixed in
+    - Professionalism rule: use English-only version
+    - Episode context: already in English — keep
+  - This should already be partially working — verify and fix if not
+
+---
+
+IMPORTANT NOTES
+---------------
+- Do NOT change anything in Korean mode. Korean experience must be identical to before.
+- All changes are conditional: isEn ? englishText : koreanText
+- If a data field (nameEn, titleEn etc.) is missing, fall back to the Korean field as placeholder
+  and add a TODO comment
+- Test both modes mentally before committing
+
+---
+
+After implementing all tasks:
+git add -A && git commit -m "feat: full English UI support for all play screens" && git push
