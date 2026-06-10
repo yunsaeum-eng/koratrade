@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Badge } from '@/types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface Props {
   badge: Badge
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function BadgeToast({ badge, onDone }: Props) {
+  const { isEn } = useLanguage()
   const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
@@ -28,10 +30,14 @@ export default function BadgeToast({ badge, onDone }: Props) {
         <div className="text-3xl">{badge.emoji}</div>
         <div>
           <div className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#8a6530' }}>
-            배지 획득!
+            {isEn ? 'Badge Unlocked!' : '배지 획득!'}
           </div>
-          <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>{badge.name}</div>
-          <div className="text-xs" style={{ color: '#9c8c6e' }}>{badge.description}</div>
+          <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>
+            {isEn ? (badge.nameEn ?? badge.name) : badge.name}
+          </div>
+          <div className="text-xs" style={{ color: '#9c8c6e' }}>
+            {isEn ? (badge.descriptionEn ?? badge.description) : badge.description}
+          </div>
         </div>
         <div className="ml-auto w-1 self-stretch rounded-full" style={{ background: '#8a6530' }} />
       </div>

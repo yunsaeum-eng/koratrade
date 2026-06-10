@@ -2,16 +2,10 @@
 
 import { useState } from 'react'
 import { useGame } from '@/contexts/GameContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { WorkNote } from '@/types'
 
 type Tab = 'term' | 'expression' | 'mistake' | 'memo'
-
-const TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'term',       label: '용어집',   icon: '📚' },
-  { key: 'expression', label: '표현모음', icon: '💬' },
-  { key: 'mistake',    label: '틀린문장', icon: '❌' },
-  { key: 'memo',       label: '내 메모',  icon: '📝' },
-]
 
 let idCounter = Date.now()
 const newId = () => `wn-${++idCounter}`
@@ -23,8 +17,16 @@ interface EditState {
   tag: string
 }
 
+const TAG_TRANSLATIONS: Record<string, string> = {
+  '무역': 'Trade',
+  '영업': 'Sales',
+  '자동저장': 'Auto-saved',
+  '직접추가': 'Added manually',
+}
+
 export default function WorkNotes() {
   const { state, dispatch } = useGame()
+  const { isEn } = useLanguage()
   const [tab, setTab] = useState<Tab>('term')
   const [memoText, setMemoText] = useState('')
   const [addingType, setAddingType] = useState<Tab | null>(null)
@@ -35,6 +37,13 @@ export default function WorkNotes() {
   const [editForm, setEditForm] = useState<EditState>({ content: '', translation: '', context: '', tag: '' })
 
   const notes = state.workNotes.filter(n => n.type === tab)
+
+  const TABS: { key: Tab; label: string; icon: string }[] = [
+    { key: 'term',       label: isEn ? 'Glossary'     : '용어집',   icon: '📚' },
+    { key: 'expression', label: isEn ? 'Expressions'  : '표현모음', icon: '💬' },
+    { key: 'mistake',    label: isEn ? 'Corrections'  : '틀린문장', icon: '❌' },
+    { key: 'memo',       label: isEn ? 'My Notes'     : '내 메모',  icon: '📝' },
+  ]
 
   const addNote = () => {
     if (!form.content.trim()) return
@@ -98,12 +107,25 @@ export default function WorkNotes() {
       ? { background: '#f0faf4', color: '#256040' }
       : { background: '#f2efe9', color: '#6b5c3e' }
 
+  const sourceLabel = (source: 'auto' | 'manual') =>
+    source === 'auto'
+      ? (isEn ? 'Auto-saved' : '자동저장')
+      : (isEn ? 'Added manually' : '직접추가')
+
+  const translateTag = (tag: string) =>
+    isEn ? (TAG_TRANSLATIONS[tag] ?? tag) : tag
+
+  const emptyText = () => {
+    if (isEn) return tab === 'term' ? 'No terms yet' : tab === 'expression' ? 'No expressions saved' : 'No corrections yet'
+    return tab === 'term' ? '용어가 없습니다' : tab === 'expression' ? '저장된 표현이 없습니다' : '틀린 문장이 없습니다'
+  }
+
   return (
     <div className="h-full flex flex-col overflow-hidden" style={{ background: 'white' }}>
       {/* Header */}
       <div className="px-5 py-3 border-b" style={{ borderColor: '#e0d8cc' }}>
-        <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>업무 노트</div>
-        <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>학습한 내용이 자동 저장됩니다</div>
+        <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>{isEn ? 'Work Notes' : '업무 노트'}</div>
+        <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{isEn ? 'Your learning is saved automatically' : '학습한 내용이 자동 저장됩니다'}</div>
       </div>
 
       {/* Tabs */}
@@ -130,7 +152,7 @@ export default function WorkNotes() {
             <textarea
               value={memoText}
               onChange={e => setMemoText(e.target.value)}
-              placeholder="자유롭게 메모하세요..."
+              placeholder={isEn ? 'Write a free note...' : '자유롭게 메모하세요...'}
               className="flex-1 resize-none rounded-xl border p-3 text-sm outline-none"
               style={{ borderColor: '#e0d8cc', background: '#faf8f4', color: '#1a1208', height: '80px' }}
             />
@@ -140,7 +162,7 @@ export default function WorkNotes() {
               className="px-3 py-2 rounded-xl text-xs font-semibold text-white self-end disabled:opacity-40"
               style={{ background: '#8a6530' }}
             >
-              저장
+              {isEn ? 'Save' : '저장'}
             </button>
           </div>
           <div className="space-y-2">
@@ -155,18 +177,18 @@ export default function WorkNotes() {
                       style={{ borderColor: '#c8b88a', background: 'white', color: '#1a1208', height: '70px' }}
                     />
                     <div className="flex gap-2">
-                      <button onClick={() => saveMemoEdit(note)} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#8a6530' }}>저장</button>
-                      <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>취소</button>
+                      <button onClick={() => saveMemoEdit(note)} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#8a6530' }}>{isEn ? 'Save' : '저장'}</button>
+                      <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>{isEn ? 'Cancel' : '취소'}</button>
                     </div>
                   </div>
                 ) : (
                   <>
                     <p className="text-sm leading-relaxed pr-12" style={{ color: '#1a1208' }}>{note.content}</p>
                     <div className="text-xs mt-1" style={{ color: '#9c8c6e' }}>
-                      {new Date(note.addedAt).toLocaleDateString('ko-KR')}
+                      {new Date(note.addedAt).toLocaleDateString(isEn ? 'en-US' : 'ko-KR')}
                     </div>
                     <div className="absolute top-2 right-8 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                      <button onClick={() => startEdit(note)} className="text-xs p-1 rounded hover:bg-amber-50" title="편집">✏️</button>
+                      <button onClick={() => startEdit(note)} className="text-xs p-1 rounded hover:bg-amber-50">✏️</button>
                     </div>
                     <button
                       onClick={() => dispatch({ type: 'DELETE_WORK_NOTE', id: note.id })}
@@ -188,7 +210,13 @@ export default function WorkNotes() {
             {addingType === tab ? (
               <div className="space-y-2">
                 <input
-                  placeholder={tab === 'term' ? '용어' : tab === 'expression' ? '표현 (영어)' : '틀린 문장'}
+                  placeholder={
+                    tab === 'term'
+                      ? (isEn ? 'Term' : '용어')
+                      : tab === 'expression'
+                      ? (isEn ? 'Expression (English)' : '표현 (영어)')
+                      : (isEn ? 'Incorrect sentence' : '틀린 문장')
+                  }
                   value={form.content}
                   onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                   className="w-full px-3 py-1.5 rounded-lg border text-sm outline-none"
@@ -196,7 +224,7 @@ export default function WorkNotes() {
                 />
                 {tab !== 'mistake' && (
                   <input
-                    placeholder="한국어 번역"
+                    placeholder={isEn ? 'Translation / meaning' : '한국어 번역'}
                     value={form.translation}
                     onChange={e => setForm(f => ({ ...f, translation: e.target.value }))}
                     className="w-full px-3 py-1.5 rounded-lg border text-sm outline-none"
@@ -204,15 +232,15 @@ export default function WorkNotes() {
                   />
                 )}
                 <input
-                  placeholder="상황/태그"
+                  placeholder={isEn ? 'Context / tag' : '상황/태그'}
                   value={form.tag}
                   onChange={e => setForm(f => ({ ...f, tag: e.target.value }))}
                   className="w-full px-3 py-1.5 rounded-lg border text-sm outline-none"
                   style={{ borderColor: '#e0d8cc', background: '#faf8f4' }}
                 />
                 <div className="flex gap-2">
-                  <button onClick={addNote} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#8a6530' }}>저장</button>
-                  <button onClick={() => setAddingType(null)} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>취소</button>
+                  <button onClick={addNote} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#8a6530' }}>{isEn ? 'Save' : '저장'}</button>
+                  <button onClick={() => setAddingType(null)} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>{isEn ? 'Cancel' : '취소'}</button>
                 </div>
               </div>
             ) : (
@@ -221,7 +249,7 @@ export default function WorkNotes() {
                 className="w-full py-1.5 rounded-lg border border-dashed text-xs transition-colors hover:border-amber-400"
                 style={{ borderColor: '#e0d8cc', color: '#9c8c6e' }}
               >
-                + 직접 추가
+                {isEn ? '+ Add manually' : '+ 직접 추가'}
               </button>
             )}
           </div>
@@ -230,7 +258,7 @@ export default function WorkNotes() {
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {notes.length === 0 && (
               <div className="text-center py-8 text-sm" style={{ color: '#9c8c6e' }}>
-                {tab === 'term' ? '용어가 없습니다' : tab === 'expression' ? '저장된 표현이 없습니다' : '틀린 문장이 없습니다'}
+                {emptyText()}
               </div>
             )}
             {notes.map(note => (
@@ -239,7 +267,13 @@ export default function WorkNotes() {
                   /* ── inline edit form ─────────────────────────────────── */
                   <div className="space-y-2">
                     <input
-                      placeholder={tab === 'term' ? '용어' : tab === 'expression' ? '표현 (영어)' : '문장'}
+                      placeholder={
+                        tab === 'term'
+                          ? (isEn ? 'Term' : '용어')
+                          : tab === 'expression'
+                          ? (isEn ? 'Expression (English)' : '표현 (영어)')
+                          : (isEn ? 'Sentence' : '문장')
+                      }
                       value={editForm.content}
                       onChange={e => setEditForm(f => ({ ...f, content: e.target.value }))}
                       className="w-full px-3 py-1.5 rounded-lg border text-sm outline-none"
@@ -247,7 +281,7 @@ export default function WorkNotes() {
                     />
                     {tab !== 'mistake' && (
                       <input
-                        placeholder="한국어 번역"
+                        placeholder={isEn ? 'Translation / meaning' : '한국어 번역'}
                         value={editForm.translation}
                         onChange={e => setEditForm(f => ({ ...f, translation: e.target.value }))}
                         className="w-full px-3 py-1.5 rounded-lg border text-sm outline-none"
@@ -255,15 +289,15 @@ export default function WorkNotes() {
                       />
                     )}
                     <input
-                      placeholder="상황/태그"
+                      placeholder={isEn ? 'Context / tag' : '상황/태그'}
                       value={editForm.tag}
                       onChange={e => setEditForm(f => ({ ...f, tag: e.target.value }))}
                       className="w-full px-3 py-1.5 rounded-lg border text-sm outline-none"
                       style={{ borderColor: '#c8b88a', background: 'white' }}
                     />
                     <div className="flex gap-2">
-                      <button onClick={() => saveEdit(note)} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#8a6530' }}>저장</button>
-                      <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>취소</button>
+                      <button onClick={() => saveEdit(note)} className="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: '#8a6530' }}>{isEn ? 'Save' : '저장'}</button>
+                      <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: '#9c8c6e' }}>{isEn ? 'Cancel' : '취소'}</button>
                     </div>
                   </div>
                 ) : (
@@ -272,18 +306,22 @@ export default function WorkNotes() {
                     <div className="flex items-start justify-between gap-2 pr-12">
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm" style={{ color: '#1a1208' }}>{note.content}</div>
-                        {note.translation && (
-                          <div className="text-xs mt-0.5" style={{ color: '#6b5c3e' }}>{note.translation}</div>
+                        {(isEn ? (note.translationEn ?? note.translation) : note.translation) && (
+                          <div className="text-xs mt-0.5" style={{ color: '#6b5c3e' }}>
+                            {isEn ? (note.translationEn ?? note.translation) : note.translation}
+                          </div>
                         )}
-                        {note.context && (
-                          <div className="text-xs mt-1 italic" style={{ color: '#9c8c6e' }}>{note.context}</div>
+                        {(isEn ? (note.contextEn ?? note.context) : note.context) && (
+                          <div className="text-xs mt-1 italic" style={{ color: '#9c8c6e' }}>
+                            {isEn ? (note.contextEn ?? note.context) : note.context}
+                          </div>
                         )}
                         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                           {note.tag && (
-                            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#f2efe9', color: '#6b5c3e' }}>{note.tag}</span>
+                            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#f2efe9', color: '#6b5c3e' }}>{translateTag(note.tag)}</span>
                           )}
                           <span className="text-xs px-1.5 py-0.5 rounded" style={tagColor(note.source)}>
-                            {note.source === 'auto' ? '자동저장' : '직접추가'}
+                            {sourceLabel(note.source)}
                           </span>
                         </div>
                       </div>
@@ -294,7 +332,6 @@ export default function WorkNotes() {
                       <button
                         onClick={() => startEdit(note)}
                         className="text-xs p-1 rounded-md hover:bg-amber-50 transition-colors"
-                        title="편집"
                         style={{ color: '#8a6530' }}
                       >
                         ✏️
@@ -310,7 +347,7 @@ export default function WorkNotes() {
 
                     {tab === 'mistake' && (
                       <button className="mt-2 text-xs px-2 py-1 rounded-lg border" style={{ borderColor: '#c8b88a', color: '#8a6530' }}>
-                        다시 연습 →
+                        {isEn ? 'Practice again →' : '다시 연습 →'}
                       </button>
                     )}
                   </>

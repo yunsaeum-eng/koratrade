@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface Props {
   tip: string
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function EtiquetteToast({ tip, onDone }: Props) {
+  const { isEn } = useLanguage()
   const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
@@ -26,7 +28,9 @@ export default function EtiquetteToast({ tip, onDone }: Props) {
       >
         <span className="text-lg flex-shrink-0">💼</span>
         <div className="flex-1">
-          <div className="text-xs font-semibold mb-0.5" style={{ color: '#8a6530' }}>직장 에티켓 팁</div>
+          <div className="text-xs font-semibold mb-0.5" style={{ color: '#8a6530' }}>
+            {isEn ? 'Workplace Etiquette Tip' : '직장 에티켓 팁'}
+          </div>
           <div className="text-xs leading-relaxed" style={{ color: '#1a1208' }}>{tip}</div>
         </div>
         <button onClick={() => { setLeaving(true); setTimeout(onDone, 300) }} className="text-xs flex-shrink-0" style={{ color: '#9c8c6e' }}>✕</button>

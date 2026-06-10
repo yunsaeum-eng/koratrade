@@ -33,9 +33,9 @@ interface PersistedGame {
 }
 
 const DEFAULT_NOTES: WorkNote[] = [
-  { id: 'wn1', type: 'term', content: 'Incoterms', translation: '국제 무역 조건', context: 'FOB, CIF 등 국제 거래 운임·위험 부담 구분 기준', tag: '무역', addedAt: new Date().toISOString(), source: 'auto' },
-  { id: 'wn2', type: 'term', content: 'Cold Email', translation: '콜드 이메일', context: '사전 관계 없이 처음 보내는 영업 이메일', tag: '영업', addedAt: new Date().toISOString(), source: 'auto' },
-  { id: 'wn3', type: 'term', content: 'Follow-up', translation: '팔로업', context: '이전 연락에 대한 후속 이메일 또는 연락', tag: '영업', addedAt: new Date().toISOString(), source: 'auto' },
+  { id: 'wn1', type: 'term', content: 'Incoterms', translation: '국제 무역 조건', translationEn: 'International trade terms', context: 'FOB, CIF 등 국제 거래 운임·위험 부담 구분 기준', contextEn: 'FOB, CIF — define who bears shipping cost and risk', tag: '무역', addedAt: new Date().toISOString(), source: 'auto' },
+  { id: 'wn2', type: 'term', content: 'Cold Email', translation: '콜드 이메일', translationEn: 'Cold email', context: '사전 관계 없이 처음 보내는 영업 이메일', contextEn: 'A sales email sent to someone with no prior relationship', tag: '영업', addedAt: new Date().toISOString(), source: 'auto' },
+  { id: 'wn3', type: 'term', content: 'Follow-up', translation: '팔로업', translationEn: 'Follow-up', context: '이전 연락에 대한 후속 이메일 또는 연락', contextEn: 'A message sent after a previous contact to continue the conversation', tag: '영업', addedAt: new Date().toISOString(), source: 'auto' },
 ]
 
 function buildPersistedGame(state: GameState): PersistedGame {

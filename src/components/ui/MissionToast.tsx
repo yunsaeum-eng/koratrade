@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useGame } from '@/contexts/GameContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { MISSION_DEFS } from '@/data/missions'
 
 export default function MissionToast() {
   const { state, dispatch } = useGame()
+  const { isEn } = useLanguage()
   const [visible, setVisible] = useState(false)
   const [animating, setAnimating] = useState(false)
 
@@ -54,8 +56,10 @@ export default function MissionToast() {
       >
         <span className="text-xl flex-shrink-0">✅</span>
         <div>
-          <div className="text-xs font-semibold opacity-70 mb-0.5">미션 완료</div>
-          <div className="text-sm font-semibold">{def.nameKr}</div>
+          <div className="text-xs font-semibold opacity-70 mb-0.5">
+            {isEn ? 'Mission Complete' : '미션 완료'}
+          </div>
+          <div className="text-sm font-semibold">{isEn ? def.name : def.nameKr}</div>
           <div className="text-xs opacity-60 mt-0.5">+{def.xp} XP</div>
         </div>
       </div>

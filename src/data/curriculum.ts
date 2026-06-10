@@ -22,8 +22,11 @@ export const EPISODE_EMOJI: Record<string, string> = {
 export interface SeasonOverview {
   season: number
   title: string
+  titleEn: string
   subtitle: string
+  subtitleEn: string
   objective: string
+  objectiveEn: string
   episodeCount: number
   badge: { emoji: string; name: string }
   previewEpisodes?: string[]  // locked seasons show episode title previews
@@ -33,16 +36,22 @@ export const SEASON_OVERVIEWS: SeasonOverview[] = [
   {
     season: 1,
     title: '입사 온보딩',
+    titleEn: 'Onboarding',
     subtitle: '회사생활 기초',
+    subtitleEn: 'Workplace Basics',
     objective: '이 시즌을 완료하면 직장 내 기본 커뮤니케이션을 자연스럽게 할 수 있고, 모르는 것을 물어보고 실수를 수습하는 영어 표현을 체득하며, 비즈니스 이메일의 기본 형식을 이해할 수 있습니다.',
+    objectiveEn: "By completing this season, you'll communicate naturally in the workplace, practice asking for help and recovering from mistakes in English, and understand the basics of business email structure.",
     episodeCount: 7,
     badge: { emoji: '🏢', name: 'Office Starter' },
   },
   {
     season: 2,
     title: '바이어 발굴',
+    titleEn: 'Buyer Prospecting',
     subtitle: '해외 시장 탐색',
+    subtitleEn: 'Exploring Overseas Markets',
     objective: 'KOTRA와 LinkedIn을 활용해 유럽·미주 바이어를 직접 발굴하고, 첫 콜드 이메일을 보낼 수 있는 실력을 기릅니다.',
+    objectiveEn: 'Use KOTRA and LinkedIn to find buyers in Europe and America, and build the skills to send your first cold email.',
     episodeCount: 7,
     badge: { emoji: '🔍', name: 'Buyer Hunter' },
     previewEpisodes: ['KOTRA 데이터베이스 탐색', '바이어 크레딧 검증', '첫 바이어 리스트 완성', '콜드 이메일 작성', '이메일 A/B 테스트', '팔로업 전략', 'Sophie 첫 접촉'],
@@ -50,8 +59,11 @@ export const SEASON_OVERVIEWS: SeasonOverview[] = [
   {
     season: 3,
     title: '첫 미팅과 전시회',
+    titleEn: 'First Meeting & Trade Shows',
     subtitle: '대면 영업 시작',
+    subtitleEn: 'Starting Face-to-Face Sales',
     objective: '화상 미팅과 전시회 현장에서 바이어와 직접 대화하고, 프레젠테이션과 아이스브레이킹 영어를 실전에서 쓸 수 있게 됩니다.',
+    objectiveEn: 'Have direct conversations with buyers in video meetings and at trade shows, and use presentation and icebreaking English in real situations.',
     episodeCount: 7,
     badge: { emoji: '🤝', name: 'First Meeting' },
     previewEpisodes: ['첫 화상 미팅 준비', '미팅 영어 핵심 표현', '전시회 네트워킹', '프레젠테이션 스킬', '바이어 니즈 파악', '미팅 후 팔로업', 'Sophie 첫 미팅'],
@@ -59,8 +71,11 @@ export const SEASON_OVERVIEWS: SeasonOverview[] = [
   {
     season: 4,
     title: '가격 협상과 오퍼',
+    titleEn: 'Price Negotiation & Offers',
     subtitle: '비즈니스 협상',
+    subtitleEn: 'Business Negotiation',
     objective: 'Incoterms·결제 조건·견적서를 실제로 작성하고, 협상에서 관계를 유지하면서 원하는 조건을 얻는 표현을 익힙니다.',
+    objectiveEn: 'Write real Incoterms, payment terms, and quotations, and learn expressions for negotiating while maintaining the relationship.',
     episodeCount: 7,
     badge: { emoji: '💰', name: 'Deal Maker' },
     previewEpisodes: ['Incoterms 완전 정복', '결제 조건 협상', '견적서 작성', '가격 방어 전략', '협상 유연성', '계약 전 체크리스트', 'Sophie 오퍼 협상'],
@@ -68,8 +83,11 @@ export const SEASON_OVERVIEWS: SeasonOverview[] = [
   {
     season: 5,
     title: '계약과 선적',
+    titleEn: 'Contracts & Shipping',
     subtitle: '실무 완성',
+    subtitleEn: 'Completing the Deal',
     objective: '계약서 검토, 선적 서류 관리, 납기 조율을 영어로 처리하고 클레임 발생 시 사과와 해결책을 전달하는 표현을 익힙니다.',
+    objectiveEn: 'Handle contract review, shipping documents, and deadline coordination in English, and learn how to apologize and provide solutions when claims arise.',
     episodeCount: 7,
     badge: { emoji: '📦', name: 'Deal Closed' },
     previewEpisodes: ['계약서 영어 이해', '선적 서류 준비', '납기 관리 커뮤니케이션', '클레임 대응', '사과와 해결책', '배송 문제 수습', 'Sophie 계약 완료'],
@@ -77,8 +95,11 @@ export const SEASON_OVERVIEWS: SeasonOverview[] = [
   {
     season: 6,
     title: '관계 심화',
+    titleEn: 'Deepening Relationships',
     subtitle: '장기 파트너십',
+    subtitleEn: 'Long-term Partnership',
     objective: '대금 수령 후 재오더를 유도하고, 장기 파트너십을 제안하는 고급 영어 표현으로 비즈니스 관계를 심화합니다.',
+    objectiveEn: 'Use advanced expressions to secure reorders after payment and propose long-term partnerships.',
     episodeCount: 7,
     badge: { emoji: '🌟', name: 'Global Partner' },
     previewEpisodes: ['인보이스 관리', '재오더 유도 이메일', '파트너십 제안', '연간 계약 협상', '관계 유지 전략', '추천인 마케팅', 'Sophie 장기 계약'],
@@ -110,11 +131,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     synopsis: 'James가 들뜬 표정으로 사무실 투어. Sarah의 짧은 공식 환영 인사. Min의 긴장한 자기소개. Lisa는 거의 눈길도 안 줌. 박 과장의 짧고 냉담한 한 마디.',
     phases: PHASE_DEFS,
     expressions: [
-      { id: 'ep01-e1', english: "Nice to meet you. I'm [name], new to the team.", korean: '만나서 반갑습니다. 저는 팀에 새로 합류한 [이름]입니다.', context: '첫 자기소개', learned: false, xp: 20 },
-      { id: 'ep01-e2', english: 'Could you show me how this works?', korean: '이게 어떻게 사용되는지 보여주실 수 있나요?', context: '도움 요청', learned: false, xp: 20 },
-      { id: 'ep01-e3', english: 'Thank you so much for your help.', korean: '도움 주셔서 정말 감사드립니다.', context: '감사 표현', learned: false, xp: 20 },
-      { id: 'ep01-e4', english: "I'll get right on it.", korean: '바로 처리하겠습니다.', context: '업무 수락', learned: false, xp: 20 },
-      { id: 'ep01-e5', english: 'Just to confirm — I should finish this by end of day, correct?', korean: '확인차 여쭤보는데요, 오늘 안으로 완료하면 되는 거 맞나요?', context: '업무 확인', learned: false, xp: 20 },
+      { id: 'ep01-e1', english: "Nice to meet you. I'm [name], new to the team.", korean: '만나서 반갑습니다. 저는 팀에 새로 합류한 [이름]입니다.', context: '첫 자기소개', contextEn: 'Self-introduction', usageEn: 'Use when introducing yourself to colleagues for the first time', learned: false, xp: 20 },
+      { id: 'ep01-e2', english: 'Could you show me how this works?', korean: '이게 어떻게 사용되는지 보여주실 수 있나요?', context: '도움 요청', contextEn: 'Asking for help', usageEn: 'Use when asking a colleague to demonstrate or explain something', learned: false, xp: 20 },
+      { id: 'ep01-e3', english: 'Thank you so much for your help.', korean: '도움 주셔서 정말 감사드립니다.', context: '감사 표현', contextEn: 'Expressing thanks', usageEn: 'Use to express genuine gratitude after receiving assistance', learned: false, xp: 20 },
+      { id: 'ep01-e4', english: "I'll get right on it.", korean: '바로 처리하겠습니다.', context: '업무 수락', contextEn: 'Accepting a task', usageEn: 'Use to confirm you are starting a task immediately', learned: false, xp: 20 },
+      { id: 'ep01-e5', english: 'Just to confirm — I should finish this by end of day, correct?', korean: '확인차 여쭤보는데요, 오늘 안으로 완료하면 되는 거 맞나요?', context: '업무 확인', contextEn: 'Confirming task', usageEn: 'Use to verify a deadline or instruction before committing', learned: false, xp: 20 },
     ],
   },
 
@@ -140,11 +161,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep01',
     expressions: [
-      { id: 'ep02-e1', english: "I'm not entirely sure — could you clarify?", korean: '확실하지 않아서요, 확인해 주실 수 있나요?', context: '명확화 요청', learned: false, xp: 20 },
-      { id: 'ep02-e2', english: "I apologize for the mistake. I'll make sure it doesn't happen again.", korean: '실수한 점 사과드립니다. 다시는 이런 일이 없도록 하겠습니다.', context: '실수 사과', learned: false, xp: 20 },
-      { id: 'ep02-e3', english: 'Could I ask you something? I want to make sure I understand correctly.', korean: '여쭤봐도 될까요? 제가 올바르게 이해하고 있는지 확인하고 싶어요.', context: '이해 확인', learned: false, xp: 20 },
-      { id: 'ep02-e4', english: "I might be missing something, but would it be possible to...?", korean: '제가 놓친 부분이 있을 수도 있는데, ...이 가능할까요?', context: '정중한 요청', learned: false, xp: 20 },
-      { id: 'ep02-e5', english: "I'll look into it and get back to you.", korean: '확인해 보고 다시 연락드리겠습니다.', context: '확인 후 답변', learned: false, xp: 20 },
+      { id: 'ep02-e1', english: "I'm not entirely sure — could you clarify?", korean: '확실하지 않아서요, 확인해 주실 수 있나요?', context: '명확화 요청', contextEn: 'Clarification', usageEn: 'Use when asking for clarification politely', learned: false, xp: 20 },
+      { id: 'ep02-e2', english: "I apologize for the mistake. I'll make sure it doesn't happen again.", korean: '실수한 점 사과드립니다. 다시는 이런 일이 없도록 하겠습니다.', context: '실수 사과', contextEn: 'Apologizing', usageEn: 'Use when apologizing formally in a workplace setting', learned: false, xp: 20 },
+      { id: 'ep02-e3', english: 'Could I ask you something? I want to make sure I understand correctly.', korean: '여쭤봐도 될까요? 제가 올바르게 이해하고 있는지 확인하고 싶어요.', context: '이해 확인', contextEn: 'Confirming understanding', usageEn: 'Use when asking a question with polite framing', learned: false, xp: 20 },
+      { id: 'ep02-e4', english: "I might be missing something, but would it be possible to...?", korean: '제가 놓친 부분이 있을 수도 있는데, ...이 가능할까요?', context: '정중한 요청', contextEn: 'Polite request', usageEn: 'Use when making a tentative or indirect request', learned: false, xp: 20 },
+      { id: 'ep02-e5', english: "I'll look into it and get back to you.", korean: '확인해 보고 다시 연락드리겠습니다.', context: '확인 후 답변', contextEn: 'Deferring response', usageEn: 'Use when you need time to check before responding', learned: false, xp: 20 },
     ],
   },
 
@@ -170,11 +191,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep02',
     expressions: [
-      { id: 'ep03-e1', english: "I'd like to report on the progress of [task].", korean: '[업무] 진행 상황을 보고드리겠습니다.', context: '진행 보고', learned: false, xp: 20 },
-      { id: 'ep03-e2', english: 'Would it be alright if I asked for your feedback on this?', korean: '이 부분에 대한 피드백을 주실 수 있을까요?', context: '피드백 요청', learned: false, xp: 20 },
-      { id: 'ep03-e3', english: "I've completed the first draft — please let me know if any changes are needed.", korean: '초안을 완성했습니다. 수정이 필요하면 말씀해 주세요.', context: '초안 제출', learned: false, xp: 20 },
-      { id: 'ep03-e4', english: 'I was wondering if there is a better approach to this.', korean: '더 좋은 방법이 있는지 생각해 봤는데요.', context: '방법 탐색', learned: false, xp: 20 },
-      { id: 'ep03-e5', english: "I'll have it ready by [deadline].", korean: '[마감]까지 준비해 드리겠습니다.', context: '마감 약속', learned: false, xp: 20 },
+      { id: 'ep03-e1', english: "I'd like to report on the progress of [task].", korean: '[업무] 진행 상황을 보고드리겠습니다.', context: '진행 보고', contextEn: 'Progress update', usageEn: 'Use when updating your manager on the status of a task', learned: false, xp: 20 },
+      { id: 'ep03-e2', english: 'Would it be alright if I asked for your feedback on this?', korean: '이 부분에 대한 피드백을 주실 수 있을까요?', context: '피드백 요청', contextEn: 'Requesting feedback', usageEn: 'Use when asking a senior colleague to review your work', learned: false, xp: 20 },
+      { id: 'ep03-e3', english: "I've completed the first draft — please let me know if any changes are needed.", korean: '초안을 완성했습니다. 수정이 필요하면 말씀해 주세요.', context: '초안 제출', contextEn: 'Submitting draft', usageEn: 'Use when sharing work-in-progress for review', learned: false, xp: 20 },
+      { id: 'ep03-e4', english: 'I was wondering if there is a better approach to this.', korean: '더 좋은 방법이 있는지 생각해 봤는데요.', context: '방법 탐색', contextEn: 'Exploring options', usageEn: 'Use to diplomatically question the current approach', learned: false, xp: 20 },
+      { id: 'ep03-e5', english: "I'll have it ready by [deadline].", korean: '[마감]까지 준비해 드리겠습니다.', context: '마감 약속', contextEn: 'Deadline commitment', usageEn: 'Use when confirming a delivery timeline to your manager', learned: false, xp: 20 },
     ],
   },
 
@@ -200,11 +221,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep03',
     expressions: [
-      { id: 'ep04-e1', english: "I understand you're very busy, but could you help me with...?", korean: '많이 바쁘신 건 알지만, ...에 도움을 받을 수 있을까요?', context: '협조 요청', learned: false, xp: 20 },
-      { id: 'ep04-e2', english: 'This is time-sensitive — could you give me an ETA?', korean: '시간이 촉박한 사안인데, 언제쯤 가능하실까요?', context: '시간 조율', learned: false, xp: 20 },
-      { id: 'ep04-e3', english: 'I really appreciate your help on this.', korean: '이 건 도와주셔서 정말 감사드립니다.', context: '진심 어린 감사', learned: false, xp: 20 },
-      { id: 'ep04-e4', english: 'Would you be available for a quick chat about...?', korean: '...에 대해 잠깐 이야기 나눌 시간이 있으실까요?', context: '미팅 제안', learned: false, xp: 20 },
-      { id: 'ep04-e5', english: "I'll make sure to return the favor.", korean: '꼭 보답할게요.', context: '호의 약속', learned: false, xp: 20 },
+      { id: 'ep04-e1', english: "I understand you're very busy, but could you help me with...?", korean: '많이 바쁘신 건 알지만, ...에 도움을 받을 수 있을까요?', context: '협조 요청', contextEn: 'Asking for help', usageEn: 'Use when requesting help from a busy colleague diplomatically', learned: false, xp: 20 },
+      { id: 'ep04-e2', english: 'This is time-sensitive — could you give me an ETA?', korean: '시간이 촉박한 사안인데, 언제쯤 가능하실까요?', context: '시간 조율', contextEn: 'Scheduling', usageEn: 'Use when you urgently need to know when something will be ready', learned: false, xp: 20 },
+      { id: 'ep04-e3', english: 'I really appreciate your help on this.', korean: '이 건 도와주셔서 정말 감사드립니다.', context: '진심 어린 감사', contextEn: 'Expressing thanks', usageEn: 'Use to sincerely thank a colleague after they go out of their way', learned: false, xp: 20 },
+      { id: 'ep04-e4', english: 'Would you be available for a quick chat about...?', korean: '...에 대해 잠깐 이야기 나눌 시간이 있으실까요?', context: '미팅 제안', contextEn: 'Suggesting a meeting', usageEn: 'Use when proposing a brief, informal conversation', learned: false, xp: 20 },
+      { id: 'ep04-e5', english: "I'll make sure to return the favor.", korean: '꼭 보답할게요.', context: '호의 약속', contextEn: 'Offering reciprocity', usageEn: "Use to promise you will repay a colleague's kindness in the future", learned: false, xp: 20 },
     ],
   },
 
@@ -230,11 +251,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep04',
     expressions: [
-      { id: 'ep05-e1', english: 'I am writing to inquire about [topic].', korean: '[주제]에 대해 문의드리고자 연락드립니다.', context: '정보 요청 이메일', learned: false, xp: 20 },
-      { id: 'ep05-e2', english: 'I wanted to follow up on our previous conversation regarding [topic].', korean: '[주제]에 대한 이전 대화의 후속으로 연락드립니다.', context: '팔로업 이메일', learned: false, xp: 20 },
-      { id: 'ep05-e3', english: 'I sincerely apologize for any inconvenience this may have caused.', korean: '불편을 드린 점 진심으로 사과드립니다.', context: '사과 이메일', learned: false, xp: 20 },
-      { id: 'ep05-e4', english: 'Thank you for taking the time to [action].', korean: '[행동]을 위해 시간 내주셔서 감사합니다.', context: '감사 이메일', learned: false, xp: 20 },
-      { id: 'ep05-e5', english: 'I am writing to update you on the progress of [project].', korean: '[프로젝트] 진행 상황을 업데이트해 드리고자 연락드립니다.', context: '보고 이메일', learned: false, xp: 20 },
+      { id: 'ep05-e1', english: 'I am writing to inquire about [topic].', korean: '[주제]에 대해 문의드리고자 연락드립니다.', context: '정보 요청 이메일', contextEn: 'Inquiry email', usageEn: 'Use as the opening line of a formal inquiry email', learned: false, xp: 20 },
+      { id: 'ep05-e2', english: 'I wanted to follow up on our previous conversation regarding [topic].', korean: '[주제]에 대한 이전 대화의 후속으로 연락드립니다.', context: '팔로업 이메일', contextEn: 'Follow-up email', usageEn: 'Use to reconnect after a prior email or meeting', learned: false, xp: 20 },
+      { id: 'ep05-e3', english: 'I sincerely apologize for any inconvenience this may have caused.', korean: '불편을 드린 점 진심으로 사과드립니다.', context: '사과 이메일', contextEn: 'Apology email', usageEn: 'Use in formal apology emails to clients or partners', learned: false, xp: 20 },
+      { id: 'ep05-e4', english: 'Thank you for taking the time to [action].', korean: '[행동]을 위해 시간 내주셔서 감사합니다.', context: '감사 이메일', contextEn: 'Thank-you email', usageEn: 'Use to open a thank-you email professionally', learned: false, xp: 20 },
+      { id: 'ep05-e5', english: 'I am writing to update you on the progress of [project].', korean: '[프로젝트] 진행 상황을 업데이트해 드리고자 연락드립니다.', context: '보고 이메일', contextEn: 'Report email', usageEn: 'Use to send a progress report email to your manager or client', learned: false, xp: 20 },
     ],
   },
 
@@ -260,11 +281,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep05',
     expressions: [
-      { id: 'ep06-e1', english: "I'd like to add something, if I may.", korean: '한 가지 덧붙여도 될까요?', context: '미팅 의견 추가', learned: false, xp: 20 },
-      { id: 'ep06-e2', english: 'I have some difficult news to share.', korean: '드리기 어려운 소식이 있습니다.', context: '나쁜 소식 전달', learned: false, xp: 20 },
-      { id: 'ep06-e3', english: 'You did a great job on this.', korean: '이 건 정말 잘 하셨어요.', context: '칭찬 표현', learned: false, xp: 20 },
-      { id: 'ep06-e4', english: 'Could we go over the priorities together?', korean: '우선순위를 같이 검토해볼 수 있을까요?', context: '우선순위 조율', learned: false, xp: 20 },
-      { id: 'ep06-e5', english: "I'll have it ready by [time].", korean: '[시간]까지 준비해 드리겠습니다.', context: '일정 약속', learned: false, xp: 20 },
+      { id: 'ep06-e1', english: "I'd like to add something, if I may.", korean: '한 가지 덧붙여도 될까요?', context: '미팅 의견 추가', contextEn: 'Adding to meeting', usageEn: 'Use to politely interject and contribute in a meeting', learned: false, xp: 20 },
+      { id: 'ep06-e2', english: 'I have some difficult news to share.', korean: '드리기 어려운 소식이 있습니다.', context: '나쁜 소식 전달', contextEn: 'Delivering bad news', usageEn: 'Use to introduce bad news in a professional, measured way', learned: false, xp: 20 },
+      { id: 'ep06-e3', english: 'You did a great job on this.', korean: '이 건 정말 잘 하셨어요.', context: '칭찬 표현', contextEn: 'Giving praise', usageEn: "Use to sincerely compliment a colleague's work", learned: false, xp: 20 },
+      { id: 'ep06-e4', english: 'Could we go over the priorities together?', korean: '우선순위를 같이 검토해볼 수 있을까요?', context: '우선순위 조율', contextEn: 'Priority check', usageEn: 'Use when workload needs to be reorganized with your manager', learned: false, xp: 20 },
+      { id: 'ep06-e5', english: "I'll have it ready by [time].", korean: '[시간]까지 준비해 드리겠습니다.', context: '일정 약속', contextEn: 'Confirming schedule', usageEn: 'Use when committing to a specific time-based deadline', learned: false, xp: 20 },
     ],
   },
 
@@ -290,11 +311,11 @@ export const CURRICULUM: CurriculumEpisode[] = [
     phases: PHASE_DEFS,
     unlockRequiresEpisode: 'ep06',
     expressions: [
-      { id: 'ep07-e1', english: 'Thank you for getting back to me, Ms. Beaumont.', korean: '보몽 씨, 회신 주셔서 감사합니다.', context: '회신 감사', learned: false, xp: 20 },
-      { id: 'ep07-e2', english: 'Please find attached our product catalogue and relevant certifications.', korean: '제품 카탈로그와 관련 인증서를 첨부드립니다.', context: '첨부 안내', learned: false, xp: 20 },
-      { id: 'ep07-e3', english: "Should you have any questions after reviewing, I'd be happy to arrange a call at your convenience.", korean: '검토 후 궁금하신 점이 있으시면 편하신 시간에 통화 일정을 잡겠습니다.', context: '다음 단계 제안', learned: false, xp: 20 },
-      { id: 'ep07-e4', english: 'We look forward to the possibility of working together.', korean: '함께 일할 수 있는 가능성을 기대합니다.', context: '관계 유지', learned: false, xp: 20 },
-      { id: 'ep07-e5', english: "I'll follow up in one week if I haven't heard back.", korean: '일주일 후 연락이 없으시면 다시 연락드리겠습니다.', context: '다음 팔로업 예고', learned: false, xp: 20 },
+      { id: 'ep07-e1', english: 'Thank you for getting back to me, Ms. Beaumont.', korean: '보몽 씨, 회신 주셔서 감사합니다.', context: '회신 감사', contextEn: 'Acknowledging reply', usageEn: 'Use to open an email when a buyer or client has responded', learned: false, xp: 20 },
+      { id: 'ep07-e2', english: 'Please find attached our product catalogue and relevant certifications.', korean: '제품 카탈로그와 관련 인증서를 첨부드립니다.', context: '첨부 안내', contextEn: 'Attaching documents', usageEn: 'Use when sending product materials or files via email', learned: false, xp: 20 },
+      { id: 'ep07-e3', english: "Should you have any questions after reviewing, I'd be happy to arrange a call at your convenience.", korean: '검토 후 궁금하신 점이 있으시면 편하신 시간에 통화 일정을 잡겠습니다.', context: '다음 단계 제안', contextEn: 'Proposing next steps', usageEn: 'Use to invite a follow-up call after sending materials', learned: false, xp: 20 },
+      { id: 'ep07-e4', english: 'We look forward to the possibility of working together.', korean: '함께 일할 수 있는 가능성을 기대합니다.', context: '관계 유지', contextEn: 'Maintaining relationship', usageEn: 'Use to close a business development email on a warm note', learned: false, xp: 20 },
+      { id: 'ep07-e5', english: "I'll follow up in one week if I haven't heard back.", korean: '일주일 후 연락이 없으시면 다시 연락드리겠습니다.', context: '다음 팔로업 예고', contextEn: 'Announcing follow-up', usageEn: 'Use to set expectations for your next contact attempt', learned: false, xp: 20 },
     ],
   },
 ]

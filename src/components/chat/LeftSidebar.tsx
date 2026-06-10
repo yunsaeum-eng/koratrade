@@ -204,7 +204,7 @@ export default function LeftSidebar({ view, onViewChange, onOpenProfile, isAfter
                       {npc?.isOnline && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ background: '#256040' }} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate" style={{ color: '#1a1208', fontSize: '13px' }}>{room.name}</div>
+                      <div className="font-medium truncate" style={{ color: '#1a1208', fontSize: '13px' }}>{isEn && room.id === 'dm-park' ? 'Mr. Park' : room.name}</div>
                       {room.lastMessage && <div className="text-xs truncate" style={{ color: '#9c8c6e' }}>{room.lastMessage}</div>}
                     </div>
                     {room.unreadCount > 0 && (

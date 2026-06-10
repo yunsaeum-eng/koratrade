@@ -117,7 +117,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
           userMessage,
           conversationHistory: history,
           episodeId: `s${state.currentEpisode.season ?? 1}ep${String(state.currentEpisode.episode ?? 1).padStart(2, '0')}`,
-          language: lang === 'ko' ? 'korean' : 'english',
+          language: profile?.uiLanguage === 'english' ? 'english' : (lang === 'ko' ? 'korean' : 'english'),
           relationshipLevel: npcRel,
           userProfile: { name: profile?.name ?? '유저' },
           isFirstMessage: !!isFirstMessage,

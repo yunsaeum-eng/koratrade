@@ -2,6 +2,7 @@
 
 import { PHASE_DEFS } from '@/data/curriculum'
 import { clockToStr } from '@/hooks/useGameClock'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface PhaseIndicatorProps {
   currentPhase: number
@@ -10,7 +11,6 @@ interface PhaseIndicatorProps {
   gameClockMinutes: number
 }
 
-// Cumulative game-clock start times for each phase (starting at 09:00 = 540 min)
 const PHASE_START_MINUTES = [540, 600, 720, 870, 960]
 
 export default function PhaseIndicator({
@@ -19,6 +19,7 @@ export default function PhaseIndicator({
   progress,
   gameClockMinutes,
 }: PhaseIndicatorProps) {
+  const { isEn } = useLanguage()
   const activePhase = PHASE_DEFS.find(p => p.id === currentPhase)
   const phaseStartMin = PHASE_START_MINUTES[currentPhase - 1] ?? 540
   const phaseEndMin = phaseStartMin + (activePhase?.clockAdvance ?? 0)
@@ -40,7 +41,6 @@ export default function PhaseIndicator({
 
           return (
             <div key={phase.id} className="flex-1 flex flex-col items-center gap-1">
-              {/* Dot / pill */}
               <div
                 className="w-full h-2 rounded-full transition-all"
                 style={{
@@ -53,7 +53,6 @@ export default function PhaseIndicator({
                     : '#e0d8cc',
                 }}
               />
-              {/* Phase number */}
               <span
                 className="text-[9px] font-semibold tabular-nums"
                 style={{
@@ -77,12 +76,11 @@ export default function PhaseIndicator({
           className="rounded-lg px-2.5 py-2 flex items-start gap-2"
           style={{ background: '#fdf8f0' }}
         >
-          {/* Clock icon */}
           <span className="text-sm mt-0.5" aria-hidden="true">🕐</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-1">
               <span className="text-xs font-semibold truncate" style={{ color: '#8a6530' }}>
-                {activePhase.nameKr}
+                {isEn ? activePhase.name : activePhase.nameKr}
               </span>
               <span
                 className="text-[10px] font-mono shrink-0"
@@ -92,7 +90,9 @@ export default function PhaseIndicator({
               </span>
             </div>
             <div className="text-[10px] mt-0.5 leading-relaxed" style={{ color: '#6b5c3e' }}>
-              {activePhase.name} · {activePhase.duration}
+              {isEn
+                ? `${activePhase.name} · ${activePhase.duration}`
+                : `${activePhase.nameKr} · ${activePhase.duration}`}
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function PhaseIndicator({
 
       {/* Current game clock */}
       <div className="mt-1.5 text-[10px] text-right" style={{ color: '#9c8c6e' }}>
-        현재 {clockToStr(gameClockMinutes)}
+        {isEn ? clockToStr(gameClockMinutes) : `현재 ${clockToStr(gameClockMinutes)}`}
       </div>
     </div>
   )

@@ -7,6 +7,7 @@ export interface Badge {
   name: string
   nameEn: string
   description: string
+  descriptionEn?: string
   earnedAt?: string
 }
 
@@ -15,7 +16,9 @@ export interface WorkNote {
   type: 'term' | 'expression' | 'mistake' | 'memo'
   content: string
   translation?: string
+  translationEn?: string
   context?: string
+  contextEn?: string
   tag?: string
   addedAt: string
   source: 'auto' | 'manual'
@@ -97,6 +100,8 @@ export interface Expression {
   english: string
   korean: string
   context: string
+  contextEn?: string
+  usageEn?: string
   learned: boolean
   xp: number
 }

@@ -7,6 +7,7 @@ export interface CharacterProfile {
   avatar: string
   nationality: string
   personalityTags: string[]
+  personalityTagsEn: string[]
   basicInfo: string
   unlockSeason: number  // 1 = from start, 2+ = locked until that season clears
   tiers: {
@@ -26,6 +27,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '👨‍💻',
     nationality: '🇰🇷',
     personalityTags: ['친근함', '유머', '영업 감각'],
+    personalityTagsEn: ['Friendly', 'Humor', 'Sales intuition'],
     basicInfo: '해외영업팀의 분위기 메이커. 3년차지만 클라이언트 관계 형성은 팀 내 최고.',
     unlockSeason: 1,
     tiers: {
@@ -43,6 +45,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '👩‍💼',
     nationality: '🇰🇷',
     personalityTags: ['냉철함', '신뢰', '결단력'],
+    personalityTagsEn: ['Cool-headed', 'Trustworthy', 'Decisive'],
     basicInfo: '10년 경력의 팀장. 말수는 적지만 한 마디가 팀 전체 방향을 바꾼다. 신뢰를 얻기 어렵지만, 한번 얻으면 끝까지 간다.',
     unlockSeason: 1,
     tiers: {
@@ -60,6 +63,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '👩‍📋',
     nationality: '🇰🇷',
     personalityTags: ['꼼꼼함', '원칙주의', '신뢰성'],
+    personalityTagsEn: ['Detail-oriented', 'By-the-book', 'Reliable'],
     basicInfo: '무역서류팀의 최고 전문가. B/L 하나에도 세 번씩 검토한다. 틀린 서류를 낸 적이 없다.',
     unlockSeason: 1,
     tiers: {
@@ -77,6 +81,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '🧑‍💼',
     nationality: '🇰🇷',
     personalityTags: ['솔직함', '고민 많음', '영어 능통'],
+    personalityTagsEn: ['Candid', 'Overthinks', 'Fluent in English'],
     basicInfo: '같은 날 입사한 동기. 영어 실력은 팀 내 최상위지만, 실무에서의 감각은 아직 배우는 중.',
     unlockSeason: 1,
     tiers: {
@@ -94,6 +99,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '👨‍🏭',
     nationality: '🇰🇷',
     personalityTags: ['무뚝뚝함', '완벽주의', '베테랑'],
+    personalityTagsEn: ['Blunt', 'Perfectionist', 'Veteran'],
     basicInfo: '생산관리팀의 살아있는 전설. 처음엔 쉽지 않지만, 그의 도움 없이는 납기를 맞출 수 없다.',
     unlockSeason: 1,
     tiers: {
@@ -112,6 +118,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '👩‍💼',
     nationality: '🇺🇸',
     personalityTags: ['빠른 결정', '트렌드 중심', '직설적'],
+    personalityTagsEn: ['Quick decision-maker', 'Trend-focused', 'Direct'],
     basicInfo: '미국 자동차 업계 구매 디렉터. 빠른 결정과 높은 기대치. 마음에 들면 대형 오더가 바로 나온다.',
     unlockSeason: 2,
     tiers: {
@@ -129,6 +136,7 @@ export const CHARACTER_PROFILES: CharacterProfile[] = [
     avatar: '👩‍💼',
     nationality: '🇫🇷',
     personalityTags: ['품질 최우선', '브랜드 스토리', '신중한 결정'],
+    personalityTagsEn: ['Quality-first', 'Brand storytelling', 'Deliberate decision-maker'],
     basicInfo: 'Galeries Lafayette 파리 플래그십 스토어의 스포츠&애슬레저 바이어. 품질과 브랜드 스토리가 최우선. 서두르면 무조건 실패한다.',
     unlockSeason: 2,
     tiers: {

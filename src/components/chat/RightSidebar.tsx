@@ -240,10 +240,12 @@ export default function RightSidebar() {
                   <span className="text-base mt-0.5 flex-shrink-0">{expr.learned ? '✅' : '📖'}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium leading-relaxed" style={{ color: '#1a1208' }}>{expr.english}</div>
-                    <div className="text-xs mt-0.5" style={{ color: '#6b5c3e' }}>{expr.korean}</div>
+                    <div className="text-xs mt-0.5" style={{ color: '#6b5c3e' }}>
+                      {isEn ? (expr.usageEn ?? expr.korean) : expr.korean}
+                    </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <div className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#f2efe9', color: '#9c8c6e' }}>
-                        {expr.context}
+                        {isEn ? (expr.contextEn ?? expr.context) : expr.context}
                       </div>
                       <div
                         className="text-xs px-1.5 py-0.5 rounded"
@@ -271,14 +273,14 @@ export default function RightSidebar() {
         <div className="flex items-center justify-between mb-2">
           <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#9c8c6e' }}>{t('workNotes')}</div>
           <button onClick={() => setShowAllNotes(!showAllNotes)} className="text-xs" style={{ color: '#8a6530' }}>
-            {showAllNotes ? '접기' : '전체 보기'}
+            {showAllNotes ? (isEn ? 'Collapse' : '접기') : (isEn ? 'View all' : '전체 보기')}
           </button>
         </div>
         <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: '#e0d8cc' }}>
           {[
-            { term: 'Incoterms', def: '국제 무역 조건 (FOB, CIF 등)' },
-            { term: 'Cold Email', def: '사전 관계 없이 처음 보내는 영업 이메일' },
-            { term: 'Follow-up', def: '이전 연락에 대한 후속 이메일' },
+            { term: 'Incoterms', def: isEn ? 'FOB, CIF — define who bears shipping cost and risk' : '국제 무역 조건 (FOB, CIF 등)' },
+            { term: 'Cold Email', def: isEn ? 'A sales email sent to someone with no prior relationship' : '사전 관계 없이 처음 보내는 영업 이메일' },
+            { term: 'Follow-up', def: isEn ? 'A message to continue the conversation after prior contact' : '이전 연락에 대한 후속 이메일' },
           ].map((note, i) => (
             <div key={i} className="px-3 py-2 border-b last:border-0" style={{ borderColor: '#e0d8cc' }}>
               <div className="text-xs font-semibold" style={{ color: '#8a6530' }}>{note.term}</div>
@@ -294,7 +296,7 @@ export default function RightSidebar() {
         <div className="font-mono text-2xl font-semibold" style={{ color: '#8a6530' }}>
           {state.xp} <span className="text-sm font-normal">XP</span>
         </div>
-        <div className="text-xs mt-1" style={{ color: '#9c8c6e' }}>Lv.{state.level} · 다음 레벨까지 {200 - (state.xp % 200)} XP</div>
+        <div className="text-xs mt-1" style={{ color: '#9c8c6e' }}>Lv.{state.level} · {isEn ? `${200 - (state.xp % 200)} XP to next level` : `다음 레벨까지 ${200 - (state.xp % 200)} XP`}</div>
       </div>
     </div>
   )

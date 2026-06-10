@@ -3,26 +3,26 @@
 import { useState } from 'react'
 import { useGame } from '@/contexts/GameContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/hooks/useLanguage'
 import { CURRICULUM, EPISODE_EMOJI, SEASON_OVERVIEWS, getCheckedObjectives } from '@/data/curriculum'
 
 // ─── Radar / skill chart ──────────────────────────────────────────────────────
 
 const SKILLS = [
-  { id: 'email',       label: '이메일 작성',      relatedEps: ['ep05', 'ep07'] },
-  { id: 'meeting',     label: '미팅 영어',         relatedEps: ['ep04', 'ep06', 'ep07'] },
-  { id: 'negotiation', label: '협상 표현',         relatedEps: [] },         // S4+
-  { id: 'trade',       label: '무역 실무',         relatedEps: [] },         // S2+
-  { id: 'workplace',   label: '직장 커뮤니케이션', relatedEps: ['ep01', 'ep02', 'ep03', 'ep06'] },
-  { id: 'culture',     label: '비즈니스 문화',     relatedEps: ['ep01', 'ep02', 'ep04'] },
+  { id: 'email',       label: '이메일 작성',      labelEn: 'Email Writing',             relatedEps: ['ep05', 'ep07'] },
+  { id: 'meeting',     label: '미팅 영어',         labelEn: 'Meeting English',           relatedEps: ['ep04', 'ep06', 'ep07'] },
+  { id: 'negotiation', label: '협상 표현',         labelEn: 'Negotiation',               relatedEps: [] },         // S4+
+  { id: 'trade',       label: '무역 실무',         labelEn: 'Trade Practice',            relatedEps: [] },         // S2+
+  { id: 'workplace',   label: '직장 커뮤니케이션', labelEn: 'Workplace Communication',   relatedEps: ['ep01', 'ep02', 'ep03', 'ep06'] },
+  { id: 'culture',     label: '비즈니스 문화',     labelEn: 'Business Culture',          relatedEps: ['ep01', 'ep02', 'ep04'] },
 ]
 
-function RadarChart({ completedIds }: { completedIds: string[] }) {
+function RadarChart({ completedIds, isEn }: { completedIds: string[]; isEn: boolean }) {
   const cx = 120, cy = 120, r = 85
   const n = SKILLS.length
 
-  // Compute skill values 0–1
   const values = SKILLS.map(skill => {
-    if (skill.relatedEps.length === 0) return 0.08  // tiny base for locked skills
+    if (skill.relatedEps.length === 0) return 0.08
     const done = skill.relatedEps.filter(id => completedIds.includes(id)).length
     return Math.max(0.08, done / skill.relatedEps.length)
   })
@@ -34,7 +34,6 @@ function RadarChart({ completedIds }: { completedIds: string[] }) {
     y: cy + r * v * Math.sin(angleOf(i)),
   })
 
-  // Grid hexagons at 25/50/75/100%
   const gridLevels = [0.25, 0.5, 0.75, 1]
   const gridPaths = gridLevels.map(lv =>
     Array.from({ length: n }, (_, i) => {
@@ -43,7 +42,6 @@ function RadarChart({ completedIds }: { completedIds: string[] }) {
     }).join(' ') + ' Z'
   )
 
-  // Data polygon
   const dataPath = values.map((v, i) => {
     const { x, y } = pt(i, v)
     return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
@@ -51,30 +49,25 @@ function RadarChart({ completedIds }: { completedIds: string[] }) {
 
   return (
     <svg viewBox="0 0 240 240" className="w-full max-w-xs mx-auto">
-      {/* Grid */}
       {gridPaths.map((d, i) => (
         <path key={i} d={d} fill="none" stroke="#e0d8cc" strokeWidth={0.8} />
       ))}
-      {/* Axes */}
       {Array.from({ length: n }, (_, i) => {
         const end = pt(i, 1)
         return <line key={i} x1={cx} y1={cy} x2={end.x.toFixed(1)} y2={end.y.toFixed(1)} stroke="#e0d8cc" strokeWidth={0.8} />
       })}
-      {/* Data fill */}
       <path d={dataPath} fill="rgba(138,101,48,0.15)" stroke="#8a6530" strokeWidth={1.5} />
-      {/* Data dots */}
       {values.map((v, i) => {
         const { x, y } = pt(i, v)
         return <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r={3} fill="#8a6530" />
       })}
-      {/* Labels */}
       {SKILLS.map((sk, i) => {
         const { x, y } = pt(i, 1.28)
         const anchor = Math.abs(x - cx) < 5 ? 'middle' : x > cx ? 'start' : 'end'
         return (
           <text key={i} x={x.toFixed(1)} y={y.toFixed(1)} textAnchor={anchor}
             fontSize="8.5" fill="#6b5c3e" fontFamily="Pretendard, sans-serif">
-            {sk.label}
+            {isEn ? sk.labelEn : sk.label}
           </text>
         )
       })}
@@ -85,7 +78,7 @@ function RadarChart({ completedIds }: { completedIds: string[] }) {
 // ─── Episode card ─────────────────────────────────────────────────────────────
 
 function EpisodeCard({
-  ep, status, isCurrent, progress, completedDate, onSelect,
+  ep, status, isCurrent, progress, completedDate, onSelect, isEn,
 }: {
   ep: typeof CURRICULUM[0]
   status: 'completed' | 'active' | 'locked'
@@ -93,6 +86,7 @@ function EpisodeCard({
   progress: number
   completedDate?: string
   onSelect?: () => void
+  isEn: boolean
 }) {
   const [expanded, setExpanded] = useState(false)
   const emoji = EPISODE_EMOJI[ep.id] ?? '📋'
@@ -100,6 +94,9 @@ function EpisodeCard({
 
   const borderColor = status === 'completed' ? '#256040' : isCurrent ? '#8a6530' : '#e0d8cc'
   const bg = status === 'completed' ? '#f0faf4' : isCurrent ? '#faf5ec' : '#fafafa'
+
+  const episodeTitle = isEn ? ep.title : ep.titleKr
+  const expressionCount = ep.expressions.length
 
   return (
     <div className="rounded-2xl border-2 overflow-hidden" style={{ borderColor, background: bg, opacity: status === 'locked' ? 0.55 : 1 }}>
@@ -113,10 +110,12 @@ function EpisodeCard({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-mono font-semibold" style={{ color: '#8a6530' }}>EP{String(ep.episode).padStart(2, '0')}</span>
             <span className="text-sm font-semibold truncate" style={{ color: status === 'locked' ? '#aaa' : '#1a1208' }}>
-              {status === 'locked' ? '???' : ep.titleKr}
+              {status === 'locked' ? '???' : episodeTitle}
             </span>
             {isCurrent && (
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 animate-pulse" style={{ background: '#8a6530', color: 'white' }}>진행중</span>
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 animate-pulse" style={{ background: '#8a6530', color: 'white' }}>
+                {isEn ? 'Active' : '진행중'}
+              </span>
             )}
             {status === 'completed' && (
               <span className="text-xs flex-shrink-0">✅</span>
@@ -124,9 +123,9 @@ function EpisodeCard({
           </div>
           {status !== 'locked' && (
             <div className="flex items-center gap-3 mt-0.5 text-xs" style={{ color: '#9c8c6e' }}>
-              <span>핵심 표현 {ep.expressions.length}개</span>
-              {ep.estimatedMinutes && <span>약 {ep.estimatedMinutes}분</span>}
-              {status === 'active' && progress > 0 && <span>{progress}% 완료</span>}
+              <span>{isEn ? `${expressionCount} expressions` : `핵심 표현 ${expressionCount}개`}</span>
+              {ep.estimatedMinutes && <span>{isEn ? `~${ep.estimatedMinutes} min` : `약 ${ep.estimatedMinutes}분`}</span>}
+              {status === 'active' && progress > 0 && <span>{isEn ? `${progress}% done` : `${progress}% 완료`}</span>}
               {completedDate && <span>{completedDate}</span>}
             </div>
           )}
@@ -139,7 +138,7 @@ function EpisodeCard({
               className="text-xs px-3 py-1.5 rounded-lg font-semibold"
               style={{ background: status === 'completed' ? '#f2efe9' : '#8a6530', color: status === 'completed' ? '#8a6530' : 'white' }}
             >
-              {status === 'completed' ? '다시 하기' : '시작하기'}
+              {status === 'completed' ? (isEn ? 'Replay' : '다시 하기') : (isEn ? 'Start' : '시작하기')}
             </button>
           )}
           {isCurrent && onSelect && (
@@ -148,7 +147,7 @@ function EpisodeCard({
               className="text-xs px-3 py-1.5 rounded-lg font-semibold"
               style={{ background: '#8a6530', color: 'white' }}
             >
-              이어하기
+              {isEn ? 'Continue' : '이어하기'}
             </button>
           )}
           {status !== 'locked' && <span className="text-xs" style={{ color: '#9c8c6e' }}>{expanded ? '▲' : '▼'}</span>}
@@ -170,28 +169,35 @@ function EpisodeCard({
           {/* Objectives */}
           {(ep.objectives ?? []).length > 0 && (
             <div className="mt-3">
-              <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#9c8c6e' }}>학습 목표</div>
+              <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#9c8c6e' }}>
+                {isEn ? 'Objectives' : '학습 목표'}
+              </div>
               <div className="space-y-1">
-                {(ep.objectives ?? []).map((obj, i) => (
-                  <div key={i} className="flex items-start gap-2 text-xs">
-                    <span className="flex-shrink-0 mt-0.5">{i < checkedCount ? '✅' : '☐'}</span>
-                    <span style={{ color: i < checkedCount ? '#256040' : '#1a1208' }}>{obj}</span>
-                  </div>
-                ))}
+                {(ep.objectives ?? []).map((obj, i) => {
+                  const displayObj = isEn ? (ep.objectivesEn?.[i] ?? obj) : obj
+                  return (
+                    <div key={i} className="flex items-start gap-2 text-xs">
+                      <span className="flex-shrink-0 mt-0.5">{i < checkedCount ? '✅' : '☐'}</span>
+                      <span style={{ color: i < checkedCount ? '#256040' : '#1a1208' }}>{displayObj}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
 
           {/* Expressions */}
           <div className="mt-3">
-            <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#9c8c6e' }}>핵심 표현</div>
+            <div className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#9c8c6e' }}>
+              {isEn ? 'Key Expressions' : '핵심 표현'}
+            </div>
             <div className="space-y-1">
               {ep.expressions.map(expr => (
                 <div key={expr.id} className="flex items-start gap-2 text-xs p-2 rounded-lg" style={{ background: '#f2efe9' }}>
                   <span className="flex-shrink-0 mt-0.5">{expr.learned ? '✅' : '📖'}</span>
                   <div>
                     <div className="font-medium" style={{ color: '#1a1208' }}>{expr.english}</div>
-                    <div style={{ color: '#6b5c3e' }}>{expr.korean}</div>
+                    <div style={{ color: '#6b5c3e' }}>{isEn ? (expr.usageEn ?? expr.korean) : expr.korean}</div>
                   </div>
                 </div>
               ))}
@@ -208,6 +214,7 @@ function EpisodeCard({
 export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () => void }) {
   const { state, dispatch } = useGame()
   const { profile } = useAuth()
+  const { isEn } = useLanguage()
   const [activeSeason, setActiveSeason] = useState(1)
   const { completedEpisodeIds, currentEpisodeId, currentSeason, xp, level } = state
 
@@ -221,7 +228,7 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
     <div className="h-full flex flex-col overflow-hidden" style={{ background: 'white' }}>
       <div className="px-5 py-3 border-b flex-shrink-0" style={{ borderColor: '#e0d8cc' }}>
         <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>Learning Progress</div>
-        <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>나의 학습 여정</div>
+        <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{isEn ? 'My learning journey' : '나의 학습 여정'}</div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -229,8 +236,12 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
         {/* ── Overview stats ── */}
         <div className="px-5 py-4 border-b" style={{ borderColor: '#e0d8cc' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9c8c6e' }}>전체 진행도</span>
-            <span className="text-xs font-mono" style={{ color: '#8a6530' }}>{completedS1} / 46 에피소드</span>
+            <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9c8c6e' }}>
+              {isEn ? 'Overall Progress' : '전체 진행도'}
+            </span>
+            <span className="text-xs font-mono" style={{ color: '#8a6530' }}>
+              {completedS1} / 46 {isEn ? 'episodes' : '에피소드'}
+            </span>
           </div>
           <div className="h-2 rounded-full mb-4" style={{ background: '#e0d8cc' }}>
             <div className="h-full rounded-full" style={{ width: `${(completedS1 / 46) * 100}%`, background: '#8a6530' }} />
@@ -238,10 +249,10 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
 
           <div className="grid grid-cols-4 gap-2">
             {[
-              { label: '완료 에피소드', value: completedS1, icon: '✅' },
-              { label: '습득 표현', value: totalExpressions, icon: '📖' },
-              { label: '연속 학습일', value: streak, icon: '🔥' },
-              { label: '획득 뱃지', value: totalBadges, icon: '🏅' },
+              { label: isEn ? 'Episodes Done' : '완료 에피소드', value: completedS1, icon: '✅' },
+              { label: isEn ? 'Expressions' : '습득 표현', value: totalExpressions, icon: '📖' },
+              { label: isEn ? 'Day Streak' : '연속 학습일', value: streak, icon: '🔥' },
+              { label: isEn ? 'Badges' : '획득 뱃지', value: totalBadges, icon: '🏅' },
             ].map(stat => (
               <div key={stat.label} className="text-center py-2.5 rounded-xl border" style={{ borderColor: '#e0d8cc', background: '#faf8f4' }}>
                 <div className="text-lg">{stat.icon}</div>
@@ -254,7 +265,9 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
           <div className="mt-3 px-3 py-2 rounded-xl flex items-center gap-3" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
             <div>
               <div className="text-xs font-semibold" style={{ color: '#8a6530' }}>Lv.{level} · {profile?.title ?? 'Intern'}</div>
-              <div className="text-xs" style={{ color: '#9c8c6e' }}>{xp} XP · 다음 레벨까지 {200 - (xp % 200)} XP</div>
+              <div className="text-xs" style={{ color: '#9c8c6e' }}>
+                {xp} XP · {isEn ? `${200 - (xp % 200)} XP to next level` : `다음 레벨까지 ${200 - (xp % 200)} XP`}
+              </div>
             </div>
             <div className="flex-1 h-1.5 rounded-full" style={{ background: '#e0d8cc' }}>
               <div className="h-full rounded-full" style={{ width: `${(xp % 200) / 200 * 100}%`, background: '#8a6530' }} />
@@ -295,15 +308,17 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
                     <div className="font-semibold" style={{ color: '#1a1208' }}>
-                      Season {season.season} — {season.title}
+                      Season {season.season} — {isEn ? season.titleEn : season.title}
                     </div>
-                    <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>{season.subtitle}</div>
+                    <div className="text-xs mt-0.5" style={{ color: '#9c8c6e' }}>
+                      {isEn ? season.subtitleEn : season.subtitle}
+                    </div>
                   </div>
                   <div className="text-2xl flex-shrink-0">{season.badge.emoji}</div>
                 </div>
 
                 <p className="text-xs leading-relaxed mb-3" style={{ color: '#6b5c3e' }}>
-                  {season.objective}
+                  {isEn ? season.objectiveEn : season.objective}
                 </p>
 
                 {!locked && (
@@ -326,7 +341,7 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
                     </div>
                   ))}
                   <div className="text-center text-xs py-2" style={{ color: '#9c8c6e' }}>
-                    S{season.season - 1} 완료 후 해금
+                    {isEn ? `Unlocks after S${season.season - 1}` : `S${season.season - 1} 완료 후 해금`}
                   </div>
                 </div>
               ) : (
@@ -343,7 +358,8 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
                         status={status}
                         isCurrent={isCurrent}
                         progress={isCurrent ? state.currentEpisode.progress : (isCompleted ? 100 : 0)}
-                        completedDate={isCompleted ? '완료' : undefined}
+                        completedDate={isCompleted ? (isEn ? 'Done' : '완료') : undefined}
+                        isEn={isEn}
                         onSelect={status !== 'locked' ? () => {
                           dispatch({ type: 'SET_EPISODE', episodeId: ep.id })
                           onSelectEpisode?.()
@@ -359,9 +375,13 @@ export default function SeasonMap({ onSelectEpisode }: { onSelectEpisode?: () =>
 
         {/* ── Skill radar ── */}
         <div className="px-5 py-4 border-t" style={{ borderColor: '#e0d8cc' }}>
-          <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#9c8c6e' }}>스킬 레이더</div>
-          <RadarChart completedIds={completedEpisodeIds} />
-          <p className="text-xs text-center mt-2" style={{ color: '#9c8c6e' }}>에피소드를 완료할수록 스킬이 채워집니다</p>
+          <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#9c8c6e' }}>
+            {isEn ? 'Skill Radar' : '스킬 레이더'}
+          </div>
+          <RadarChart completedIds={completedEpisodeIds} isEn={isEn} />
+          <p className="text-xs text-center mt-2" style={{ color: '#9c8c6e' }}>
+            {isEn ? 'Skills grow as you complete more episodes' : '에피소드를 완료할수록 스킬이 채워집니다'}
+          </p>
         </div>
 
       </div>
