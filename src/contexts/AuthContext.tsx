@@ -53,28 +53,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setLoading(false)
     })
 
-    // Only handles changes AFTER initial load (sign-in, sign-out, token refresh).
-    // Skipping INITIAL_SESSION avoids racing with getSession above.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'INITIAL_SESSION') return
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return
       if (session?.user) {
         const u = { uid: session.user.id, email: session.user.email! }
         setUser(u)
-        loadProfile(session.user.id)
-          .then(p => {
-            if (!mounted) return
+        try {
+          const p = await loadProfile(session.user.id)
+          if (mounted) {
             setProfileState(p)
             if (p?.uiLanguage && typeof window !== 'undefined') {
               localStorage.setItem('kt_ui_lang', p.uiLanguage)
               localStorage.setItem('kt_lang', p.uiLanguage === 'english' ? 'en' : 'ko')
             }
-          })
-          .catch(() => { if (mounted) setProfileState(null) })
+          }
+        } catch {
+          if (mounted) setProfileState(null)
+        }
       } else {
-        setUser(null)
-        setProfileState(null)
+        if (mounted) setUser(null)
+        if (mounted) setProfileState(null)
       }
+      if (mounted) setLoading(false)
     })
 
     return () => {
