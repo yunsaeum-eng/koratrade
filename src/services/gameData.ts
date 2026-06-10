@@ -40,7 +40,7 @@ export async function saveProfile(profile: UserProfile, ext?: ExtendedProfile) {
 export async function loadProfile(userId: string): Promise<UserProfile | null> {
   const { data, error } = await supabase.from('profiles').select('id, name, avatar, avatar_bg, goal, english_level, industry, motivation, xp, level, streak_days, last_login_date, ui_language').eq('id', userId).maybeSingle()
   if (error || !data) return null
-  const uiLang = (data.ui_language === 'english' ? 'english' : 'korean') as 'korean' | 'english'
+  const uiLang = data.ui_language === 'english' ? 'english' : (data.ui_language === 'korean' ? 'korean' : undefined)
   return {
     uid: data.id,
     email: '',
@@ -78,6 +78,11 @@ export async function saveExtendedProfile(userId: string, ext: ExtendedProfile) 
     industry: ext.industry,
     motivation: ext.learningReason,
   }).eq('id', userId)
+  if (error) throw error
+}
+
+export async function updateUiLanguage(userId: string, lang: 'korean' | 'english') {
+  const { error } = await supabase.from('profiles').update({ ui_language: lang }).eq('id', userId)
   if (error) throw error
 }
 

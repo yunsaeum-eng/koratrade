@@ -36,9 +36,9 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (loading) return
     if (!user) { router.replace('/'); return }
-    // Returning user with a complete profile — skip onboarding entirely
+    // Returning user with a complete profile — skip full onboarding
     if (profile && profile.name && profile.name.trim() !== '') {
-      router.replace('/main')
+      router.replace(profile.uiLanguage ? '/commute' : '/onboarding/language')
     }
   }, [loading, user, profile, router])
 
