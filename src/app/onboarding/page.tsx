@@ -23,7 +23,12 @@ const GENDER_OPTIONS: { key: 'female' | 'male'; src: string; label: string }[] =
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0)
-  const [uiLang, setUiLang] = useState<UILang>('korean')
+  const [uiLang] = useState<UILang>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('kt_ui_lang') as UILang) || 'korean'
+    }
+    return 'korean'
+  })
   const [name, setName] = useState('')
   const [avatarGender, setAvatarGender] = useState<'female' | 'male' | null>(null)
   const [goal, setGoal] = useState<Goal>('job')
@@ -36,9 +41,8 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (loading) return
     if (!user) { router.replace('/'); return }
-    // Returning user with a complete profile — skip full onboarding
-    if (profile && profile.name && profile.name.trim() !== '') {
-      router.replace(profile.uiLanguage ? '/commute' : '/onboarding/language')
+    if (profile?.name?.trim()) {
+      router.replace('/commute')
     }
   }, [loading, user, profile, router])
 
@@ -46,7 +50,10 @@ export default function OnboardingPage() {
 
   const handleFinish = async () => {
     if (!user || !avatarGender) return
-    const profile: UserProfile = {
+    const storedLang = (typeof window !== 'undefined'
+      ? (localStorage.getItem('kt_ui_lang') as UILang)
+      : null) || 'korean'
+    const newProfile: UserProfile = {
       uid: user.uid,
       email: user.email || '',
       name,
@@ -58,16 +65,13 @@ export default function OnboardingPage() {
       xp: 0,
       title: 'Intern',
       createdAt: new Date(),
-      uiLanguage: uiLang,
+      uiLanguage: storedLang,
     }
     setSaving(true)
     setSaveError('')
-    // Save ui_lang to localStorage immediately
-    localStorage.setItem('kt_ui_lang', uiLang)
-    localStorage.setItem('kt_lang', uiLang === 'english' ? 'en' : 'ko')
     try {
-      await saveProfile(profile)
-      setProfile(profile)
+      await saveProfile(newProfile)
+      setProfile(newProfile)
       setShowOfferLetter(true)
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : '저장에 실패했습니다. 다시 시도해주세요.')
@@ -89,7 +93,9 @@ export default function OnboardingPage() {
     const year = today.getFullYear()
     const month = today.getMonth() + 1
     const day = today.getDate()
-    const formattedDate = isEn ? `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}` : `${year}년 ${month}월 ${day}일`
+    const formattedDate = isEn
+      ? `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+      : `${year}년 ${month}월 ${day}일`
 
     return (
       <div className="min-h-full flex items-center justify-center p-4" style={{ background: '#f2efe9' }}>
@@ -137,7 +143,7 @@ export default function OnboardingPage() {
     )
   }
 
-  const TOTAL_STEPS = 4
+  const TOTAL_STEPS = 3
 
   return (
     <div className="min-h-full flex items-center justify-center p-4" style={{ background: '#f2efe9' }}>
@@ -157,55 +163,8 @@ export default function OnboardingPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border" style={{ borderColor: '#e0d8cc' }}>
-          {/* Step 0: Language */}
+          {/* Step 0: Name */}
           {step === 0 && (
-            <div>
-              <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
-                학습 언어를 선택하세요 / Choose your interface language
-              </h2>
-              <p className="text-xs mb-4" style={{ color: '#9c8c6e' }}>UI, hints, and feedback will be in this language</p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setUiLang('korean')}
-                  className="flex-1 py-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all"
-                  style={{
-                    borderColor: uiLang === 'korean' ? '#8a6530' : '#e0d8cc',
-                    background: uiLang === 'korean' ? '#faf5ec' : 'white',
-                  }}
-                >
-                  <span className="text-3xl">🇰🇷</span>
-                  <div>
-                    <div className="font-semibold text-sm" style={{ color: uiLang === 'korean' ? '#8a6530' : '#1a1208' }}>한국어</div>
-                    <div className="text-xs" style={{ color: '#9c8c6e' }}>Korean UI</div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setUiLang('english')}
-                  className="flex-1 py-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all"
-                  style={{
-                    borderColor: uiLang === 'english' ? '#8a6530' : '#e0d8cc',
-                    background: uiLang === 'english' ? '#faf5ec' : 'white',
-                  }}
-                >
-                  <span className="text-3xl">🌏</span>
-                  <div>
-                    <div className="font-semibold text-sm" style={{ color: uiLang === 'english' ? '#8a6530' : '#1a1208' }}>English</div>
-                    <div className="text-xs" style={{ color: '#9c8c6e' }}>English UI</div>
-                  </div>
-                </button>
-              </div>
-              <button
-                onClick={() => setStep(1)}
-                className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white"
-                style={{ background: '#8a6530' }}
-              >
-                {isEn ? 'Next →' : '다음 →'}
-              </button>
-            </div>
-          )}
-
-          {/* Step 1: Name */}
-          {step === 1 && (
             <div>
               <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
                 {isEn ? "What's your name?" : '이름이 뭐예요?'}
@@ -223,7 +182,7 @@ export default function OnboardingPage() {
                 autoFocus
               />
               <button
-                onClick={() => name.trim() && setStep(2)}
+                onClick={() => name.trim() && setStep(1)}
                 disabled={!name.trim()}
                 className="mt-4 w-full py-3 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
                 style={{ background: '#8a6530' }}
@@ -233,8 +192,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: Character */}
-          {step === 2 && (
+          {/* Step 1: Character */}
+          {step === 1 && (
             <div>
               <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
                 {isEn ? 'Choose your character' : '캐릭터를 선택해요'}
@@ -265,7 +224,7 @@ export default function OnboardingPage() {
               </div>
 
               <button
-                onClick={() => avatarGender && setStep(3)}
+                onClick={() => avatarGender && setStep(2)}
                 disabled={!avatarGender}
                 className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
                 style={{ background: '#8a6530' }}
@@ -275,8 +234,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3: Goal */}
-          {step === 3 && (
+          {/* Step 2: Goal */}
+          {step === 2 && (
             <div>
               <h2 className="font-semibold mb-1" style={{ color: '#1a1208' }}>
                 {isEn ? "What's your learning goal?" : '학습 목표가 뭐예요?'}

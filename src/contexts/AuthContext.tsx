@@ -30,55 +30,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true
 
-    // Single source of truth for initial auth state.
-    // loading stays true until this resolves so no page renders prematurely.
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return
-      if (session?.user) {
-        const u = { uid: session.user.id, email: session.user.email! }
-        setUser(u)
-        const p = await loadProfile(session.user.id).catch(() => null)
-        if (!mounted) return
-        if (p) {
-          setProfileState(p)
-          // Sync ui_language from Supabase to localStorage for useLanguage hook
-          if (p.uiLanguage && typeof window !== 'undefined') {
-            localStorage.setItem('kt_ui_lang', p.uiLanguage)
-            localStorage.setItem('kt_lang', p.uiLanguage === 'english' ? 'en' : 'ko')
-          }
-        }
-      }
+    // Only used to resolve the initial loading state — does NOT restore session.
+    // Refreshing always shows the login page.
+    supabase.auth.getSession().then(() => {
       if (mounted) setLoading(false)
     }).catch(() => {
       if (mounted) setLoading(false)
     })
 
-    // Only handles changes AFTER initial load (sign-in, sign-out, token refresh).
-    // Skipping INITIAL_SESSION avoids racing with getSession above.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'INITIAL_SESSION') return
-      if (!mounted) return
-      if (session?.user) {
-        const u = { uid: session.user.id, email: session.user.email! }
-        setUser(u)
-        loadProfile(session.user.id)
-          .then(p => {
-            if (!mounted) return
-            setProfileState(p)
-            if (p?.uiLanguage && typeof window !== 'undefined') {
-              localStorage.setItem('kt_ui_lang', p.uiLanguage)
-              localStorage.setItem('kt_lang', p.uiLanguage === 'english' ? 'en' : 'ko')
-            }
-            if (mounted) setLoading(false)
-          })
-          .catch(() => {
-            if (mounted) setProfileState(null)
-            if (mounted) setLoading(false)
-          })
-      } else {
-        setUser(null)
-        setProfileState(null)
-        if (mounted) setLoading(false)
+    // Only handle sign-out after initial load.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        if (mounted) {
+          setUser(null)
+          setProfileState(null)
+        }
       }
     })
 
@@ -101,6 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.')
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      const u = { uid: session.user.id, email: session.user.email! }
+      setUser(u)
+      const p = await loadProfile(session.user.id).catch(() => null)
+      setProfileState(p)
+    }
   }
 
   const logout = async () => {
