@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useGame } from '@/contexts/GameContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/hooks/useLanguage'
-import { CURRICULUM, EPISODE_EMOJI } from '@/data/curriculum'
+import { CURRICULUM, EPISODE_EMOJI, SEASON_OVERVIEWS } from '@/data/curriculum'
 import { getMissionsForEpisode } from '@/data/missions'
 import CharacterAvatar from '@/components/ui/CharacterAvatar'
 import { CHARACTER_IMAGES } from '@/config/characters'
@@ -38,7 +38,6 @@ export default function EpisodeSelectionScreen() {
   const router = useRouter()
   const [activeSeason, setActiveSeason] = useState(1)
 
-  const seasons = [...new Set(CURRICULUM.map(e => e.season))].sort()
   const episodesForSeason = CURRICULUM.filter(e => e.season === activeSeason)
 
   const handlePlay = (episodeId: string, status: EpStatus) => {
@@ -76,26 +75,89 @@ export default function EpisodeSelectionScreen() {
       </div>
 
       {/* Season tabs */}
-      <div className="flex-shrink-0 flex gap-1 px-4 pt-3 pb-0">
-        {seasons.map(s => (
-          <button
-            key={s}
-            onClick={() => setActiveSeason(s)}
-            className="px-4 py-2 rounded-t-xl text-sm font-semibold transition-all"
-            style={{
-              background: activeSeason === s ? 'white' : 'transparent',
-              color: activeSeason === s ? '#8a6530' : '#9c8c6e',
-              borderBottom: activeSeason === s ? '2px solid #8a6530' : '2px solid transparent',
-            }}
-          >
-            {t('season')} {s}
-          </button>
-        ))}
+      <div className="flex-shrink-0 flex gap-1 px-4 pt-3 pb-0 overflow-x-auto">
+        {SEASON_OVERVIEWS.map(s => {
+          const isLocked = s.season > 1
+          const isActive = activeSeason === s.season
+          return (
+            <button
+              key={s.season}
+              onClick={() => setActiveSeason(s.season)}
+              className="flex-shrink-0 px-3 py-2 rounded-t-xl text-sm font-semibold transition-all flex items-center gap-1"
+              style={{
+                background: isActive ? 'white' : 'transparent',
+                color: isActive ? (isLocked ? '#9c8c6e' : '#8a6530') : '#9c8c6e',
+                borderBottom: isActive ? `2px solid ${isLocked ? '#9c8c6e' : '#8a6530'}` : '2px solid transparent',
+                opacity: isLocked && !isActive ? 0.7 : 1,
+              }}
+            >
+              {t('season')} {s.season}{isLocked && ' 🔒'}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Episode list */}
+      {/* Episode list / Season preview */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {episodesForSeason.map(ep => {
+        {activeSeason > 1 && (() => {
+          const season = SEASON_OVERVIEWS.find(s => s.season === activeSeason)!
+          return (
+            <>
+              {/* Season header card */}
+              <div className="bg-white rounded-2xl border p-5 mb-4" style={{ borderColor: '#e0d8cc' }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative">
+                    <span className="text-4xl">{season.badge.emoji}</span>
+                    <span className="absolute -top-1 -right-1 text-sm">🔒</span>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#9c8c6e' }}>Season {season.season}</div>
+                    <div className="font-semibold text-sm" style={{ color: '#1a1208' }}>
+                      {lang === 'ko' ? season.title : season.titleEn}
+                    </div>
+                    <div className="text-xs" style={{ color: '#9c8c6e' }}>
+                      {lang === 'ko' ? season.subtitle : season.subtitleEn}
+                    </div>
+                  </div>
+                </div>
+                <div className="border-t pt-3 mt-1" style={{ borderColor: '#f0ece4' }}>
+                  <div className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: '#9c8c6e' }}>
+                    {lang === 'ko' ? '학습 목표' : 'Learning Objective'}
+                  </div>
+                  <p className="text-sm leading-relaxed" style={{ color: '#6b5c3e' }}>
+                    {lang === 'ko' ? season.objective : season.objectiveEn}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-3 text-xs" style={{ color: '#9c8c6e' }}>
+                    <span>{season.badge.emoji}</span>
+                    <span>{lang === 'ko' ? `이 시즌 클리어 시 획득: ${season.badge.name}` : `Clear this season to earn: ${season.badge.name}`}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Episode preview list */}
+              <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#9c8c6e' }}>
+                {lang === 'ko' ? '에피소드 목록' : 'Episodes'}
+              </div>
+              {(season.previewEpisodes ?? []).map((title, idx) => (
+                <div key={idx} className="bg-white rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e0d8cc', opacity: 0.6 }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0" style={{ background: '#f2efe9' }}>🔒</div>
+                  <div>
+                    <span className="text-xs font-mono font-semibold mr-2" style={{ color: '#9c8c6e' }}>EP{String(idx + 1).padStart(2, '0')}</span>
+                    <span className="text-sm" style={{ color: '#6b5c3e' }}>{title}</span>
+                  </div>
+                </div>
+              ))}
+
+              <p className="text-center text-xs mt-3" style={{ color: '#9c8c6e' }}>
+                {lang === 'ko' ? `시즌 ${season.season - 1} 완료 후 해금` : `Complete Season ${season.season - 1} to unlock`}
+              </p>
+              <div className="flex justify-center mt-2">
+                <span className="text-xs px-4 py-2 rounded-full" style={{ background: '#f2efe9', color: '#9c8c6e' }}>🚧 Coming Soon</span>
+              </div>
+            </>
+          )
+        })()}
+        {activeSeason === 1 && episodesForSeason.map(ep => {
           const status = getEpisodeStatus(ep.id, state.completedMissionIds, state.completedEpisodeIds)
           const missions = getMissionsForEpisode(ep.id)
           const completedMissions = missions.filter(m => state.completedMissionIds.includes(m.id))
