@@ -728,15 +728,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
               {gradeResult ? (
                 <div className="flex flex-col gap-3">
-                  {/* Strength */}
-                  <div className="rounded-xl p-3" style={{ background: '#f0faf4', border: '1px solid #b8e0c8' }}>
-                    <div className="text-xs font-semibold mb-1" style={{ color: '#256040' }}>
-                      {lang === 'ko' ? '✓ 잘한 점' : '✓ Strength'}
-                    </div>
-                    <div className="text-sm" style={{ color: '#1a1208' }}>{gradeResult.topStrength}</div>
-                  </div>
-
-                  {/* Corrected email */}
+                  {/* 1. Corrected full email */}
                   {gradeResult.feedback?.correctedEmail && (
                     <div className="rounded-xl p-3" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
                       <div className="text-xs font-semibold mb-1" style={{ color: '#8a6530' }}>
@@ -746,26 +738,33 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                     </div>
                   )}
 
-                  {/* Grammar & errors */}
+                  {/* 2. Grammar & language errors — side-by-side */}
                   {gradeResult.feedback?.errors && gradeResult.feedback.errors.length > 0 && (
                     <div className="rounded-xl p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
                       <div className="text-xs font-semibold mb-2" style={{ color: '#92400e' }}>
                         {lang === 'ko' ? '🔴 문법 & 언어 오류' : '🔴 Grammar & Language Errors'}
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {gradeResult.feedback.errors.map((err, i) => (
-                          <div key={i} className="text-xs">
-                            <span className="line-through opacity-60" style={{ color: '#c0392b' }}>{err.original}</span>
-                            <span style={{ color: '#9c8c6e' }}> → </span>
-                            <span className="font-semibold" style={{ color: '#256040' }}>{err.corrected}</span>
-                            <div className="mt-0.5" style={{ color: '#6b5c3e' }}>{err.explanation}</div>
+                          <div key={i}>
+                            <div className="flex gap-2">
+                              <div className="flex-1">
+                                <div className="text-xs mb-0.5" style={{ color: '#c0392b' }}>{lang === 'ko' ? '원본' : 'Original'}</div>
+                                <div className="text-sm px-2 py-1 rounded" style={{ color: '#c0392b', background: '#fff5f5' }}>{err.original}</div>
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-xs mb-0.5" style={{ color: '#256040' }}>{lang === 'ko' ? '수정본' : 'Corrected'}</div>
+                                <div className="text-sm px-2 py-1 rounded" style={{ color: '#256040', background: '#f0faf4' }}>{err.corrected}</div>
+                              </div>
+                            </div>
+                            <div className="text-xs italic mt-1" style={{ color: '#6b5c3e' }}>{err.explanation}</div>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* Structure feedback */}
+                  {/* 3. Structure feedback */}
                   {gradeResult.feedback?.structureFeedback && (
                     <div className="rounded-xl p-3" style={{ background: 'white', border: '1px solid #e0d8cc' }}>
                       <div className="text-xs font-semibold mb-2" style={{ color: '#9c8c6e' }}>
@@ -780,25 +779,30 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                     </div>
                   )}
 
-                  {/* Vocabulary suggestions */}
+                  {/* 4. Vocabulary suggestions — side-by-side */}
                   {gradeResult.feedback?.vocabularySuggestions && gradeResult.feedback.vocabularySuggestions.length > 0 && (
                     <div className="rounded-xl p-3" style={{ background: '#f0f4ff', border: '1px solid #c7d2fe' }}>
                       <div className="text-xs font-semibold mb-2" style={{ color: '#4338ca' }}>
                         {lang === 'ko' ? '📚 어휘 개선 제안' : '📚 Vocabulary Suggestions'}
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         {gradeResult.feedback.vocabularySuggestions.map((s, i) => (
-                          <div key={i} className="text-xs">
-                            <span className="opacity-60" style={{ color: '#6b5c3e' }}>{s.original}</span>
-                            <span style={{ color: '#9c8c6e' }}> → </span>
-                            <span className="font-semibold" style={{ color: '#4338ca' }}>{s.better}</span>
+                          <div key={i} className="flex gap-2">
+                            <div className="flex-1">
+                              <div className="text-xs mb-0.5" style={{ color: '#9c8c6e' }}>{lang === 'ko' ? '원본' : 'Original'}</div>
+                              <div className="text-sm px-2 py-1 rounded" style={{ color: '#6b5c3e', background: '#f2efe9' }}>{s.original}</div>
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-xs mb-0.5" style={{ color: '#4338ca' }}>{lang === 'ko' ? '더 나은 표현' : 'Better'}</div>
+                              <div className="text-sm px-2 py-1 rounded font-semibold" style={{ color: '#4338ca', background: '#eef2ff' }}>{s.better}</div>
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* Main feedback */}
+                  {/* 5. Overall advice */}
                   <div className="rounded-xl p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
                     <div className="text-xs font-semibold mb-1" style={{ color: '#92400e' }}>
                       {lang === 'ko' ? '💡 종합 코멘트' : '💡 Overall Advice'}
@@ -808,17 +812,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                     </div>
                   </div>
 
-                  {/* Revised opening example */}
-                  {gradeResult.revisedOpening && (
-                    <div className="rounded-xl p-3" style={{ background: '#faf5ec', border: '1px solid #e8d8b8' }}>
-                      <div className="text-xs font-semibold mb-1" style={{ color: '#8a6530' }}>
-                        {lang === 'ko' ? '✏️ 수정 예시 (첫 문장)' : '✏️ Suggested opening'}
-                      </div>
-                      <div className="text-sm italic" style={{ color: '#6b5c3e' }}>"{gradeResult.revisedOpening}"</div>
-                    </div>
-                  )}
-
-                  {/* Detailed breakdown */}
+                  {/* 6. Detailed breakdown */}
                   <div className="grid grid-cols-2 gap-2">
                     {Object.entries(gradeResult.breakdown).map(([key, v]) => (
                       <div key={key} className="rounded-lg p-2" style={{ background: 'white', border: '1px solid #e0d8cc' }}>
@@ -829,7 +823,7 @@ export default function ChatPane({ onBack }: { onBack?: () => void }) {
                     ))}
                   </div>
 
-                  {/* Score reveal — only shown after button click */}
+                  {/* 7. Score reveal — only shown after button click */}
                   {!showScore ? (
                     <button
                       onClick={() => setShowScore(true)}
